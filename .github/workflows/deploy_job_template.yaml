@@ -45,6 +45,7 @@ jobs:
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_NAME }}:role/${{ env.AWS_GITHUB_OIDC_ROLE_NAME }}
+          audience: sts.amazonaws.com
 
       - run: aws sts get-caller-identity
 
