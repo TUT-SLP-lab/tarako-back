@@ -301,7 +301,9 @@ Resources:
     Properties:
       Name: tarako-api
       StageName: dev
-      DefinitionUri: !Sub s3://${S3Bucket}/${S3Dir}/${OpenApiFile}
+      DefinitionUri:
+        Bucket: !Sub ${S3Bucket}
+        Key: !Sub ${S3Dir}/${OpenApiFile}
   
   TarakoTasksTable:
     Type: 'AWS::DynamoDB::Table'
