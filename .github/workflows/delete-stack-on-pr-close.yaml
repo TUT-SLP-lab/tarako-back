@@ -1,0 +1,11 @@
+name: Delete Stack on PR Close
+on:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  delete-stack:
+    uses: .github/workflows/delete-stack-template.yaml
+    with:
+      stack-name: debug-env-${{ github.event.number }}
