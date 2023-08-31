@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    uses: .github/workflows/deploy_job_template.yaml@main
+    uses: ./.github/workflows/deploy_job_template.yaml@main
     with:
       pr-number: dev
       stack-name: dev
