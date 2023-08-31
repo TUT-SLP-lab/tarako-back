@@ -61,20 +61,6 @@ Resources:
             Path: /users/{user_id}
             Method: get
 
-  # UsersPatchUserFunction:
-  #   Type: 'AWS::Serverless::Function'
-  #   Properties:
-  #     CodeUri: app/users/
-  #     Handler: patch.lambda_handler
-  #     Runtime: python3.10
-  #     FunctionName: patch_user-${PrNumber}
-  #     Events:
-  #       UsersPatchUserEvent:
-  #         Type: Api
-  #         Properties:
-  #           Path: /users/{user_id}
-  #           Method: patch
-
   TasksGetFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
@@ -299,7 +285,7 @@ Resources:
   ApiGateway:
     Type: 'AWS::Serverless::Api'
     Properties:
-      Name: tarako-api
+      Name: !Sub tarako-api-${PrNumber}
       StageName: dev
       DefinitionUri:
         Bucket: !Sub ${S3Bucket}
