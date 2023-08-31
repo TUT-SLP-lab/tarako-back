@@ -39,10 +39,10 @@ jobs:
         uses: aws-actions/setup-sam@v2
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_NAME }}:role/${{ secrets.AWS_GITHUB_OIDC_ROLE_NAME }}
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_NAME }}:role/${{ env.AWS_GITHUB_OIDC_ROLE_NAME }}
 
       - run: aws sts get-caller-identity
 
