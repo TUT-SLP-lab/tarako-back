@@ -9,6 +9,16 @@ Globals:
     Runtime: python3.9
 
 Resources:
+
+  ApiGateway:
+    Type: 'AWS::Serverless::Api'
+    Properties:
+      Name: !Sub tarako-api-test
+      StageName: dev
+      DefinitionUri:
+        Bucket: !Sub ${S3Bucket}
+        Key: !Sub ${S3Dir}/${OpenApiFile}
+ 
   GetSectionsFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
@@ -281,16 +291,7 @@ Resources:
           Properties:
             Path: /diary/sections/{section_id}/{diary_id}
             Method: delete
-
-  ApiGateway:
-    Type: 'AWS::Serverless::Api'
-    Properties:
-      Name: !Sub tarako-api-${PrNumber}
-      StageName: dev
-      DefinitionUri:
-        Bucket: !Sub ${S3Bucket}
-        Key: !Sub ${S3Dir}/${OpenApiFile}
-  
+ 
   TarakoTasksTable:
     Type: 'AWS::DynamoDB::Table'
     Properties:
@@ -318,6 +319,7 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 30
         WriteCapacityUnits: 30
+
   TarakoSectionDiaryTable:
     Type: 'AWS::DynamoDB::Table'
     Properties:
