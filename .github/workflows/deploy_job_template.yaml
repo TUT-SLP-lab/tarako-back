@@ -1,0 +1,55 @@
+name: Deploy AWS CloudFormation
+on:
+  workflow_call:
+    inputs:
+      pr-number:
+        description: 'Pull Request Number'
+        required: true
+        type: string
+      stack-name:
+        description: 'Stack Name'
+        required: true
+        type: string
+      s3-dir:
+        description: 'S3 Directory'
+        required: true
+        type: string
+
+env:
+  AWS_REGION: 'ap-northeast-1'
+  AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}}
+  AWS_ACCOUNT_NAME: ${{ secrets.AWS_ACCOUNT_NAME }}
+  AWS_GITHUB_OIDC_ROLE_NAME: ${{ secrets.AWS_GITHUB_OIDC_ROLE_NAME }}
+  OPENAPI_FILE: openapi.yaml
+  PR_NUMBER: ${{ inputs.pr-number }}
+  STACK_NAME: ${{ inputs.stack-name }}
+  S3_OPENAPI_FILE: s3://${AWS_S3_BUCKET}/${{ inputs.s3-dir }}/${OPENAPI_FILE}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup aws-sam
+        uses: aws-actions/setup-sam@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-region: ${AWS_REGION}
+          role-to-assume: arn:aws:iam::${AWS_ACCOUNT_NAME}:role/${AWS_GITHUB_OIDC_ROLE_NAME}
+
+      - run: aws sts get-caller-identity
+
+      - name: Upload to Amazon S3
+        run: aws s3 cp --region ${AWS_REGION} ${OPENAPI_FILE} ${S3_OPENAPI_FILE}
+
+      - name: Build and Deploy Cloud Formation stacks
+        run: |
+          sam build
+          sam deploy --template-file .aws-sam/build/template.yaml --stack-name ${STACK_NAME} --capabilities CAPABILITY_IAM

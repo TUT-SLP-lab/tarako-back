@@ -1,0 +1,365 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: >-
+  Tarako API Resource template
+
+Globals:
+    Function:
+        Timeout: 3
+
+Resources:
+  GetSectionsFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/sections/
+      Handler: get_list.lambda_handler
+      Runtime: python3.10
+      FunctionName: get_sections-${PR_NUMBER}
+      Events:
+        UsersGetEvent:
+          Type: Api
+          Properties:
+            Path: /sections
+            Method: get
+
+  GetSectionEntryFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/sections/
+      Handler: get_entry.lambda_handler
+      Runtime: python3.10
+      FunctionName: get_section_entry-${PR_NUMBER}
+      Events:
+        UsersGetUserEvent:
+          Type: Api
+          Properties:
+            Path: /sections/{section_id}
+            Method: get
+
+  GetUsersFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/users/
+      Handler: get_list.lambda_handler
+      Runtime: python3.10
+      FunctionName: get_users-${PR_NUMBER}
+      Events:
+        UsersGetEvent:
+          Type: Api
+          Properties:
+            Path: /users
+            Method: get
+
+  GetUserEntryFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/users/
+      Handler: get_user.lambda_handler
+      Runtime: python3.10
+      FunctionName: get_user_entry-${PR_NUMBER}
+      Events:
+        UsersGetUserEvent:
+          Type: Api
+          Properties:
+            Path: /users/{user_id}
+            Method: get
+
+  # UsersPatchUserFunction:
+  #   Type: 'AWS::Serverless::Function'
+  #   Properties:
+  #     CodeUri: app/users/
+  #     Handler: patch.lambda_handler
+  #     Runtime: python3.10
+  #     FunctionName: patch_user-${PR_NUMBER}
+  #     Events:
+  #       UsersPatchUserEvent:
+  #         Type: Api
+  #         Properties:
+  #           Path: /users/{user_id}
+  #           Method: patch
+
+  TasksGetFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/tasks/
+      Handler: get_list.lambda_handler
+      Runtime: python3.10
+      FunctionName: get_tasks-${PR_NUMBER}
+      Events:
+        TasksGetEvent:
+          Type: Api
+          Properties:
+            Path: /tasks
+            Method: get
+
+  PostTaskFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/tasks/
+      Handler: post.lambda_handler
+      Runtime: python3.10
+      FunctionName: post_task-${PR_NUMBER}
+      Events:
+        TasksPostEvent:
+          Type: Api
+          Properties:
+            Path: /tasks
+            Method: post
+
+  GetTaskEntryFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/tasks/
+      Handler: get_task.lambda_handler
+      Runtime: python3.10
+      FunctionName: get_task_entry-${PR_NUMBER}
+      Events:
+        TasksGetTaskEvent:
+          Type: Api
+          Properties:
+            Path: /tasks/{task_id}
+            Method: get
+
+  PutTaskEntryFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/tasks/
+      Handler: put.lambda_handler
+      Runtime: python3.10
+      FunctionName: put_task_entry-${PR_NUMBER}
+      Events:
+        TasksPutTaskEvent:
+          Type: Api
+          Properties:
+            Path: /tasks/{task_id}
+            Method: put
+
+  DeleteTaskEntryFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/tasks/
+      Handler: delete.lambda_handler
+      Runtime: python3.10
+      FunctionName: delete_task_entry-${PR_NUMBER}
+      Events:
+        TasksDeleteTaskEvent:
+          Type: Api
+          Properties:
+            Path: /tasks/{task_id}
+            Method: delete
+
+  GetAllUsersDiariesFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/diary/users/
+      Handler: get_all_users_list.lambda_handler
+      Runtime: python3.10
+      FunctionName: get_all_users_diaries-${PR_NUMBER}
+      Events:
+        DiaryUsersGetEvent:
+          Type: Api
+          Properties:
+            Path: /diary/users
+            Method: get
+
+  GetUserDiariesFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/diary/users/
+      Handler: get_single_user_list.lambda_handler
+      Runtime: python3.10
+      FunctionName: get_user_diaries-${PR_NUMBER}
+      Events:
+        DiaryUsersGetUserEvent:
+          Type: Api
+          Properties:
+            Path: /diary/users/{user_id}
+            Method: get
+
+  PostUserDiaryFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/diary/users/
+      Handler: post_entry.lambda_handler
+      Runtime: python3.10
+      FunctionName: post_user_diary-${PR_NUMBER}
+      Events:
+        DiaryUsersPostUserEvent:
+          Type: Api
+          Properties:
+            Path: /diary/users/{user_id}
+            Method: post
+
+  GetUserDiaryEntryFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/diary/users/
+      Handler: get_entry.lambda_handler
+      Runtime: python3.10
+      FunctionName: get_user_diary_entry-${PR_NUMBER}
+      Events:
+        DiaryUsersGetUserDiaryEvent:
+          Type: Api
+          Properties:
+            Path: /diary/users/{user_id}/{diary_id}
+            Method: get
+
+  PutUserDiaryEntryFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/diary/users/
+      Handler: put_entry.lambda_handler
+      Runtime: python3.10
+      FunctionName: put_user_diary_entry-${PR_NUMBER}
+      Events:
+        DiaryUsersPutUserDiaryEvent:
+          Type: Api
+          Properties:
+            Path: /diary/users/{user_id}/{diary_id}
+            Method: put
+
+  DeleteUserDiaryEntryFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/diary/users/
+      Handler: delete_entry.lambda_handler
+      Runtime: python3.10
+      FunctionName: delete_user_diary_entry-${PR_NUMBER}
+      Events:
+        DiaryUsersDeleteUserDiaryEvent:
+          Type: Api
+          Properties:
+            Path: /diary/users/{user_id}/{diary_id}
+            Method: delete
+
+  GetAllSectionsDiariesFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/diary/sections/
+      Handler: get_all_sections_list.lambda_handler
+      Runtime: python3.10
+      FunctionName: get_all_sections_diaries-${PR_NUMBER}
+      Events:
+        DiarySectionsGetEvent:
+          Type: Api
+          Properties:
+            Path: /diary/sections
+            Method: get
+
+  GetSectionDiariesFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/diary/sections/
+      Handler: get_single_section_list.lambda_handler
+      Runtime: python3.10
+      FunctionName: get_section_diaries-${PR_NUMBER}
+      Events:
+        DiarySectionsGetSectionEvent:
+          Type: Api
+          Properties:
+            Path: /diary/sections/{section_id}
+            Method: get
+
+  PostSectionDiaryFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/diary/sections/
+      Handler: post_entry.lambda_handler
+      Runtime: python3.10
+      FunctionName: post_section_diary-${PR_NUMBER}
+      Events:
+        DiarySectionsPostSectionEvent:
+          Type: Api
+          Properties:
+            Path: /diary/sections/{section_id}
+            Method: post
+
+  GetSectionDiaryEntryFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/diary/sections/
+      Handler: get_entry.lambda_handler
+      Runtime: python3.10
+      FunctionName: get_section_diary_entry-${PR_NUMBER}
+      Events:
+        DiarySectionsGetSectionDiaryEvent:
+          Type: Api
+          Properties:
+            Path: /diary/sections/{section_id}/{diary_id}
+            Method: get
+
+  PutSectionDiaryEntryFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/diary/sections/
+      Handler: put_entry.lambda_handler
+      Runtime: python3.10
+      FunctionName: put_section_diary_entry-${PR_NUMBER}
+      Events:
+        DiarySectionsPutSectionDiaryEvent:
+          Type: Api
+          Properties:
+            Path: /diary/sections/{section_id}/{diary_id}
+            Method: put
+
+  DeleteSectionDiaryEntryFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/diary/sections/
+      Handler: delete_entry.lambda_handler
+      Runtime: python3.10
+      FunctionName: delete_section_diary_entry-${PR_NUMBER}
+      Events:
+        DiarySectionsDeleteSectionDiaryEvent:
+          Type: Api
+          Properties:
+            Path: /diary/sections/{section_id}/{diary_id}
+            Method: delete
+
+  ApiGateway:
+    Type: 'AWS::Serverless::Api'
+    Properties:
+      Name: tarako-api
+      StageName: dev
+      DefinitionUri: ${S3_OPENAPI_FILE}
+
+  TarakoTasksTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: TasksTable-${PR_NUMBER}
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 30
+        WriteCapacityUnits: 30
+
+  TarakoUserDiaryTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: UserDiaryTable-${PR_NUMBER}
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 30
+        WriteCapacityUnits: 30
+  TarakoSectionDiaryTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: SectionDiaryTable-${PR_NUMBER}
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 30
+        WriteCapacityUnits: 30

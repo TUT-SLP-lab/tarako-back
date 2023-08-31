@@ -1,0 +1,15 @@
+name: Deploy to staging environment for PR
+on:
+  pull_request:
+    branches:
+      - 'feature/**'
+      - 'features/**'
+
+jobs:
+  deploy:
+    if: contains(github.event.pull_request.labels.*.name, 'StagingDev')
+    uses: .github/workflows/deploy_job_template.yaml
+    with:
+      pr-number: ${{ github.event.pull_request.number }}
+      stack-name: debug-env-${{ github.event.pull_request.number }}
+      s3-dir: PR-${{ env.PR_NUMBER }}
