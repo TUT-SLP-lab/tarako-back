@@ -13,3 +13,7 @@ jobs:
       pr-number: ${{ github.event.pull_request.number }}
       stack-name: debug-env-${{ github.event.pull_request.number }}
       s3-dir: PR-${{ env.PR_NUMBER }}
+    secrets:
+      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      AWS_ACCOUNT_NAME: ${{ secrets.AWS_ACCOUNT_NAME }}
+      AWS_GITHUB_OIDC_ROLE_NAME: ${{ secrets.AWS_GITHUB_OIDC_ROLE_NAME }}

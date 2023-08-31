@@ -14,12 +14,22 @@ on:
         description: 'S3 Directory'
         required: true
         type: string
+    secrets:
+      AWS_S3_BUCKET:
+        description: 'AWS S3 Bucket'
+        required: true
+      AWS_ACCOUNT_NAME:
+        description: 'AWS Account Name'
+        required: true
+      AWS_GITHUB_OIDC_ROLE_NAME:
+        description: 'AWS GitHub OIDC Role Name'
+        required: true
 
 env:
   AWS_REGION: 'ap-northeast-1'
   AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
   AWS_ACCOUNT_NAME: ${{ secrets.AWS_ACCOUNT_NAME }}
-  AWS_GITHUB_OIDC_ROLE_NAME: ${{ secrets.AWS_GITHUB_OIDC_ROLE_NAME }}
+  ROLE_TO_ASSUME: arn:aws:iam::${{ secrets.AWS_ACCOUNT_NAME }}:role/${{ secrets.AWS_GITHUB_OIDC_ROLE_NAME }}
   OPENAPI_FILE: openapi.yaml
   PR_NUMBER: ${{ inputs.pr-number }}
   STACK_NAME: ${{ inputs.stack-name }}
@@ -44,7 +54,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_NAME }}:role/${{ env.AWS_GITHUB_OIDC_ROLE_NAME }}
+          role-to-assume: ${{ env.ROLE_TO_ASSUME }}
           audience: sts.amazonaws.com
 
       - run: aws sts get-caller-identity
