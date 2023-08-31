@@ -17,7 +17,7 @@ on:
 
 env:
   AWS_REGION: 'ap-northeast-1'
-  AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}}
+  AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
   AWS_ACCOUNT_NAME: ${{ secrets.AWS_ACCOUNT_NAME }}
   AWS_GITHUB_OIDC_ROLE_NAME: ${{ secrets.AWS_GITHUB_OIDC_ROLE_NAME }}
   OPENAPI_FILE: openapi.yaml
