@@ -23,7 +23,7 @@ env:
   OPENAPI_FILE: openapi.yaml
   PR_NUMBER: ${{ inputs.pr-number }}
   STACK_NAME: ${{ inputs.stack-name }}
-  S3_OPENAPI_FILE: s3://${AWS_S3_BUCKET}/${{ inputs.s3-dir }}/${OPENAPI_FILE}
+  S3_OPENAPI_FILE: s3://${{ secrets.AWS_S3_BUCKET }}/${{ inputs.s3-dir }}/openapi.yaml
 
 jobs:
   deploy:
@@ -42,7 +42,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_NAME }}:role/${{ env.AWS_GITHUB_OIDC_ROLE_NAME }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_NAME }}:role/${{ secrets.AWS_GITHUB_OIDC_ROLE_NAME }}
 
       - run: aws sts get-caller-identity
 
