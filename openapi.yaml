@@ -413,6 +413,15 @@ components:
           $ref: '#/components/schemas/RequestText'
         file:
           $ref: '#/components/schemas/RequestFile'
+    RequestTextFileTask:
+      type: object
+      properties:
+        task:
+          $ref: '#/components/schemas/RequestText'
+        text:
+          $ref: '#/components/schemas/RequestText'
+        file:
+          $ref: '#/components/schemas/RequestFile'
 
     createdAt:
       # type: string
@@ -785,14 +794,12 @@ components:
                   updated_at: 2020-01-01T00:00:00+09:00
                 email: admin.goro@tarako
                 icon: /admin.png
-
     Task:
       description: タスクの詳細
       content:
         application/json:
           schema:
-            allOf:
-              - $ref: '#/components/schemas/Task'
+            $ref: '#/components/schemas/Task'
     TaskArray:
       description: タスクの一覧
       content:
@@ -865,58 +872,13 @@ components:
       content:
         application/json:
           schema:
-            oneOf:
-              - $ref: '#/components/schemas/RequestText'
-              - $ref: '#/components/schemas/RequestFile'
-              - $ref: '#/components/schemas/RequestTaskAndFile'
-          examples:
-            requestText:
-              value:
-                text: hoge.fugaの単体テストを作成した
-            requestFile:
-              value:
-                file: hoge.docx
-            requestTaskAndFile:
-              value:
-                text: hoge.fugaの単体テストを作成した
-                file: fuga.docx
+            $ref: '#/components/schemas/RequestTaskAndFile'
     UpdateTask:
       required: true
       content:
         application/json:
           schema:
-            oneOf:
-              - $ref: '#/components/schemas/Task'
-              - $ref: '#/components/schemas/RequestText'
-              - $ref: '#/components/schemas/RequestFile'
-              - $ref: '#/components/schemas/RequestTaskAndFile'
-          examples:
-            Task:
-              value:
-                title: 単体テスト作成
-                category: HR
-                tags:
-                  - 人事
-                  - 休暇
-                progresses:
-                  - datetime: 2020-01-01T00:00:00+09:00
-                    percentage: 0
-                  - datetime: 2020-01-02T00:00:00+09:00
-                    percentage: 50
-                  - datetime: 2020-01-03T00:00:00+09:00
-                    percentage: 100
-                serious: 0
-                details: hoge.fugaの単体テストを作成する
-            requestText:
-              value:
-                text: hoge.fugaの単体テストを作成した
-            requestFile:
-              value:
-                file: hoge.docx
-            requestTaskAndFile:
-              value:
-                text: hoge.fugaの単体テストを作成した
-                file: fuga.docx
+            $ref: '#/components/schemas/RequestTextFileTask'
     EditUser:
       required: true
       content:
