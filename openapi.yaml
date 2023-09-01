@@ -73,27 +73,6 @@ paths:
         uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUserEntryFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
-    # # NOTE: 今回は、ユーザー情報を更新しないこととする
-    # patch:
-    #   description: ユーザー情報の更新。管理者を除き、自分の情報のみ更新可能
-    #   operationId: patch-user-entry
-    #   tags:
-    #     - user
-    #   parameters:
-    #     - $ref: '#/components/parameters/user_id_path'
-    #   requestBody:
-    #     $ref: '#/components/requestBodies/EditUser'
-    #   responses:
-    #     '200':
-    #       $ref: '#/components/responses/User'
-    #     '401':
-    #       $ref: '#/components/responses/UnauthorizedError'
-    #     '404':
-    #       $ref: '#/components/responses/404NotFound'
-    #   x-amazon-apigateway-integration:
-    #     uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PatchUserEntryFunction.Arn}/invocations"
-    #     httpMethod: POST
-    #     type: aws_proxy
   /tasks:
     get:
       tags:
@@ -101,7 +80,7 @@ paths:
       operationId: get-tasks
       parameters:
         - $ref: '#/components/parameters/not_assigned'
-        - $ref: '#/components/parameters/user_id_query' # NOTE: 複数ユーザーを受け付ける形にする
+        - $ref: '#/components/parameters/user_id_query'
         - $ref: '#/components/parameters/from_datetime_query'
         - $ref: '#/components/parameters/to_datetime_query'
         - name: status

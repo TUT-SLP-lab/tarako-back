@@ -87,7 +87,7 @@ Resources:
             Path: /users/{user_id}
             Method: get
 
-  TasksGetFunction:
+  GetTasksFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
       CodeUri: app/tasks/
