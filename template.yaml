@@ -11,25 +11,28 @@ Globals:
 Parameters:
   OpenApiFile:
     Type: String
-    Description: OpenAPI file name
-  S3Dir:
-    Type: String
-    Description: S3 directory name
-  S3Bucket:
-    Type: String
-    Description: S3 bucket name
+    Description: 'OpenAPI file name'
+    Default: openapi.yaml
   PrNumber:
     Type: String
-    Description: PR number
+    Description: 'PR number'
+    Default: dev
+  S3Bucket:
+    Type: String
+    Description: 'S3 Bucket name'
+  S3Dir:
+    Type: String
+    Description: 'S3 Directory name'
+    Default: dev
 
 Resources:
   ApiGateway:
     Type: 'AWS::Serverless::Api'
     Properties:
-      Name: tarako-api-test
+      Name: !Sub tarako-api-${PrNumber}
       StageName: dev
       DefinitionUri:
-        Bucket: !Ref S3Bucket
+        Bucket: !Sub ${S3Bucket}
         Key: !Sub ${S3Dir}/${OpenApiFile}
  
   GetSectionsFunction:
@@ -37,7 +40,7 @@ Resources:
     Properties:
       CodeUri: app/sections/
       Handler: get_list.lambda_handler
-      FunctionName: get-sections
+      FunctionName: !Sub get-sections-${PrNumber}
       Events:
         UsersGetEvent:
           Type: Api
@@ -50,7 +53,7 @@ Resources:
     Properties:
       CodeUri: app/sections/
       Handler: get_entry.lambda_handler
-      FunctionName: get-section-entry
+      FunctionName: !Sub get-section-entry-${PrNumber}
       Events:
         UsersGetUserEvent:
           Type: Api
@@ -63,7 +66,7 @@ Resources:
     Properties:
       CodeUri: app/users/
       Handler: get_list.lambda_handler
-      FunctionName: get-users
+      FunctionName: !Sub get-users-${PrNumber}
       Events:
         UsersGetEvent:
           Type: Api
@@ -76,7 +79,7 @@ Resources:
     Properties:
       CodeUri: app/users/
       Handler: get_user.lambda_handler
-      FunctionName: get-user-entry
+      FunctionName: !Sub get-user-entry-${PrNumber}
       Events:
         UsersGetUserEvent:
           Type: Api
@@ -89,7 +92,7 @@ Resources:
     Properties:
       CodeUri: app/tasks/
       Handler: get_list.lambda_handler
-      FunctionName: get-tasks
+      FunctionName: !Sub get-tasks-${PrNumber}
       Events:
         TasksGetEvent:
           Type: Api
@@ -102,7 +105,7 @@ Resources:
     Properties:
       CodeUri: app/tasks/
       Handler: post.lambda_handler
-      FunctionName: post-task
+      FunctionName: !Sub post-task-${PrNumber}
       Events:
         TasksPostEvent:
           Type: Api
@@ -115,7 +118,7 @@ Resources:
     Properties:
       CodeUri: app/tasks/
       Handler: get_task.lambda_handler
-      FunctionName: get-task-entry
+      FunctionName: !Sub get-task-entry-${PrNumber}
       Events:
         TasksGetTaskEvent:
           Type: Api
@@ -128,7 +131,7 @@ Resources:
     Properties:
       CodeUri: app/tasks/
       Handler: put.lambda_handler
-      FunctionName: put-task-entry
+      FunctionName: !Sub put-task-entry-${PrNumber}
       Events:
         TasksPutTaskEvent:
           Type: Api
@@ -141,7 +144,7 @@ Resources:
     Properties:
       CodeUri: app/tasks/
       Handler: delete.lambda_handler
-      FunctionName: delete-task-entry
+      FunctionName: !Sub delete-task-entry-${PrNumber}
       Events:
         TasksDeleteTaskEvent:
           Type: Api
@@ -154,7 +157,7 @@ Resources:
     Properties:
       CodeUri: app/diary/users/
       Handler: get_all_users_list.lambda_handler
-      FunctionName: get-all-users-diaries
+      FunctionName: !Sub get-all-users-diaries-${PrNumber}
       Events:
         DiaryUsersGetEvent:
           Type: Api
@@ -167,7 +170,7 @@ Resources:
     Properties:
       CodeUri: app/diary/users/
       Handler: get_single_user_list.lambda_handler
-      FunctionName: get-user-diaries
+      FunctionName: !Sub get-user-diaries-${PrNumber}
       Events:
         DiaryUsersGetUserEvent:
           Type: Api
@@ -180,7 +183,7 @@ Resources:
     Properties:
       CodeUri: app/diary/users/
       Handler: post_entry.lambda_handler
-      FunctionName: post-user-diary
+      FunctionName: !Sub post-user-diary-${PrNumber}
       Events:
         DiaryUsersPostUserEvent:
           Type: Api
@@ -193,7 +196,7 @@ Resources:
     Properties:
       CodeUri: app/diary/users/
       Handler: get_entry.lambda_handler
-      FunctionName: get-user-diary-entry
+      FunctionName: !Sub get-user-diary-entry-${PrNumber}
       Events:
         DiaryUsersGetUserDiaryEvent:
           Type: Api
@@ -206,7 +209,7 @@ Resources:
     Properties:
       CodeUri: app/diary/users/
       Handler: put_entry.lambda_handler
-      FunctionName: put_user-diary-entry
+      FunctionName: !Sub put_user-diary-entry-${PrNumber}
       Events:
         DiaryUsersPutUserDiaryEvent:
           Type: Api
@@ -219,7 +222,7 @@ Resources:
     Properties:
       CodeUri: app/diary/users/
       Handler: delete_entry.lambda_handler
-      FunctionName: delete-user-diary-entry
+      FunctionName: !Sub delete-user-diary-entry-${PrNumber}
       Events:
         DiaryUsersDeleteUserDiaryEvent:
           Type: Api
@@ -232,7 +235,7 @@ Resources:
     Properties:
       CodeUri: app/diary/sections/
       Handler: get_all_sections_list.lambda_handler
-      FunctionName: get-all-sections-diaries
+      FunctionName: !Sub get-all-sections-diaries-${PrNumber}
       Events:
         DiarySectionsGetEvent:
           Type: Api
@@ -245,7 +248,7 @@ Resources:
     Properties:
       CodeUri: app/diary/sections/
       Handler: get_single_section_list.lambda_handler
-      FunctionName: get-section-diaries
+      FunctionName: !Sub get-section-diaries-${PrNumber}
       Events:
         DiarySectionsGetSectionEvent:
           Type: Api
@@ -258,7 +261,7 @@ Resources:
     Properties:
       CodeUri: app/diary/sections/
       Handler: post_entry.lambda_handler
-      FunctionName: post-section-diary
+      FunctionName: !Sub post-section-diary-${PrNumber}
       Events:
         DiarySectionsPostSectionEvent:
           Type: Api
@@ -271,7 +274,7 @@ Resources:
     Properties:
       CodeUri: app/diary/sections/
       Handler: get_entry.lambda_handler
-      FunctionName: get-section-diary-entry
+      FunctionName: !Sub get-section-diary-entry-${PrNumber}
       Events:
         DiarySectionsGetSectionDiaryEvent:
           Type: Api
@@ -284,7 +287,7 @@ Resources:
     Properties:
       CodeUri: app/diary/sections/
       Handler: put_entry.lambda_handler
-      FunctionName: put-section-diary-entry
+      FunctionName: !Sub put-section-diary-entry-${PrNumber}
       Events:
         DiarySectionsPutSectionDiaryEvent:
           Type: Api
@@ -297,7 +300,7 @@ Resources:
     Properties:
       CodeUri: app/diary/sections/
       Handler: delete_entry.lambda_handler
-      FunctionName: delete-section-diary-entry
+      FunctionName: !Sub delete-section-diary-entry-${PrNumber}
       Events:
         DiarySectionsDeleteSectionDiaryEvent:
           Type: Api
@@ -308,7 +311,7 @@ Resources:
   TarakoTasksTable:
     Type: 'AWS::DynamoDB::Table'
     Properties:
-      TableName: TasksTable
+      TableName: !Sub TasksTable-${PrNumber}
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: S
@@ -322,7 +325,7 @@ Resources:
   TarakoUserDiaryTable:
     Type: 'AWS::DynamoDB::Table'
     Properties:
-      TableName: UserDiaryTable
+      TableName: !Sub UserDiaryTable-${PrNumber}
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: S
@@ -336,7 +339,7 @@ Resources:
   TarakoSectionDiaryTable:
     Type: 'AWS::DynamoDB::Table'
     Properties:
-      TableName: SectionDiaryTable
+      TableName: !Sub SectionDiaryTable-${PrNumber}
       AttributeDefinitions:
         - AttributeName: id
           AttributeType: S
