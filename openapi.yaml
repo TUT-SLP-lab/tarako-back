@@ -15,7 +15,8 @@ paths:
         '200':
           $ref: '#/components/responses/SectionArray'
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetSectionsFunction.Arn}/invocations"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetSectionsFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
   /sections/{section_id}:
@@ -32,7 +33,8 @@ paths:
         '404':
           $ref: '#/components/responses/404NotFound'
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetSectionEntryFunction.Arn}/invocations"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetSectionEntryFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
   /users:
@@ -53,7 +55,8 @@ paths:
         '401':
           $ref: '#/components/responses/UnauthorizedError'
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUsersFunction.Arn}/invocations"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUsersFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
   /users/{user_id}:
@@ -70,7 +73,8 @@ paths:
         '404':
           $ref: '#/components/responses/404NotFound'
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUserEntryFunction.Arn}/invocations"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUserEntryFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
   /tasks:
@@ -96,7 +100,8 @@ paths:
         '200':
           $ref: '#/components/responses/TaskArray'
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetTasksFunction.Arn}/invocations"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetTasksFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
     post:
@@ -120,7 +125,8 @@ paths:
         '208':
           $ref: '#/components/responses/SuggestResponse'
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostTaskFunction.Arn}/invocations"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostTaskFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
 
@@ -138,7 +144,8 @@ paths:
         '404':
           $ref: '#/components/responses/404NotFound'
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetTaskEntryFunction.Arn}/invocations"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetTaskEntryFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
     put:
@@ -156,7 +163,8 @@ paths:
         '404':
           $ref: '#/components/responses/404NotFound'
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutTaskEntryFunction.Arn}/invocations"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutTaskEntryFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
     delete:
@@ -172,7 +180,8 @@ paths:
         '404':
           $ref: '#/components/responses/404NotFound'
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DeleteTaskEntryFunction.Arn}/invocations"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DeleteTaskEntryFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
 
@@ -189,7 +198,8 @@ paths:
         '200':
           $ref: '#/components/responses/UserDiaryArray'
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetAllUsersDiariesFunction.Arn}/invocations"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetAllUsersDiariesFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
   /diary/users/{user_id}:
@@ -208,7 +218,8 @@ paths:
         '404':
           $ref: '#/components/responses/404NotFound'
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUserDiariesFunction.Arn}/invocations"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUserDiariesFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
     post:
@@ -228,7 +239,8 @@ paths:
         '409':
           $ref: '#/components/responses/409Conflict'
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostUserDiaryFunction.Arn}/invocations"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostUserDiaryFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
   /diary/users/{user_id}/{diary_id}:
@@ -246,7 +258,8 @@ paths:
         '404':
           $ref: '#/components/responses/404NotFound'
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUserDiaryEntryFunction.Arn}/invocations"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUserDiaryEntryFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
     put:
@@ -265,7 +278,8 @@ paths:
         '404':
           $ref: '#/components/responses/404NotFound'
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutUserDiaryEntryFunction.Arn}/invocations"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutUserDiaryEntryFunction.Arn}/invocations"
         httpMethod: PUT
         type: aws_proxy
     delete:
@@ -282,7 +296,8 @@ paths:
         '404':
           $ref: '#/components/responses/404NotFound'
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DeleteUserDiaryEntryFunction.Arn}/invocations"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DeleteUserDiaryEntryFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
   /diary/sections:
@@ -298,7 +313,8 @@ paths:
         '200':
           $ref: '#/components/responses/SectionDiaryArray'
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetAllSectionsDiariesFunction.Arn}/invocations"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetAllSectionsDiariesFunction.Arn}/invocations"
         httpMethod: GET
         type: aws_proxy
   /diary/sections/{section_id}:
@@ -317,7 +333,8 @@ paths:
         '404':
           $ref: '#/components/responses/404NotFound'
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetSectionDiariesFunction.Arn}/invocations"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetSectionDiariesFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
     post:
@@ -337,7 +354,8 @@ paths:
         '409':
           $ref: '#/components/responses/409Conflict'
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostSectionDiaryFunction.Arn}/invocations"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostSectionDiaryFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
   /diary/sections/{section_id}/{diary_id}:
@@ -355,7 +373,8 @@ paths:
         '404':
           $ref: '#/components/responses/404NotFound'
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetSectionDiaryEntryFunction.Arn}/invocations"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetSectionDiaryEntryFunction.Arn}/invocations"
         httpMethod: GET
         type: aws_proxy
     put:
@@ -374,7 +393,8 @@ paths:
         '404':
           $ref: '#/components/responses/404NotFound'
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutSectionDiaryEntryFunction.Arn}/invocations"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutSectionDiaryEntryFunction.Arn}/invocations"
         httpMethod: PUT
         type: aws_proxy
     delete:
@@ -391,7 +411,8 @@ paths:
         '404':
           $ref: '#/components/responses/404NotFound'
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DeleteSectionDiaryEntryFunction.Arn}/invocations"
+        uri:
+          Fn::Sub: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DeleteSectionDiaryEntryFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
 
