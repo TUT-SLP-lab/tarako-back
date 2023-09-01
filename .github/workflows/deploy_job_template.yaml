@@ -76,15 +76,15 @@ jobs:
           deployed_url=$(aws cloudformation describe-stacks --stack-name ${STACK_NAME} --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue" --output text)
           echo "::set-output name=deployed_url::$deployed_url"
 
-      - name: Comment on PR
-        if: success() && github.event_name == 'pull_request'
-        uses: JoseThen/comment-pr@v1.1.1
-        with:
-          comment: |
-            Deploy Success!!
-            Deployment URL: ${{ steps.deploy_step.outputs.deployed_url }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Comment on PR
+      #   if: success() && github.event_name == 'pull_request'
+      #   uses: JoseThen/comment-pr@v1.1.1
+      #   with:
+      #     comment: |
+      #       Deploy Success!!
+      #       Deployment URL: ${{ steps.deploy_step.outputs.deployed_url }}
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Notify Slack to Deploy Success
         if: success() && env.SLACK_WEBHOOK != ''
