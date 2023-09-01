@@ -22,4 +22,9 @@ def lambda_handler(event, context):
         "user_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     }
 
-    return {"statusCode": 200, "body": json.dumps(example)}
+    return {"statusCode": 200, "body": json.dumps(example),"headers": {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Credentials": True,
+      "Access-Control-Allow-Methods": "POST",
+      "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
+    }}

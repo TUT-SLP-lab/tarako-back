@@ -27,4 +27,9 @@ def lambda_handler(event, context):
         "updated_at": "2020-01-01T00:00:00+09:00",
     }
 
-    return {"statusCode": 200, "body": json.dumps(example)}
+    return {"statusCode": 200, "body": json.dumps(example),"headers": {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Credentials": True,
+      "Access-Control-Allow-Methods": "POST",
+      "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
+    }}
