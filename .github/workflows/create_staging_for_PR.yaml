@@ -1,9 +1,10 @@
 name: Deploy to staging environment for PR
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
     branches:
-      - 'feature/**'
-      - 'features/**'
+      - "feature/**"
+      - "features/**"
 
 jobs:
   deploy:
