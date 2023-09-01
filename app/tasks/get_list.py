@@ -4,10 +4,10 @@ import json
 def lambda_handler(event, context):
     qsp = event.get("queryStringParameters")
     if qsp:
-       user_id = event.get("queryStringParameters", {}).get("user_id")
-       from_datetime = event.get("queryStringParameters", {}).get("from")
-       to_datetime = event.get("queryStringParameters", {}).get("to")
-       status = event.get("queryStringParameters", {}).get("status")
+        user_id = event.get("queryStringParameters", {}).get("user_id")
+        from_datetime = event.get("queryStringParameters", {}).get("from")
+        to_datetime = event.get("queryStringParameters", {}).get("to")
+        status = event.get("queryStringParameters", {}).get("status")
     else:
         user_id = None
         from_datetime = None
@@ -43,9 +43,12 @@ def lambda_handler(event, context):
         }
     ]
 
-    return {"statusCode": 200, "body": json.dumps(example),"headers": {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Credentials": True,
-      "Access-Control-Allow-Methods": "POST",
-      "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-    }}
+    return {
+        "statusCode": 200,
+        "body": json.dumps(example),
+        "headers": {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
+        },
+    }

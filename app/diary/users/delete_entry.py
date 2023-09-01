@@ -19,10 +19,10 @@ def lambda_handler(event, context):
             {
                 "message": f"Deleted diary with ID: {diary_id} for section with ID: {user_id}"
             }
-        ),"headers": {
+        ),
+        "headers": {
             "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Credentials": True,
-            "Access-Control-Allow-Methods": "POST",
+            "Access-Control-Allow-Methods": "DELETE",
             "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-        }
+        },
     }

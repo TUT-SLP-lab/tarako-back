@@ -54,11 +54,14 @@ def lambda_handler(event, context):
     # exampleからuser_idに一致するユーザーを抽出する.見つからなかったら404を返す
     for user in example:
         if user["user_id"] == user_id:
-            return {"statusCode": 200, "body": json.dumps(user),"headers": {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Credentials": True,
-      "Access-Control-Allow-Methods": "POST",
-      "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-    }}
+            return {
+                "statusCode": 200,
+                "body": json.dumps(user),
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "GET",
+                    "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
+                },
+            }
 
     return {"statusCode": 404, "body": "User not found"}

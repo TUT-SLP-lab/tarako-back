@@ -32,9 +32,12 @@ def lambda_handler(event, context):
         }
     ]
 
-    return {"statusCode": 200, "body": json.dumps(example),"headers": {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Credentials": True,
-      "Access-Control-Allow-Methods": "POST",
-      "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-    }}
+    return {
+        "statusCode": 200,
+        "body": json.dumps(example),
+        "headers": {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
+        },
+    }

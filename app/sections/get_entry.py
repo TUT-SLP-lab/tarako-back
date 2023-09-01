@@ -26,15 +26,21 @@ def lambda_handler(event, context):
     # exampleからsection_idと一致するsectionを取り出す。見つからなければ404を返す
     for section in example:
         if section["section_id"] == int(section_id):
-            return {"statusCode": 200, "body": json.dumps(section),"headers": {
-                        "Access-Control-Allow-Origin": "*",
-                        "Access-Control-Allow-Credentials": True,
-                        "Access-Control-Allow-Methods": "POST",
-                        "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-                    }}
-    return {"statusCode": 404, "body": "Section Not Found","headers": {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Credentials": True,
-      "Access-Control-Allow-Methods": "POST",
-      "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-    }}
+            return {
+                "statusCode": 200,
+                "body": json.dumps(section),
+                "headers": {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Methods": "POST",
+                    "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
+                },
+            }
+    return {
+        "statusCode": 404,
+        "body": "Section Not Found",
+        "headers": {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
+        },
+    }

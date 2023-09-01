@@ -12,10 +12,9 @@ def lambda_handler(event, context):
         "body": json.dumps({"message": f"Deleted task with ID: {task_id}"}),
         "headers": {
             "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Credentials": True,
-            "Access-Control-Allow-Methods": "POST",
+            "Access-Control-Allow-Methods": "DELETE",
             "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-        }
+        },
     }
 
     return response
