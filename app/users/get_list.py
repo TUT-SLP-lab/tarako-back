@@ -26,7 +26,7 @@ def lambda_handler(event, context):
             "icon": "/user_1.png",
         },
         {
-            "id": "595c060d-8417-4ac8-bcb5-c8e733dc64e0",
+            "user_id": "595c060d-8417-4ac8-bcb5-c8e733dc64e0",
             "name": "山田太郎",
             "description": "山田太郎です。よろしくお願いします。趣味は野球です。",
             "section": {
@@ -39,7 +39,7 @@ def lambda_handler(event, context):
             "icon": "/user_2.png",
         },
         {
-            "id": "e08bf311-b1bc-4a38-bac1-374c3ede7203",
+            "user_id": "e08bf311-b1bc-4a38-bac1-374c3ede7203",
             "name": "管理五郎",
             "description": "管理者五郎です。よろしくお願いします。人と関わる仕事が好きです。",
             "section": {
