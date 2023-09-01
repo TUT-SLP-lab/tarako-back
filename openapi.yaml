@@ -277,7 +277,7 @@ paths:
           $ref: '#/components/responses/404NotFound'
       x-amazon-apigateway-integration:
         uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PutUserDiaryEntryFunction.Arn}/invocations"
-        httpMethod: PUT
+        httpMethod: POST
         type: aws_proxy
         passthroughBehavior: "when_no_match"
     delete:
