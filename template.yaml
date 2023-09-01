@@ -47,6 +47,7 @@ Resources:
           Properties:
             Path: /sections
             Method: get
+            RestApiId: !Ref ApiGateway
 
   GetSectionEntryFunction:
     Type: 'AWS::Serverless::Function'
@@ -60,6 +61,7 @@ Resources:
           Properties:
             Path: /sections/{section_id}
             Method: get
+            RestApiId: !Ref ApiGateway
 
   GetUsersFunction:
     Type: 'AWS::Serverless::Function'
@@ -73,6 +75,7 @@ Resources:
           Properties:
             Path: /users
             Method: get
+            RestApiId: !Ref ApiGateway
 
   GetUserEntryFunction:
     Type: 'AWS::Serverless::Function'
@@ -86,6 +89,7 @@ Resources:
           Properties:
             Path: /users/{user_id}
             Method: get
+            RestApiId: !Ref ApiGateway
 
   GetTasksFunction:
     Type: 'AWS::Serverless::Function'
@@ -99,6 +103,7 @@ Resources:
           Properties:
             Path: /tasks
             Method: get
+            RestApiId: !Ref ApiGateway
 
   PostTaskFunction:
     Type: 'AWS::Serverless::Function'
@@ -112,6 +117,7 @@ Resources:
           Properties:
             Path: /tasks
             Method: post
+            RestApiId: !Ref ApiGateway
 
   GetTaskEntryFunction:
     Type: 'AWS::Serverless::Function'
@@ -125,6 +131,7 @@ Resources:
           Properties:
             Path: /tasks/{task_id}
             Method: get
+            RestApiId: !Ref ApiGateway
 
   PutTaskEntryFunction:
     Type: 'AWS::Serverless::Function'
@@ -138,6 +145,7 @@ Resources:
           Properties:
             Path: /tasks/{task_id}
             Method: put
+            RestApiId: !Ref ApiGateway
 
   DeleteTaskEntryFunction:
     Type: 'AWS::Serverless::Function'
@@ -151,6 +159,7 @@ Resources:
           Properties:
             Path: /tasks/{task_id}
             Method: delete
+            RestApiId: !Ref ApiGateway
 
   GetAllUsersDiariesFunction:
     Type: 'AWS::Serverless::Function'
@@ -164,6 +173,7 @@ Resources:
           Properties:
             Path: /diary/users
             Method: get
+            RestApiId: !Ref ApiGateway
 
   GetUserDiariesFunction:
     Type: 'AWS::Serverless::Function'
@@ -177,6 +187,7 @@ Resources:
           Properties:
             Path: /diary/users/{user_id}
             Method: get
+            RestApiId: !Ref ApiGateway
 
   PostUserDiaryFunction:
     Type: 'AWS::Serverless::Function'
@@ -190,6 +201,7 @@ Resources:
           Properties:
             Path: /diary/users/{user_id}
             Method: post
+            RestApiId: !Ref ApiGateway
 
   GetUserDiaryEntryFunction:
     Type: 'AWS::Serverless::Function'
@@ -203,6 +215,7 @@ Resources:
           Properties:
             Path: /diary/users/{user_id}/{diary_id}
             Method: get
+            RestApiId: !Ref ApiGateway
 
   PutUserDiaryEntryFunction:
     Type: 'AWS::Serverless::Function'
@@ -216,6 +229,7 @@ Resources:
           Properties:
             Path: /diary/users/{user_id}/{diary_id}
             Method: put
+            RestApiId: !Ref ApiGateway
 
   DeleteUserDiaryEntryFunction:
     Type: 'AWS::Serverless::Function'
@@ -229,6 +243,7 @@ Resources:
           Properties:
             Path: /diary/users/{user_id}/{diary_id}
             Method: delete
+            RestApiId: !Ref ApiGateway
 
   GetAllSectionsDiariesFunction:
     Type: 'AWS::Serverless::Function'
@@ -242,6 +257,7 @@ Resources:
           Properties:
             Path: /diary/sections
             Method: get
+            RestApiId: !Ref ApiGateway
 
   GetSectionDiariesFunction:
     Type: 'AWS::Serverless::Function'
@@ -255,6 +271,7 @@ Resources:
           Properties:
             Path: /diary/sections/{section_id}
             Method: get
+            RestApiId: !Ref ApiGateway
 
   PostSectionDiaryFunction:
     Type: 'AWS::Serverless::Function'
@@ -268,6 +285,7 @@ Resources:
           Properties:
             Path: /diary/sections/{section_id}
             Method: post
+            RestApiId: !Ref ApiGateway
 
   GetSectionDiaryEntryFunction:
     Type: 'AWS::Serverless::Function'
@@ -281,6 +299,7 @@ Resources:
           Properties:
             Path: /diary/sections/{section_id}/{diary_id}
             Method: get
+            RestApiId: !Ref ApiGateway
 
   PutSectionDiaryEntryFunction:
     Type: 'AWS::Serverless::Function'
@@ -294,6 +313,7 @@ Resources:
           Properties:
             Path: /diary/sections/{section_id}/{diary_id}
             Method: put
+            RestApiId: !Ref ApiGateway
 
   DeleteSectionDiaryEntryFunction:
     Type: 'AWS::Serverless::Function'
@@ -307,6 +327,7 @@ Resources:
           Properties:
             Path: /diary/sections/{section_id}/{diary_id}
             Method: delete
+            RestApiId: !Ref ApiGateway
  
   TarakoTasksTable:
     Type: 'AWS::DynamoDB::Table'
