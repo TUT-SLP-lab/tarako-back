@@ -9,6 +9,7 @@ def lambda_handler(event, context):
         return {"statusCode": 400, "body": "Bad Request: Missing task_id"}
 
     # ここに処理を書く
+    # TODO: task_idで検索をかける
     example = {
         "task_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
         "assigned_by": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
