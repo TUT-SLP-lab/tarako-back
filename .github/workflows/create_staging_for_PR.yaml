@@ -5,6 +5,8 @@ on:
     branches:
       - "feature/**"
       - "features/**"
+      - "fix/**"
+      - "patch/**"
 
 jobs:
   deploy:
