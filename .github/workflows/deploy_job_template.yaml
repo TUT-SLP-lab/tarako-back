@@ -74,7 +74,7 @@ jobs:
           sam build
           sam deploy --template-file .aws-sam/build/template.yaml --stack-name ${STACK_NAME} --capabilities CAPABILITY_IAM --s3-bucket ${AWS_S3_BUCKET} --parameter-overrides OpenApiFile=${OPENAPI_FILE} S3Dir=${S3_DIR} S3Bucket=${AWS_S3_BUCKET} PrNumber=${PR_NUMBER} --no-fail-on-empty-changeset
           deployed_url=$(aws cloudformation describe-stacks --stack-name ${STACK_NAME} --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue" --output text)
-          echo "::set-output name=deployed_url::$deployed_url"
+          echo "deployed_url=$deployed_url" >> $GITHUB_OUTPUT
 
       # - name: Comment on PR
       #   if: success() && github.event_name == 'pull_request'
