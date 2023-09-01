@@ -80,7 +80,7 @@ jobs:
         if: success() && github.event_name == 'pull_request'
         uses: JoseThen/comment-pr@v1.1.1
         with:
-          message: |
+          comment: |
             Deploy Success!!
             Deployment URL: ${{ steps.deploy_step.outputs.deployed_url }}
         env:
