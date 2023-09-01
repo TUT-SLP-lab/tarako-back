@@ -8,6 +8,20 @@ Globals:
     Timeout: 3
     Runtime: python3.10
 
+Parameters:
+  OpenApiFile:
+    Type: String
+    Description: OpenAPI file name
+  S3Dir:
+    Type: String
+    Description: S3 directory name
+  S3Bucket:
+    Type: String
+    Description: S3 bucket name
+  PrNumber:
+    Type: String
+    Description: PR number
+
 Resources:
   ApiGateway:
     Type: 'AWS::Serverless::Api'
