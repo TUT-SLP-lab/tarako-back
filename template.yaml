@@ -31,9 +31,9 @@ Resources:
     Properties:
       Name: !Sub tarako-api-${PrNumber}
       StageName: dev
-      DefinitionUri:
-        Bucket: !Sub ${S3Bucket}
-        Key: !Sub ${S3Dir}/${OpenApiFile}
+      # DefinitionUri:
+      #   Bucket: !Sub ${S3Bucket}
+      #   Key: !Sub ${S3Dir}/${OpenApiFile}
  
   GetSectionsFunction:
     Type: 'AWS::Serverless::Function'
