@@ -54,15 +54,7 @@ Resources:
             Path: /sections
             Method: get
             RestApiId: !Ref ApiGateway
-      Integration:
-        IntegrationResponses:
-        - StatusCode: 200
-          ResponseParameters:
-            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-            method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
-            method.response.header.Access-Control-Allow-Origin: "'*'"
-          ResponseTemplates:
-            application/json: ''
+
   GetSectionEntryFunction:
     Type: 'AWS::Serverless::Function'
     Properties:
