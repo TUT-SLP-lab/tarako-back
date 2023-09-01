@@ -26,3 +26,4 @@ jobs:
       AWS_ACCOUNT_NAME: ${{ secrets.AWS_ACCOUNT_NAME }}
       AWS_GITHUB_OIDC_ROLE_NAME: ${{ secrets.AWS_GITHUB_OIDC_ROLE_NAME }}
       SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
