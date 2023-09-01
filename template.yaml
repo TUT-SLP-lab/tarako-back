@@ -33,7 +33,6 @@ Resources:
       StageName: dev
       Cors:
         AllowOrigin: "'*'"
-        AllowCredentials: true
         AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
         AllowHeaders: "'Content-Type,X-CSRF-TOKEN'"
 
