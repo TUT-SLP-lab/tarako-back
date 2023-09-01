@@ -3,11 +3,6 @@ name: Deploy to staging environment for PR
 on:
   pull_request:
     types: [opened, synchronize, reopened, labeled, unlabeled]
-    # branches:
-    #   - "feature/**"
-    #   - "features/**"
-    #   - "fix/**"
-    #   - "patch/**"
 
 jobs:
   delete_stack:
