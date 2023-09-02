@@ -27,8 +27,7 @@ def lambda_handler(event, context):
     from_date = body.get("from", None)
     to_date = body.get("to", None)
 
-    print(f"{from_date} < date < {to_date}")
-
+    # バリデーション
     if from_date is not None and not isinstance(from_date, str):
         return {"statusCode": 400, "body": "Bad Request: Invalid from_date"}
     if to_date is not None and not isinstance(to_date, str):
@@ -67,8 +66,7 @@ def lambda_handler(event, context):
         response = user_diary_table.query(
             **option,
         )
-        meta = response["ResponseMetadata"]
-        if meta["HTTPStatusCode"] != 200:
+        if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
             return {"statusCode": 500, "body": "DynamoDB Error"}
         user_daily_list += response["Items"]
 
