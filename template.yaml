@@ -451,7 +451,7 @@ Resources:
         - AttributeName: created_at
           AttributeType: S
       KeySchema:
-        - AttributeName: id
+        - AttributeName: task_id
           KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 30
