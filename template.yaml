@@ -582,7 +582,7 @@ Resources:
         - AttributeName: serious
           AttributeType: N
         - AttributeName: completed
-          AttributeType: S
+          AttributeType: BOOL
       KeySchema:
         - AttributeName: task_id
           KeyType: HASH
