@@ -27,9 +27,6 @@ on:
       SLACK_WEBHOOK:
         description: 'Slack Webhook URL'
         required: false
-      TOKEN_GITHUB:
-        description: 'GitHub Token'
-        required: false
 
 env:
   AWS_REGION: 'ap-northeast-1'
@@ -106,10 +103,9 @@ jobs:
 
       - name: Comment on PR
         if: success() && github.event_name == 'pull_request'
-        uses: JoseThen/comment-pr@v1.2.0
+        uses: thollander/actions-comment-pull-request@v2
         with:
-          comment: |-
+          message: |-
             Deploy Success!!
             Deploy URL! ${{ steps.deploy_step.outputs.deployed_url }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+          comment_tag: 'deploy-success'
