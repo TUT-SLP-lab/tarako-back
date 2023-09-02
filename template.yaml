@@ -355,7 +355,7 @@ Resources:
       AttributeDefinitions:
         - AttributeName: diary_id
           AttributeType: S
-        - AttributeName: created_at
+        - AttributeName: date
           AttributeType: S
         - AttributeName: user_id
           AttributeType: S
@@ -381,7 +381,7 @@ Resources:
           KeySchema:
             - AttributeName: user_id
               KeyType: HASH
-            - AttributeName: created_at
+            - AttributeName: date
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
