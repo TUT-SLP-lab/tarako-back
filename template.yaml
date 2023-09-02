@@ -186,6 +186,8 @@ Resources:
       CodeUri: app/diary/users/
       Handler: get_single_user_list.lambda_handler
       FunctionName: !Sub get-user-diaries-${PrNumber}
+      Environment:
+        TABLE_NAME: !Ref TarakoUserDiaryTable
       Events:
         DiaryUsersGetUserEvent:
           Type: Api
@@ -193,7 +195,7 @@ Resources:
             Path: /diary/users/{user_id}
             Method: get
             RestApiId: !Ref ApiGateway
-
+      
   PostUserDiaryFunction:
     Type: "AWS::Serverless::Function"
     Properties:
