@@ -1,4 +1,5 @@
 name: Delete Stack on PR Close
+
 on:
   pull_request:
     types:
@@ -9,3 +10,7 @@ jobs:
     uses: ./.github/workflows/delete-stack-template.yaml
     with:
       stack-name: debug-env-${{ github.event.number }}
+    secrets:
+      AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+      AWS_ACCOUNT_NAME: ${{ secrets.AWS_ACCOUNT_NAME }}
+      AWS_GITHUB_OIDC_ROLE_NAME: ${{ secrets.AWS_GITHUB_OIDC_ROLE_NAME }}
