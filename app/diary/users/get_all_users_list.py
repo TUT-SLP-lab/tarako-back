@@ -3,6 +3,7 @@ import json
 from boto3.dynamodb.conditions import Key
 from table_utils import translate_object, user_diary_table
 
+
 def lambda_handler(event, context):
     qsp = event.get("queryStringParameters")
     if qsp:
@@ -26,30 +27,28 @@ def lambda_handler(event, context):
 
     # get user diary list between from_date and to_date
     user_daily_list = []
+    if from_date is None and to_date is None:
+        option = {"IndexName": "UserIndex"}
+        datetime_range = None
+    else:
+        if from_date is not None and to_date is not None:
+            datetime_range = Key("date").between(from_date, to_date)
+        elif from_date is not None:
+            datetime_range = Key("date").gte(from_date)
+        elif to_date is not None:
+            datetime_range = Key("date").lte(to_date)
+        option = {"IndexName": "UserDateIndex"}
+
+    user_daily_list = []
     for user in user_list:
-        if from_date is None and to_date is None:
-            user_id_key = Key("user_id").eq(user)
-            option = {
-                "IndexName": "UserIndex",
-                "KeyConditionExpression": user_id_key,
-            }
+        user_id_key = Key("user_id").eq(user)
+        if datetime_range is not None:
+            expr = user_id_key & datetime_range
         else:
-            if from_date is not None and to_date is not None:
-                datetime_range = Key("date").between(from_date, to_date)
-            elif from_date is not None:
-                datetime_range = Key("date").gte(from_date)
-            elif to_date is not None:
-                datetime_range = Key("date").lte(to_date)
+            expr = user_id_key
+        option["KeyConditionExpression"] = expr
 
-            user_id_key = Key("user_id").eq(user)
-            option = {
-                "IndexName": "UserDateIndex",
-                "KeyConditionExpression": user_id_key & datetime_range,
-            }
-
-        response = user_diary_table.query(
-            **option,
-        )
+        response = user_diary_table.query(**option)
         if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
             return {"statusCode": 500, "body": "DynamoDB Error"}
         user_daily_list += response["Items"]
