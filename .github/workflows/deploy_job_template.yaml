@@ -86,10 +86,11 @@ jobs:
         uses: rtCamp/action-slack-notify@v2.2.1
         env:
           SLACK_WEBHOOK: ${{ env.SLACK_WEBHOOK }}
-          SLACK_COLOR: '#00FF00'
+          SLACK_COLOR: ${{ job.status }}
           SLACK_ICON: ${{ env.SLACK_ICON }}
           SLACK_USERNAME: ${{ env.SLACK_USERNAME }}
-          SLACK_TITLE: "#${{ env.PR_NUMBER }} デプロイ成功! ${{ steps.deploy_step.outputs.deployed_url }}"
+          SLACK_TITLE: "#${{ env.PR_NUMBER }} デプロイ成功!"
+          SLACK_TEXT: "${{ steps.deploy_step.outputs.deployed_url }}"
           SLACK_FOOTER: ${{ github.event.pull_request.html_url }}
 
       - name: Notify Slack to Deploy Failure
@@ -97,7 +98,7 @@ jobs:
         uses: rtCamp/action-slack-notify@v2.2.1
         env:
           SLACK_WEBHOOK: ${{ env.SLACK_WEBHOOK }}
-          SLACK_COLOR: '#FF0000'
+          SLACK_COLOR: ${{ job.status }}
           SLACK_ICON: ${{ env.SLACK_ICON }}
           SLACK_USERNAME: ${{ env.SLACK_USERNAME }}
           SLACK_TITLE: "#${{ env.PR_NUMBER }} デプロイ失敗!"
