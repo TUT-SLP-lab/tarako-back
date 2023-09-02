@@ -14,7 +14,7 @@ def lambda_handler(event, context):
         {
             "section_id": 1,
             "name": "管理課",
-            "icon_name": "section_1",
+            "icon": "section_1",
             "created_at": "2020-01-01T00:00:00+09:00",
             "updated_at": "2020-01-01T00:00:00+09:00",
         },
