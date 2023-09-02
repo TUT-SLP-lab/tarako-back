@@ -339,10 +339,10 @@ Resources:
     Properties:
       TableName: !Sub TasksTable-${PrNumber}
       AttributeDefinitions:
-        - AttributeName: id
+        - AttributeName: task_id
           AttributeType: S
       KeySchema:
-        - AttributeName: id
+        - AttributeName: task_id
           KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 30
@@ -405,11 +405,11 @@ Resources:
     Properties:
       TableName: !Sub SectionDiaryTable-${PrNumber}
       AttributeDefinitions:
-        - AttributeName: id
+        - AttributeName: diary_id
           AttributeType: S
 
       KeySchema:
-        - AttributeName: id
+        - AttributeName: diary_id
           KeyType: HASH
 
       ProvisionedThroughput:
