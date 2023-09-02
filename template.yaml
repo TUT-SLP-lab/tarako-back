@@ -35,7 +35,6 @@ Resources:
         AllowOrigin: "'*'"
         AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
         AllowHeaders: "'Content-Type,X-CSRF-TOKEN'"
-
       # DefinitionUri:
       #   Bucket: !Sub ${S3Bucket}
       #   Key: !Sub ${S3Dir}/${OpenApiFile}
@@ -67,6 +66,34 @@ Resources:
             Path: /sections/{section_id}
             Method: get
             RestApiId: !Ref ApiGateway
+  
+  PostSectionEntryFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/sections/
+      Handler: post.lambda_handler
+      FunctionName: !Sub post-section-entry-${PrNumber}
+      Events:
+        UsersPostUserEvent:
+          Type: Api
+          Properties:
+            Path: /sections
+            Method: post
+            RestApiId: !Ref ApiGateway
+    
+  PutSectionEntryFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/sections/
+      Handler: put.lambda_handler
+      FunctionName: !Sub put-section-entry-${PrNumber}
+      Events:
+        UsersPutUserEvent:
+          Type: Api
+          Properties:
+            Path: /sections/{section_id}
+            Method: put
+            RestApiId: !Ref ApiGateway
 
   GetUsersFunction:
     Type: 'AWS::Serverless::Function'
@@ -94,6 +121,34 @@ Resources:
           Properties:
             Path: /users/{user_id}
             Method: get
+            RestApiId: !Ref ApiGateway
+  
+  PostUserEntryFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/users/
+      Handler: post.lambda_handler
+      FunctionName: !Sub post-user-entry-${PrNumber}
+      Events:
+        UsersPostUserEvent:
+          Type: Api
+          Properties:
+            Path: /users
+            Method: post
+            RestApiId: !Ref ApiGateway
+
+  PutUserEntryFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: app/users/
+      Handler: put.lambda_handler
+      FunctionName: !Sub put-user-entry-${PrNumber}
+      Events:
+        UsersPutUserEvent:
+          Type: Api
+          Properties:
+            Path: /users/{user_id}
+            Method: put
             RestApiId: !Ref ApiGateway
 
   GetTasksFunction:
@@ -333,13 +388,67 @@ Resources:
             Path: /diary/sections/{section_id}/{diary_id}
             Method: delete
             RestApiId: !Ref ApiGateway
- 
+
+  TarakoSectionTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: !Sub SectionTable-${PrNumber}
+      AttributeDefinitions:
+        - AttributeName: section_id
+          AttributeType: N
+      KeySchema:
+        - AttributeName: section_id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 30
+        WriteCapacityUnits: 30
+  
+  TarakoUserTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: !Sub UserTable-${PrNumber}
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+        - AttributeName: section_id
+          AttributeType: N
+      KeySchema:
+        - AttributeName: user_id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 30
+        WriteCapacityUnits: 30
+      GlobalSecondaryIndexes:
+        - IndexName: SectionIndex
+          KeySchema:
+            - AttributeName: section_id
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 30
+            WriteCapacityUnits: 30
+
   TarakoTasksTable:
     Type: 'AWS::DynamoDB::Table'
     Properties:
       TableName: !Sub TasksTable-${PrNumber}
       AttributeDefinitions:
-        - AttributeName: id
+        - AttributeName: task_id
+          AttributeType: S
+        - AttributeName: assigned_to
+          AttributeType: S
+        - AttributeName: section_id
+          AttributeType: N
+        - AttributeName: category
+          AttributeType: S
+        - AttributeName: serious
+          AttributeType: N
+        - AttributeName: completed
+          AttributeType: S
+        - AttributeName: progresses
+          AttributeType: S
+        - AttributeName: created_at
           AttributeType: S
       KeySchema:
         - AttributeName: id
@@ -347,6 +456,67 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 30
         WriteCapacityUnits: 30
+      GlobalSecondaryIndexes:
+        - IndexName: AssignedToIndex
+          KeySchema:
+            - AttributeName: assigned_to
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: CategoryIndex
+          KeySchema:
+            - AttributeName: category
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: CompletedIndex
+          KeySchema:
+            - AttributeName: completed
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: SectionCompletedIndex
+          KeySchema:
+            - AttributeName: section_id
+              KeyType: HASH
+            - AttributeName: completed
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: UserSeriousIndex
+          KeySchema:
+            - AttributeName: assigned_to
+              KeyType: HASH
+            - AttributeName: serious
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: SectionSeriousIndex
+          KeySchema:
+            - AttributeName: section_id
+              KeyType: HASH
+            - AttributeName: serious
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
 
   TarakoUserDiaryTable:
     Type: 'AWS::DynamoDB::Table'
