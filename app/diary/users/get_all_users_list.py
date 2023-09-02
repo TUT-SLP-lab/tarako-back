@@ -19,6 +19,7 @@ def decimal_to_int(obj):
 
 def lambda_handler(event, context):
     body = event.get("body", "{}")
+    body = "{}" if body is None else body
     try:
         body = json.loads(body)
     except json.JSONDecodeError:
@@ -43,12 +44,26 @@ def lambda_handler(event, context):
     # get user diary list between from_date and to_date
     user_daily_list = []
     for user in user_list:
-        user_id_key = Key("user_id").eq(user)
-        datetime_between = Key("date").between(from_date, to_date)
-        option = {
-            "IndexName": "UserDateIndex",
-            "KeyConditionExpression": user_id_key & datetime_between,
-        }
+        if from_date is None and to_date is None:
+            user_id_key = Key("user_id").eq(user)
+            option = {
+                "IndexName": "UserIndex",
+                "KeyConditionExpression": user_id_key,
+            }
+        else:
+            if from_date is not None and to_date is not None:
+                datetime_range = Key("date").between(from_date, to_date)
+            elif from_date is not None:
+                datetime_range = Key("date").gte(from_date)
+            elif to_date is not None:
+                datetime_range = Key("date").lte(to_date)
+
+            user_id_key = Key("user_id").eq(user)
+            option = {
+                "IndexName": "UserDateIndex",
+                "KeyConditionExpression": user_id_key & datetime_range,
+            }
+
         response = user_diary_table.query(
             **option,
         )
