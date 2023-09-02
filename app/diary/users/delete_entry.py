@@ -21,6 +21,9 @@ def lambda_handler(event, context):
     if "Item" not in response:
         return {"statusCode": 404, "body": "TaskID is not found"}
 
+    if response["Item"]["user_id"] != user_id:
+        return {"statusCode": 403, "body": "Forbidden: Invalid user_id"}
+
     # delete user diary
     option = {"Key": {"diary_id": diary_id}}
     response = user_diary_table.delete_item(**option)
