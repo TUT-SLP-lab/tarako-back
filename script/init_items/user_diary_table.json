@@ -1,6 +1,6 @@
 [
   {
-    "id": {
+    "diary_id": {
       "S": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
     },
     "date": {
@@ -35,9 +35,7 @@
       }
     },
     "user_ids": {
-      "SS": [
-        "4f73ab32-21bf-47ef-a119-fa024bc2b9cc"
-      ]
+      "SS": ["4f73ab32-21bf-47ef-a119-fa024bc2b9cc"]
     }
   }
 ]

@@ -3,7 +3,7 @@ import json
 
 import boto3
 
-PR_NUM = "dev"
+PR_NUM = "9"
 
 dynamodb = boto3.client("dynamodb", region_name="ap-northeast-1")
 
