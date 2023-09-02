@@ -1,13 +1,15 @@
 import json
+import os
 from decimal import Decimal
 
 import boto3
 from boto3.dynamodb.conditions import Key
 
-PR_NUM = "9"
-
+TABLE_NAME = "UserDiaryTable"
+PR_NUM = os.getenv("PR_NUM")
+print(f"{TABLE_NAME}-{PR_NUM}")
 dynamodb = boto3.resource("dynamodb", region_name="ap-northeast-1")
-user_diary_table = dynamodb.Table(f"UserDiaryTable-{PR_NUM}")
+user_diary_table = dynamodb.Table(f"{TABLE_NAME}-{PR_NUM}")
 
 
 def decimal_to_int(obj):

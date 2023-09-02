@@ -16,7 +16,7 @@ Parameters:
   PrNumber:
     Type: String
     Description: "PR number"
-    Default: dev
+    Default: 9
   S3Bucket:
     Type: String
     Description: "S3 Bucket name"
@@ -229,7 +229,7 @@ Resources:
       FunctionName: !Sub get-all-users-diaries-${PrNumber}
       Environment:
         Variables:
-          TABLE_NAME: !Ref TarakoUserDiaryTable
+          PR_NUM: !Ref PrNumber
       Events:
         DiaryUsersGetEvent:
           Type: Api
@@ -244,9 +244,6 @@ Resources:
       CodeUri: app/diary/users/
       Handler: get_single_user_list.lambda_handler
       FunctionName: !Sub get-user-diaries-${PrNumber}
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref TarakoUserDiaryTable
       Events:
         DiaryUsersGetUserEvent:
           Type: Api
@@ -303,6 +300,9 @@ Resources:
       CodeUri: app/diary/users/
       Handler: delete_entry.lambda_handler
       FunctionName: !Sub delete-user-diary-entry-${PrNumber}
+      Environment:
+        Variables:
+          PR_NUM: !Ref PrNumber
       Events:
         DiaryUsersDeleteUserDiaryEvent:
           Type: Api

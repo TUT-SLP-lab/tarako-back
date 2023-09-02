@@ -1,5 +1,3 @@
-import decimal
-import json
 import random
 import uuid
 from datetime import datetime
@@ -22,6 +20,7 @@ for idx in range(5):
     item = {
         "task_id": {"S": str(uuid.uuid4())},
         "assigned_by": {"S": random.choice(user_list)},
+        "section_id": {"N": "1"},
         "title": {"S": "単体テスト作成"},
         "category": {"S": "HR"},
         "tags": {"SS": ["人事", "休暇"]},
@@ -47,7 +46,7 @@ for idx in range(5):
                 },
             ]
         },
-        "completed": {"BOOL": True},
+        "completed": {"S": "True"},
         "serious": {"N": "0"},
         "details": {"S": "hoge.fugaの単体テストを作成する"},
         "created_at": {"S": datetime.now().isoformat()},
