@@ -6,7 +6,10 @@ on:
 
 jobs:
   delete_stack:
-    if: github.event.pull_request.action != 'opened' && contains(github.event.pull_request.labels.*.name, 'with_delete')
+    if: |-
+      (github.event.pull_request.action != 'opened' ||
+      github.event.pull_request.action != 'reopened')
+      && contains(github.event.pull_request.labels.*.name, 'with_delete')
     uses: ./.github/workflows/delete-stack-template.yaml
     with:
       stack-name: debug-env-${{ github.event.pull_request.number }}
