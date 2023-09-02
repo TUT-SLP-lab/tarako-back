@@ -1,5 +1,5 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: 'AWS::Serverless-2016-10-31'
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: "AWS::Serverless-2016-10-31"
 Description: >-
   Tarako API Resource template
 
@@ -11,23 +11,23 @@ Globals:
 Parameters:
   OpenApiFile:
     Type: String
-    Description: 'OpenAPI file name'
+    Description: "OpenAPI file name"
     Default: openapi.yaml
   PrNumber:
     Type: String
-    Description: 'PR number'
+    Description: "PR number"
     Default: dev
   S3Bucket:
     Type: String
-    Description: 'S3 Bucket name'
+    Description: "S3 Bucket name"
   S3Dir:
     Type: String
-    Description: 'S3 Directory name'
+    Description: "S3 Directory name"
     Default: dev
 
 Resources:
   ApiGateway:
-    Type: 'AWS::Serverless::Api'
+    Type: "AWS::Serverless::Api"
     Properties:
       Name: !Sub tarako-api-${PrNumber}
       StageName: dev
@@ -39,9 +39,9 @@ Resources:
       # DefinitionUri:
       #   Bucket: !Sub ${S3Bucket}
       #   Key: !Sub ${S3Dir}/${OpenApiFile}
- 
+
   GetSectionsFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/sections/
       Handler: get_list.lambda_handler
@@ -55,7 +55,7 @@ Resources:
             RestApiId: !Ref ApiGateway
 
   GetSectionEntryFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/sections/
       Handler: get_entry.lambda_handler
@@ -69,7 +69,7 @@ Resources:
             RestApiId: !Ref ApiGateway
 
   GetUsersFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/users/
       Handler: get_list.lambda_handler
@@ -83,7 +83,7 @@ Resources:
             RestApiId: !Ref ApiGateway
 
   GetUserEntryFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/users/
       Handler: get_user.lambda_handler
@@ -97,7 +97,7 @@ Resources:
             RestApiId: !Ref ApiGateway
 
   GetTasksFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/tasks/
       Handler: get_list.lambda_handler
@@ -111,7 +111,7 @@ Resources:
             RestApiId: !Ref ApiGateway
 
   PostTaskFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/tasks/
       Handler: post.lambda_handler
@@ -125,7 +125,7 @@ Resources:
             RestApiId: !Ref ApiGateway
 
   GetTaskEntryFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/tasks/
       Handler: get_task.lambda_handler
@@ -139,7 +139,7 @@ Resources:
             RestApiId: !Ref ApiGateway
 
   PutTaskEntryFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/tasks/
       Handler: put.lambda_handler
@@ -153,7 +153,7 @@ Resources:
             RestApiId: !Ref ApiGateway
 
   DeleteTaskEntryFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/tasks/
       Handler: delete.lambda_handler
@@ -167,7 +167,7 @@ Resources:
             RestApiId: !Ref ApiGateway
 
   GetAllUsersDiariesFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/diary/users/
       Handler: get_all_users_list.lambda_handler
@@ -181,7 +181,7 @@ Resources:
             RestApiId: !Ref ApiGateway
 
   GetUserDiariesFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/diary/users/
       Handler: get_single_user_list.lambda_handler
@@ -195,7 +195,7 @@ Resources:
             RestApiId: !Ref ApiGateway
 
   PostUserDiaryFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/diary/users/
       Handler: post_entry.lambda_handler
@@ -209,7 +209,7 @@ Resources:
             RestApiId: !Ref ApiGateway
 
   GetUserDiaryEntryFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/diary/users/
       Handler: get_entry.lambda_handler
@@ -223,7 +223,7 @@ Resources:
             RestApiId: !Ref ApiGateway
 
   PutUserDiaryEntryFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/diary/users/
       Handler: put_entry.lambda_handler
@@ -237,7 +237,7 @@ Resources:
             RestApiId: !Ref ApiGateway
 
   DeleteUserDiaryEntryFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/diary/users/
       Handler: delete_entry.lambda_handler
@@ -251,7 +251,7 @@ Resources:
             RestApiId: !Ref ApiGateway
 
   GetAllSectionsDiariesFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/diary/sections/
       Handler: get_all_sections_list.lambda_handler
@@ -265,7 +265,7 @@ Resources:
             RestApiId: !Ref ApiGateway
 
   GetSectionDiariesFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/diary/sections/
       Handler: get_single_section_list.lambda_handler
@@ -279,7 +279,7 @@ Resources:
             RestApiId: !Ref ApiGateway
 
   PostSectionDiaryFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/diary/sections/
       Handler: post_entry.lambda_handler
@@ -293,7 +293,7 @@ Resources:
             RestApiId: !Ref ApiGateway
 
   GetSectionDiaryEntryFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/diary/sections/
       Handler: get_entry.lambda_handler
@@ -307,7 +307,7 @@ Resources:
             RestApiId: !Ref ApiGateway
 
   PutSectionDiaryEntryFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/diary/sections/
       Handler: put_entry.lambda_handler
@@ -321,7 +321,7 @@ Resources:
             RestApiId: !Ref ApiGateway
 
   DeleteSectionDiaryEntryFunction:
-    Type: 'AWS::Serverless::Function'
+    Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/diary/sections/
       Handler: delete_entry.lambda_handler
@@ -333,9 +333,9 @@ Resources:
             Path: /diary/sections/{section_id}/{diary_id}
             Method: delete
             RestApiId: !Ref ApiGateway
- 
+
   TarakoTasksTable:
-    Type: 'AWS::DynamoDB::Table'
+    Type: "AWS::DynamoDB::Table"
     Properties:
       TableName: !Sub TasksTable-${PrNumber}
       AttributeDefinitions:
@@ -349,18 +349,18 @@ Resources:
         WriteCapacityUnits: 30
 
   TarakoUserDiaryTable:
-    Type: 'AWS::DynamoDB::Table'
+    Type: "AWS::DynamoDB::Table"
     Properties:
       TableName: !Sub UserDiaryTable-${PrNumber}
       AttributeDefinitions:
-        - AttributeName: diary_id
+        - AttributeName: diary_id # primery key
           AttributeType: S
-        - AttributeName: created_at
+        - AttributeName: created_at # sort key
           AttributeType: S
-        - AttributeName: user_id
+        - AttributeName: user_id # pertision key
           AttributeType: S
       KeySchema:
-        - AttributeName: diary_id
+        - AttributeName: user_id
           KeyType: HASH
         - AttributeName: created_at
           KeyType: RANGE
@@ -379,7 +379,7 @@ Resources:
             WriteCapacityUnits: 5
 
   TarakoSectionDiaryTable:
-    Type: 'AWS::DynamoDB::Table'
+    Type: "AWS::DynamoDB::Table"
     Properties:
       TableName: !Sub SectionDiaryTable-${PrNumber}
       AttributeDefinitions:
