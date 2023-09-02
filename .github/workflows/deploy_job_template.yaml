@@ -90,7 +90,7 @@ jobs:
           SLACK_ICON: ${{ env.SLACK_ICON }}
           SLACK_USERNAME: ${{ env.SLACK_USERNAME }}
           SLACK_TITLE: "#${{ env.PR_NUMBER }} デプロイ成功!"
-          SLACK_TEXT: "${{ steps.deploy_step.outputs.deployed_url }}"
+          SLACK_MESSAGE: "${{ steps.deploy_step.outputs.deployed_url }}"
           SLACK_FOOTER: ${{ github.event.pull_request.html_url }}
 
       - name: Notify Slack to Deploy Failure
