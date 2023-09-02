@@ -1,6 +1,6 @@
 import json
 
-from table_utils import user_diary_table
+from layer.table_utils import json_dumps, user_diary_table
 
 
 def lambda_handler(event, context):
@@ -35,7 +35,7 @@ def lambda_handler(event, context):
         }
     return {
         "statusCode": 200,
-        "body": json.dumps(
+        "body": json_dumps(
             {
                 "message": f"Deleted diary with ID: {diary_id} for section with ID: {user_id}"
             }

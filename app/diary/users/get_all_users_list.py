@@ -1,7 +1,7 @@
 import json
 
 from boto3.dynamodb.conditions import Key
-from table_utils import translate_object, user_diary_table
+from table_utils import json_dumps, user_diary_table
 
 
 def lambda_handler(event, context):
@@ -55,7 +55,7 @@ def lambda_handler(event, context):
 
     return {
         "statusCode": 200,
-        "body": json.dumps(user_daily_list, default=translate_object),
+        "body": json_dumps(user_daily_list),
         "headers": {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET",
