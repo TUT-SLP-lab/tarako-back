@@ -1,5 +1,10 @@
 import json
 
+import boto3
+
+dynamodb = boto3.resource("dynamodb", region_name="ap-northeast-1")
+PR_NUM = "9"
+
 
 def lambda_handler(event, context):
     qsp = event.get("queryStringParameters")
@@ -15,7 +20,11 @@ def lambda_handler(event, context):
     if to_date is not None and not isinstance(to_date, str):
         return {"statusCode": 400, "body": "Bad Request: Invalid to_date"}
 
-    # ここに処理を書く
+    options = {
+
+        "from_date": from_date,
+    }
+
     example = [
         {
             "diary_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
