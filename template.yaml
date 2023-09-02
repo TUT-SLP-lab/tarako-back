@@ -360,10 +360,8 @@ Resources:
         - AttributeName: user_id # pertision key
           AttributeType: S
       KeySchema:
-        - AttributeName: user_id
+        - AttributeName: diary_id
           KeyType: HASH
-        - AttributeName: created_at
-          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 30
         WriteCapacityUnits: 30
@@ -372,6 +370,17 @@ Resources:
           KeySchema:
             - AttributeName: user_id
               KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: UserDateIndex
+          KeySchema:
+            - AttributeName: user_id
+              KeyType: HASH
+            - AttributeName: created_at
+              KeyType: RANGE
           Projection:
             ProjectionType: ALL
           ProvisionedThroughput:
