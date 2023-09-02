@@ -49,7 +49,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
+      checks: read
       contents: read
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -81,37 +83,32 @@ jobs:
 
       - name: Notify Slack to Deploy Success
         if: success() && env.SLACK_WEBHOOK != ''
-        uses: rtCamp/action-slack-notify@v2.1.0
+        uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ env.SLACK_WEBHOOK }}
-          SLACK_COLOR: success
+          SLACK_COLOR: ${{ job.status }}
           SLACK_ICON: ${{ env.SLACK_ICON }}
           SLACK_USERNAME: ${{ env.SLACK_USERNAME }}
-          SLACK_TITLE: "#${{ env.PR_NUMBER }} Deploy Success"
-          SLACK_TEXT: |-
-            Deploy URL: ${{ steps.deploy_step.outputs.deployed_url }}
+          SLACK_TITLE: "#${{ env.PR_NUMBER }} Deploy Success! ${{ steps.deploy_step.outputs.deployed_url }}"
           SLACK_FOOTER: ${{ github.event.pull_request.html_url }}
 
       - name: Notify Slack to Deploy Failure
         if: failure() && env.SLACK_WEBHOOK != ''
-        uses: rtCamp/action-slack-notify@v2.1.0
+        uses: rtCamp/action-slack-notify@v2
         env:
           SLACK_WEBHOOK: ${{ env.SLACK_WEBHOOK }}
           SLACK_COLOR: failure
           SLACK_ICON: ${{ env.SLACK_ICON }}
           SLACK_USERNAME: ${{ env.SLACK_USERNAME }}
           SLACK_TITLE: "#${{ env.PR_NUMBER }} Deploy Failure"
-          SLACK_TEXT: |-
-            Deploy Failed
           SLACK_FOOTER: ${{ github.event.pull_request.html_url }}
 
       - name: Comment on PR
         if: success() && github.event_name == 'pull_request'
-        uses: JoseThen/comment-pr@v1.1.1
+        uses: JoseThen/comment-pr@v1.2.0
         with:
           comment: |-
             Deploy Success!!
-            Deploy URL: ${{ steps.deploy_step.outputs.deployed_url }}
+            Deploy URL! ${{ steps.deploy_step.outputs.deployed_url }}
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
-
