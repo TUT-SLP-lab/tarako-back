@@ -1,23 +1,7 @@
 import json
-import os
-from decimal import Decimal
 
-import boto3
 from boto3.dynamodb.conditions import Key
-
-TABLE_NAME = "UserDiaryTable"
-PR_NUM = os.getenv("PR_NUM")
-print(f"{TABLE_NAME}-{PR_NUM}")
-dynamodb = boto3.resource("dynamodb", region_name="ap-northeast-1")
-user_diary_table = dynamodb.Table(f"{TABLE_NAME}-{PR_NUM}")
-
-
-def decimal_to_int(obj):
-    if isinstance(obj, Decimal):
-        return int(obj)
-    if isinstance(obj, set):
-        return list(obj)
-
+from table_utils import translate_object, user_diary_table
 
 def lambda_handler(event, context):
     qsp = event.get("queryStringParameters")
@@ -27,7 +11,6 @@ def lambda_handler(event, context):
     else:
         from_date = None
         to_date = None
-
     # バリデーション
     if from_date is not None and not isinstance(from_date, str):
         return {"statusCode": 400, "body": "Bad Request: Invalid from_date"}
@@ -73,7 +56,7 @@ def lambda_handler(event, context):
 
     return {
         "statusCode": 200,
-        "body": json.dumps(user_daily_list, default=decimal_to_int),
+        "body": json.dumps(user_daily_list, default=translate_object),
         "headers": {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET",

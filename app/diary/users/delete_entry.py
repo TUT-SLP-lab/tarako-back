@@ -1,12 +1,6 @@
 import json
-import os
 
-import boto3
-
-TABLE_NAME = "UserDiaryTable"
-PR_NUM = os.getenv("PR_NUM")
-dynamodb = boto3.resource("dynamodb", region_name="ap-northeast-1")
-user_diary_table = dynamodb.Table(f"{TABLE_NAME}-{PR_NUM}")
+from table_utils import user_diary_table
 
 
 def lambda_handler(event, context):
