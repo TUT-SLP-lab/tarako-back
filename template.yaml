@@ -276,7 +276,7 @@ Resources:
     Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/tasks/
-      Handler: get_task.lambda_handler
+      Handler: get_entry.lambda_handler
       FunctionName: !Sub get-task-entry-${PrNumber}
       Layers:
         - !Ref TarakoLambdaLayer
