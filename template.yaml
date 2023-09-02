@@ -353,12 +353,14 @@ Resources:
     Properties:
       TableName: !Sub UserDiaryTable-${PrNumber}
       AttributeDefinitions:
-        - AttributeName: diary_id # primery key
+        - AttributeName: diary_id
           AttributeType: S
-        - AttributeName: created_at # sort key
+        - AttributeName: created_at
           AttributeType: S
-        - AttributeName: user_id # pertision key
+        - AttributeName: user_id
           AttributeType: S
+        - AttributeName: serious
+          AttributeType: N
       KeySchema:
         - AttributeName: diary_id
           KeyType: HASH
@@ -386,9 +388,11 @@ Resources:
           ProvisionedThroughput:
             ReadCapacityUnits: 5
             WriteCapacityUnits: 5
-        - IndexName: DateIndex
+        - IndexName: UserSeriousIndex
           KeySchema:
-            - AttributeName: created_at
+            - AttributeName: user_id
+              KeyType: HASH
+            - AttributeName: serious
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
