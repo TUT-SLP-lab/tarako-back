@@ -16,9 +16,6 @@ on:
 
 env:
   AWS_REGION: 'ap-northeast-1'
-  AWS_ACCOUNT_NAME: ${{ secrets.AWS_ACCOUNT_NAME }}
-  AWS_GITHUB_OIDC_ROLE_NAME: ${{ secrets.AWS_GITHUB_OIDC_ROLE_NAME }}
-  STACK_NAME: ${{ inputs.stack-name }}
 
 jobs:
   delete-stack:
@@ -30,12 +27,12 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
-          aws-region: ${AWS_REGION}
-          role-to-assume: arn:aws:iam::${AWS_ACCOUNT_NAME}:role/${AWS_GITHUB_OIDC_ROLE_NAME}
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_NAME }}:role/${{ secrets.AWS_GITHUB_OIDC_ROLE_NAME }}
 
       - name: Get Caller Identity
         run: aws sts get-caller-identity
 
       - name: Delete Stack
-        run: aws cloudformation delete-stack --stack-name ${STACK_NAME}
+        run: aws cloudformation delete-stack --stack-name ${{ inputs.stack-name }}
 
