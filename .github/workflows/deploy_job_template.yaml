@@ -24,6 +24,9 @@ on:
       AWS_GITHUB_OIDC_ROLE_NAME:
         description: 'AWS GitHub OIDC Role Name'
         required: true
+      SLACK_WEBHOOK:
+        description: 'Slack Webhook URL'
+        required: false
 
 env:
   AWS_REGION: 'ap-northeast-1'
@@ -34,13 +37,18 @@ env:
   PR_NUMBER: ${{ inputs.pr-number }}
   STACK_NAME: ${{ inputs.stack-name }}
   S3_DIR: ${{ inputs.s3-dir }}
+  SLACK_USERNAME: DeployBot
+  SLACK_ICON: https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png
+  SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
+      checks: read
       contents: read
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -63,6 +71,41 @@ jobs:
         run: aws s3 cp --region ${AWS_REGION} ${OPENAPI_FILE} s3://${AWS_S3_BUCKET}/${S3_DIR}/${OPENAPI_FILE}
 
       - name: Build and Deploy Cloud Formation stacks
+        id: deploy_step
         run: |
           sam build
           sam deploy --template-file .aws-sam/build/template.yaml --stack-name ${STACK_NAME} --capabilities CAPABILITY_IAM --s3-bucket ${AWS_S3_BUCKET} --parameter-overrides OpenApiFile=${OPENAPI_FILE} S3Dir=${S3_DIR} S3Bucket=${AWS_S3_BUCKET} PrNumber=${PR_NUMBER} --no-fail-on-empty-changeset
+          deployed_url=$(aws cloudformation describe-stacks --stack-name ${STACK_NAME} --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue" --output text)
+          echo "deployed_url=$deployed_url" >> $GITHUB_OUTPUT
+
+      - name: Notify Slack to Deploy Success
+        if: success() && env.SLACK_WEBHOOK != ''
+        uses: rtCamp/action-slack-notify@v2.2.1
+        env:
+          SLACK_WEBHOOK: ${{ env.SLACK_WEBHOOK }}
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_ICON: ${{ env.SLACK_ICON }}
+          SLACK_USERNAME: ${{ env.SLACK_USERNAME }}
+          SLACK_TITLE: "#${{ env.PR_NUMBER }} デプロイ成功!"
+          SLACK_MESSAGE: "${{ steps.deploy_step.outputs.deployed_url }}"
+          SLACK_FOOTER: ${{ github.event.pull_request.html_url }}
+
+      - name: Notify Slack to Deploy Failure
+        if: failure() && env.SLACK_WEBHOOK != ''
+        uses: rtCamp/action-slack-notify@v2.2.1
+        env:
+          SLACK_WEBHOOK: ${{ env.SLACK_WEBHOOK }}
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_ICON: ${{ env.SLACK_ICON }}
+          SLACK_USERNAME: ${{ env.SLACK_USERNAME }}
+          SLACK_TITLE: "#${{ env.PR_NUMBER }} デプロイ失敗!"
+          SLACK_FOOTER: ${{ github.event.pull_request.html_url }}
+
+      - name: Comment on PR
+        if: success() && github.event_name == 'pull_request'
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |-
+            Deploy Success!!
+            Deploy URL! ${{ steps.deploy_step.outputs.deployed_url }}
+          comment_tag: 'deploy-success'

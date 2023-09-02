@@ -375,3 +375,8 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 30
         WriteCapacityUnits: 30
+
+Outputs:
+  ApiUrl:
+    Description: 'API Gateway endpoint URL for Prod stage'
+    Value: !Sub 'https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/dev'
