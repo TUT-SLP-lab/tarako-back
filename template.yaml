@@ -227,6 +227,9 @@ Resources:
       CodeUri: app/diary/users/
       Handler: get_all_users_list.lambda_handler
       FunctionName: !Sub get-all-users-diaries-${PrNumber}
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TarakoUserDiaryTable
       Events:
         DiaryUsersGetEvent:
           Type: Api
@@ -242,7 +245,8 @@ Resources:
       Handler: get_single_user_list.lambda_handler
       FunctionName: !Sub get-user-diaries-${PrNumber}
       Environment:
-        TABLE_NAME: !Ref TarakoUserDiaryTable
+        Variables:
+          TABLE_NAME: !Ref TarakoUserDiaryTable
       Events:
         DiaryUsersGetUserEvent:
           Type: Api
