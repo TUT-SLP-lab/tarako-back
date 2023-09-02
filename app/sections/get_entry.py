@@ -3,7 +3,6 @@ import json
 
 def lambda_handler(event, context):
     section_id = event.get("pathParameters", {}).get("section_id")
-    print(f"************* {section_id} *************")
 
     if not section_id:
         return {"statusCode": 400, "body": "Bad Request: Missing section_id"}
