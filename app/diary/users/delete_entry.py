@@ -1,21 +1,12 @@
 import json
 import os
-from decimal import Decimal
 
 import boto3
 
 TABLE_NAME = "UserDiaryTable"
 PR_NUM = os.getenv("PR_NUM")
-print(f"{TABLE_NAME}-{PR_NUM}")
 dynamodb = boto3.resource("dynamodb", region_name="ap-northeast-1")
 user_diary_table = dynamodb.Table(f"{TABLE_NAME}-{PR_NUM}")
-
-
-def decimal_to_int(obj):
-    if isinstance(obj, Decimal):
-        return int(obj)
-    if isinstance(obj, set):
-        return list(obj)
 
 
 def lambda_handler(event, context):
@@ -39,6 +30,7 @@ def lambda_handler(event, context):
     # delete user diary
     option = {"Key": {"diary_id": diary_id}}
     response = user_diary_table.delete_item(**option)
+
     if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
         return {
             "statusCode": 500,

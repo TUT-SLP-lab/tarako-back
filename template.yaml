@@ -16,7 +16,7 @@ Parameters:
   PrNumber:
     Type: String
     Description: "PR number"
-    Default: 9
+    Default: dev
   S3Bucket:
     Type: String
     Description: "S3 Bucket name"

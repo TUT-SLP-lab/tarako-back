@@ -4,7 +4,7 @@ from datetime import datetime
 
 import boto3
 
-PR_NUM = "9"
+PR_NUM = "dev"
 
 dynamodb = boto3.client("dynamodb", region_name="ap-northeast-1")
 
