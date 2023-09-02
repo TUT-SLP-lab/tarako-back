@@ -446,10 +446,6 @@ Resources:
           AttributeType: N
         - AttributeName: completed
           AttributeType: S
-        - AttributeName: progresses
-          AttributeType: S
-        - AttributeName: created_at
-          AttributeType: S
       KeySchema:
         - AttributeName: task_id
           KeyType: HASH
