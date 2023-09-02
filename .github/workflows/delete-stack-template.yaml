@@ -6,6 +6,13 @@ on:
         description: 'Stack Name'
         required: true
         type: string
+    secrets:
+      AWS_ACCOUNT_NAME:
+        description: 'AWS ACCOUT'
+        required: true
+      AWS_GITHUB_OIDC_ROLE_NAME:
+        description: 'AWS GitHub OIDC Role Name'
+        required: true
 
 env:
   AWS_REGION: 'ap-northeast-1'
