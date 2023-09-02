@@ -20,14 +20,13 @@ def decimal_to_int(obj):
 
 
 def lambda_handler(event, context):
-    body = event.get("body", "{}")
-    body = "{}" if body is None else body
-    try:
-        body = json.loads(body)
-    except json.JSONDecodeError:
-        return {"statusCode": 400, "body": "Bad Request: Invalid JSON"}
-    from_date = body.get("from", None)
-    to_date = body.get("to", None)
+    qsp = event.get("queryStringParameters")
+    if qsp:
+        from_date = qsp.get("from_date")
+        to_date = qsp.get("to_date")
+    else:
+        from_date = None
+        to_date = None
 
     # バリデーション
     if from_date is not None and not isinstance(from_date, str):
