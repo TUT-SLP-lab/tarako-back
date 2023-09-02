@@ -18,24 +18,13 @@
     "updated_at": {
       "S": "2020-01-01T00:00:00+09:00"
     },
-    "section": {
-      "M": {
-        "section_id": {
-          "N": "0"
-        },
-        "name": {
-          "S": "営業課"
-        },
-        "created_at": {
-          "S": "2020-01-01T00:00:00+09:00"
-        },
-        "updated_at": {
-          "S": "2020-01-01T00:00:00+09:00"
-        }
-      }
+    "user_id": {
+      "S": "4f73ab32-21bf-47ef-a119-fa024bc2b9cc"
     },
-    "user_ids": {
-      "SS": ["4f73ab32-21bf-47ef-a119-fa024bc2b9cc"]
+    "task_ids": {
+      "SS": [
+        "4f73ab32-21bf-47ef-a119-fa024bc2b9cc"
+      ]
     }
   }
 ]
