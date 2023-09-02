@@ -353,46 +353,42 @@ Resources:
     Properties:
       TableName: !Sub UserDiaryTable-${PrNumber}
       AttributeDefinitions:
-        - AttributeName: id
+        - AttributeName: diary_id
+          AttributeType: S
+        - AttributeName: created_at
+          AttributeType: S
+        - AttributeName: user_id
           AttributeType: S
       KeySchema:
-        - AttributeName: id
+        - AttributeName: diary_id
           KeyType: HASH
+        - AttributeName: created_at
+          KeyType: RANGE
       ProvisionedThroughput:
         ReadCapacityUnits: 30
         WriteCapacityUnits: 30
+      GlobalSecondaryIndexes:
+        - IndexName: UserIndex
+          KeySchema:
+            - AttributeName: user_id
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
 
   TarakoSectionDiaryTable:
     Type: 'AWS::DynamoDB::Table'
     Properties:
       TableName: !Sub SectionDiaryTable-${PrNumber}
       AttributeDefinitions:
-        - AttributeName: diary_id
+        - AttributeName: id
           AttributeType: S
-        - AttributeName: date
-          AttributeType: S
-        - AttributeName: details
-          AttributeType: S
-        - AttributeName: serious
-          AttributeType: N
-        - AttributeName: created_at
-          AttributeType: S
-        - AttributeName: updated_at
-          AttributeType: S
-        - AttributeName: section
-          AttributeType: M
-        - AttributeName: user_ids
-          AttributeType: SS
 
       KeySchema:
-        - AttributeName: diary_id
+        - AttributeName: id
           KeyType: HASH
-        - AttributeName: user_ids
-          KeyType: HASH
-        - AttributeName: created_at
-          KeyType: RANGE
-        - AttributeName: updated_at
-          KeyType: RANGE
 
       ProvisionedThroughput:
         ReadCapacityUnits: 30
