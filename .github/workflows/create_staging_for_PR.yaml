@@ -11,7 +11,7 @@ on:
 
 jobs:
   delete_stack:
-    if: github.event.pull_request.action == 'synchronize'
+    if: github.event.action == 'synchronize'
     uses: ./.github/workflows/delete-stack-template.yaml
     with:
       stack-name: debug-env-${{ github.event.pull_request.number }}
