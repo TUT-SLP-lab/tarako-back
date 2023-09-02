@@ -19,6 +19,7 @@ jobs:
       AWS_ACCOUNT_NAME: ${{ secrets.AWS_ACCOUNT_NAME }}
       AWS_GITHUB_OIDC_ROLE_NAME: ${{ secrets.AWS_GITHUB_OIDC_ROLE_NAME }}
   deploy:
+    if: ${{ always() }}
     needs: [delete_stack]
     uses: ./.github/workflows/deploy_job_template.yaml
     with:
