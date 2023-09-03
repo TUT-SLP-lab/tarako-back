@@ -772,7 +772,7 @@ Resources:
         WriteCapacityUnits: 30
       
       GlobalSecondaryIndexes:
-        - IndexName: UserIndex
+        - IndexName: SectionIndex
           KeySchema:
             - AttributeName: section_id
               KeyType: HASH
@@ -781,7 +781,7 @@ Resources:
           ProvisionedThroughput:
             ReadCapacityUnits: 5
             WriteCapacityUnits: 5
-        - IndexName: UserDateIndex
+        - IndexName: SectionDateIndex
           KeySchema:
             - AttributeName: section_id
               KeyType: HASH
@@ -792,7 +792,7 @@ Resources:
           ProvisionedThroughput:
             ReadCapacityUnits: 5
             WriteCapacityUnits: 5
-        - IndexName: UserSeriousIndex
+        - IndexName: SectionSeriousIndex
           KeySchema:
             - AttributeName: section_id
               KeyType: HASH
