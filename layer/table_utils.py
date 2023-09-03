@@ -10,7 +10,7 @@ PR_NUM = getenv("PR_NUM", "dev")
 # テーブル名
 USER_TABLE_NAME = f"UserTable-{PR_NUM}"
 SECTION_TABLE_NAME = f"SectionTable-{PR_NUM}"
-TASK_TABLE_NAME = f"TaskTable-{PR_NUM}"
+TASK_TABLE_NAME = f"TasksTable-{PR_NUM}"
 USER_DIARY_TABLE_NAME = f"UserDiaryTable-{PR_NUM}"
 SECTION_DIARY_TABLE_NAME = f"SectionDiaryTable-{PR_NUM}"
 
