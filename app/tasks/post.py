@@ -16,11 +16,12 @@ category_list = [
 
 
 def lambda_handler(event, context):
-    qsp = event.get("queryStringParameters")
-    if qsp:
-        force_create = qsp.get("force_create", None)
-    else:
-        force_create = None  # suggest_taskを使用する際に必要
+    # suggest_taskを使用する際にコメントアウトを外す
+    # qsp = event.get("queryStringParameters")
+    # if qsp:
+    #     force_create = qsp.get("force_create", None)
+    # else:
+    #     force_create = None
     body = event.get("body")
     if body is None:
         return {
