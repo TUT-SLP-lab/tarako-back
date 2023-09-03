@@ -51,11 +51,17 @@ def lambda_handler(event, context):
     if from_date and to_date and from_date_datetime >= to_date_datetime:
         return {"statusCode": 400, "body": "Bad Request: from_date >= to_date"}
 
-    # get section
-    section_req = section_table.get_item(Key={"section_id": section_id})
-    if section_req["ResponseMetadata"]["HTTPStatusCode"] != 200:
+    # get section 存在チェック
+    section_resp = section_table.get_item(Key={"section_id": section_id})
+    if section_resp["ResponseMetadata"]["HTTPStatusCode"] != 200:
         return {"statusCode": 500, "body": "Internal Server Error: Section scan failed"}
-    section = section_req["Item"]
+    if "Item" not in section_resp:
+        return {
+            "statusCode": 404,
+            "body": f"Not Found: section {section_id} not found",
+        }
+    section = section_resp["Item"]
+
     # get section diary
     if from_date is None and to_date is None:
         option = {"IndexName": "SectionIndex"}
@@ -69,7 +75,7 @@ def lambda_handler(event, context):
             datetime_range = Key("date").lte(to_date)
         option = {"IndexName": "SectionDateIndex"}
 
-    section_id_key = Key("section_id").eq(section["section_id"])
+    section_id_key = Key("section_id").eq(section_id)
     if datetime_range is not None:
         expr = section_id_key & datetime_range
     else:
@@ -77,7 +83,7 @@ def lambda_handler(event, context):
     option["KeyConditionExpression"] = expr
 
     section_diary_reqp = section_diary_table.query(**option)
-    if section_diary_reqp["ResonseMetadata"]["HTTPStatusCode"] != 200:
+    if section_diary_reqp["ResponseMetadata"]["HTTPStatusCode"] != 200:
         return {
             "statusCode": 500,
             "body": "Internal Server Error: SectionDiary query failed",

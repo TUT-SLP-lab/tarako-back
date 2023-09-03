@@ -41,6 +41,8 @@ def lambda_handler(event, context):
     section_req = section_table.scan()
     if section_req["ResponseMetadata"]["HTTPStatusCode"] != 200:
         return {"statusCode": 500, "body": "Internal Server Error: User scan failed"}
+    if "Items" not in section_req:
+        return {"statusCode": 404, "body": "Not Found: No section found"}
     # get user diary list between from_date and to_date
     if from_date is None and to_date is None:
         option = {"IndexName": "SectionIndex"}
