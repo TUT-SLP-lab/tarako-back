@@ -625,8 +625,8 @@ Resources:
           AttributeType: N
         - AttributeName: category
           AttributeType: S
-        - AttributeName: serious
-          AttributeType: N
+        # - AttributeName: serious
+        #   AttributeType: N
         - AttributeName: completed
           AttributeType: S
         - AttributeName: started_at
