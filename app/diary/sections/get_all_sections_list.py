@@ -24,7 +24,6 @@ def lambda_handler(event, context):
                 "statusCode": 400,
                 "body": "Bad Request: 'from' is invalid date format",
             }
-
     if to_date:
         if not isinstance(to_date, str):
             return {"statusCode": 400, "body": "Bad Request: Invalid to_date"}
@@ -38,7 +37,7 @@ def lambda_handler(event, context):
     if from_date and to_date and from_date_datetime >= to_date_datetime:
         return {"statusCode": 400, "body": "Bad Request: from_date >= to_date"}
 
-    # get all users
+    # get all sections
     section_req = section_table.scan()
     if section_req["ResponseMetadata"]["HTTPStatusCode"] != 200:
         return {"statusCode": 500, "body": "Internal Server Error: User scan failed"}
