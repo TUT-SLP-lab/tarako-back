@@ -16,7 +16,7 @@ Parameters:
   PrNumber:
     Type: String
     Description: "PR number"
-    Default: dev
+    Default: 9
   S3Bucket:
     Type: String
     Description: "S3 Bucket name"
@@ -54,7 +54,7 @@ Resources:
   LambdaExecutionRole:
     Type: 'AWS::IAM::Role'
     Properties:
-      RoleName: LambdaExecutionRole
+      RoleName: !Sub LambdaExecutionRole-${PrNumber}
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
