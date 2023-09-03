@@ -70,8 +70,8 @@ Resources:
               - Effect: Allow
                 Action:
                   - dynamodb:*
-                Resource: '*'  # '*' を特定のテーブルに変更しても構いません
- 
+                Resource: '*'
+
   GetSectionsFunction:
     Type: "AWS::Serverless::Function"
     Properties:
