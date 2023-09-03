@@ -16,7 +16,7 @@ Parameters:
   PrNumber:
     Type: String
     Description: "PR number"
-    Default: 9
+    Default: dev
   S3Bucket:
     Type: String
     Description: "S3 Bucket name"
@@ -756,6 +756,12 @@ Resources:
       AttributeDefinitions:
         - AttributeName: diary_id
           AttributeType: S
+        - AttributeName: date
+          AttributeType: S
+        - AttributeName: section_id
+          AttributeType: S
+        - AttributeName: serious
+          AttributeType: N
 
       KeySchema:
         - AttributeName: diary_id
@@ -764,6 +770,39 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 30
         WriteCapacityUnits: 30
+      
+      GlobalSecondaryIndexes:
+        - IndexName: UserIndex
+          KeySchema:
+            - AttributeName: section_id
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: UserDateIndex
+          KeySchema:
+            - AttributeName: section_id
+              KeyType: HASH
+            - AttributeName: date
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: UserSeriousIndex
+          KeySchema:
+            - AttributeName: section_id
+              KeyType: HASH
+            - AttributeName: serious
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
 
 Outputs:
   ApiUrl:
