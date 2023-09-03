@@ -504,6 +504,10 @@ components:
     RequestTaskAndFile:
       type: object
       properties:
+        user_id:
+          allOf:
+            - $ref: '#/components/schemas/UserId'
+          readOnly: false
         text:
           $ref: '#/components/schemas/RequestText'
         file:
