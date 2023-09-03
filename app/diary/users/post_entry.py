@@ -2,10 +2,7 @@ import json
 import uuid
 from datetime import datetime
 
-from boto3.dynamodb.types import TypeSerializer
 from table_utils import json_dumps, user_diary_table
-
-serializer = TypeSerializer()
 
 
 def lambda_handler(event, context):
