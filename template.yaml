@@ -50,6 +50,27 @@ Resources:
       RetentionPolicy: Retain
     Metadata:
       BuildMethod: python3.10
+
+  LambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: LambdaExecutionRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: DynamoDBAccessPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:*
+                Resource: '*'  # '*' を特定のテーブルに変更しても構いません
  
   GetSectionsFunction:
     Type: "AWS::Serverless::Function"
@@ -62,6 +83,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         UsersGetEvent:
           Type: Api
@@ -81,6 +103,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         UsersGetUserEvent:
           Type: Api
@@ -100,6 +123,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         UsersPostUserEvent:
           Type: Api
@@ -119,6 +143,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         UsersPutUserEvent:
           Type: Api
@@ -138,6 +163,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         UsersGetEvent:
           Type: Api
@@ -157,6 +183,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         UsersGetUserEvent:
           Type: Api
@@ -176,6 +203,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         UsersPostUserEvent:
           Type: Api
@@ -195,6 +223,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         UsersPutUserEvent:
           Type: Api
@@ -214,6 +243,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         TasksGetEvent:
           Type: Api
@@ -233,6 +263,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         TasksPostEvent:
           Type: Api
@@ -252,6 +283,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         TasksGetTaskEvent:
           Type: Api
@@ -271,6 +303,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         TasksPutTaskEvent:
           Type: Api
@@ -290,6 +323,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         TasksDeleteTaskEvent:
           Type: Api
@@ -309,6 +343,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         DiaryUsersGetEvent:
           Type: Api
@@ -328,6 +363,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         DiaryUsersGetUserEvent:
           Type: Api
@@ -347,6 +383,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         DiaryUsersPostUserEvent:
           Type: Api
@@ -366,6 +403,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         DiaryUsersGetUserDiaryEvent:
           Type: Api
@@ -385,6 +423,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         DiaryUsersPutUserDiaryEvent:
           Type: Api
@@ -404,6 +443,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         DiaryUsersDeleteUserDiaryEvent:
           Type: Api
@@ -423,6 +463,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         DiarySectionsGetEvent:
           Type: Api
@@ -442,6 +483,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         DiarySectionsGetSectionEvent:
           Type: Api
@@ -461,6 +503,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         DiarySectionsPostSectionEvent:
           Type: Api
@@ -480,6 +523,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         DiarySectionsGetSectionDiaryEvent:
           Type: Api
@@ -499,6 +543,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         DiarySectionsPutSectionDiaryEvent:
           Type: Api
@@ -518,6 +563,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+      Role: !Ref LambdaExecutionRole
       Events:
         DiarySectionsDeleteSectionDiaryEvent:
           Type: Api
