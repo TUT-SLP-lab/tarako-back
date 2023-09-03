@@ -1,13 +1,13 @@
 import json
 
-from layer.table_utils import section_diary_table
+from table_utils import section_diary_table
 
 
 def lambda_handler(event, context):
     ppm = event.get("pathParameters", {})
     if ppm is None:
         return {"statusCode": 400, "body": "Bad Request: Invalid path parameters"}
-    sections_id = ppm.get("sections_id", None)
+    sections_id = ppm.get("section_id", None)
     diary_id = ppm.get("diary_id")
 
     try:
@@ -21,8 +21,9 @@ def lambda_handler(event, context):
     if diary_id is None or not isinstance(diary_id, str):
         return {"statusCode": 400, "body": "Bad Request: Invalid diary_id"}
 
-    option = {"Key": {"section_id": section_id}}
+    option = {"Key": {"diary_id": diary_id}}
     response = section_diary_table.get_item(**option)
+    print(response)
     if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
         return {
             "statusCode": 500,
@@ -33,8 +34,8 @@ def lambda_handler(event, context):
             "statusCode": 404,
             "body": f"Item is not found with {section_id}",
         }
-    if response["Item"]["diary_id"] != diary_id:
-        return {"statsCode": 404, "body": f"Failed to fild diary_id: {diary_id}"}
+    if response["Item"]["section_id"] != section_id:
+        return {"statsCode": 404, "body": f"Failed to fild section_id: {section_id}"}
 
     option = {"Key": {"diary_id": diary_id}}
     response = section_diary_table.delete_item(**option)
