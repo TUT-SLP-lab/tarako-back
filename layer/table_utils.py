@@ -50,7 +50,7 @@ def get_items(table, index_name, expr) -> list:
         DynamoDBError: DynamoDBのエラー
     """
     option = {"IndexName": index_name, "KeyConditionExpression": expr}
-    response = table.scan(**option)
+    response = table.query(**option)
     if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
         raise DynamoDBError()
     return response["Items"]
