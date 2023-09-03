@@ -1,7 +1,4 @@
-import json
-
 from boto3.dynamodb.conditions import Key
-
 from table_utils import DynamoDBError, get_items, json_dumps, task_table
 
 
@@ -13,10 +10,12 @@ def lambda_handler(event, context):
         to_datetime = qsp.get("to_start_datetime", None)
         if from_datetime or to_datetime:
             is_start_datetime = True
+            datetime_key_name = "started_at"
         else:
-            is_start_datetime = False
             from_datetime = qsp.get("from_last_status", None)
             to_datetime = qsp.get("to_last_status", None)
+            is_start_datetime = False
+            datetime_key_name = "last_status_at"
         status = qsp.get("status", None)
     else:
         from_datetime = None
@@ -67,45 +66,82 @@ def lambda_handler(event, context):
 
     # Make query
     has_user_query = user_ids is not None
-    has_completed_query = status is not None
-    if has_completed_query:
-        completed_query = Key("completed").eq(
-            "true" if status == "completed" else "false"
-        )
-    datetime_range = None
-    if from_datetime or to_datetime:
-        key_name = "started_at" if is_start_datetime else "last_status_at"
-        if from_datetime and to_datetime:
-            datetime_range = Key(key_name).between(from_datetime, to_datetime)
-        elif from_datetime:
-            datetime_range = Key(key_name).gte(from_datetime)
-        else:
-            datetime_range = Key(key_name).lte(to_datetime)
+    completed_query = (
+        None if status is None else Key("completed").eq(get_status_string(status))
+    )
+    datetime_range = (
+        None
+        if not (from_datetime or to_datetime)
+        else get_datetime_range(datetime_key_name, from_datetime, to_datetime)
+    )
 
+    result = get_result(
+        has_user_query,
+        datetime_range,
+        completed_query,
+        is_start_datetime,
+        user_ids,
+        status,
+    )
+
+    return {
+        "statusCode": 200,
+        "body": json_dumps(result),
+        "headers": {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
+        },
+    }
+
+
+def user_ids_get_item(user_ids, index_name, append_expr=None):
+    result = []
+    for user_id_ in user_ids:
+        if append_expr:
+            expr = Key("assigned_to").eq(user_id_) & append_expr
+        else:
+            expr = Key("assigned_to").eq(user_id_)
+        result.extend(get_items(task_table, index_name, expr))
+    return result
+
+
+def get_status_string(status):
+    return "True" if status == "completed" else "False"
+
+
+def get_datetime_range(key_name, from_datetime, to_datetime):
+    if from_datetime and to_datetime:
+        return Key("started_at").between(from_datetime, to_datetime)
+    elif from_datetime:
+        return Key("started_at").gte(from_datetime)
+    else:
+        return Key("started_at").lte(to_datetime)
+
+
+def get_result(
+    has_user_query, datetime_range, completed_query, is_start_datetime, user_ids, status
+):
     try:
-        option = {}
         result = None
         index_name = ""
         if has_user_query and datetime_range:
             index_name = (
                 "UserStartedAtIndex" if is_start_datetime else "UserLastStatusAtIndex"
             )
-            result = []
-            for user_id_ in user_ids:
-                expr = Key("assigned_to").eq(user_id_) & datetime_range
-                result.extend(get_items(task_table, index_name, expr))
+            result = user_ids_get_item(user_ids, index_name, datetime_range)
             # 3つのクエリがある場合は、更に絞り込みが必要
             # NOTE: あらかじめ大量に絞り込めるものを優先して絞った
-            if has_completed_query:
-                status = "true" if status == "completed" else "false"
-                result = [item for item in result if item["completed"] == status]
-        elif has_user_query and has_completed_query:
+            if completed_query:
+                tmp = get_status_string(status)
+                result = [item for item in result if item["completed"] == tmp]
+        elif has_user_query and completed_query:
             index_name = "UserStatusIndex"
             result = []
             for user_id_ in user_ids:
                 expr = Key("assigned_to").eq(user_id_) & completed_query
                 result.extend(get_items(task_table, index_name, expr))
-        elif has_completed_query and datetime_range:
+        elif completed_query and datetime_range:
             index_name = (
                 "CompletedStartedAtIndex"
                 if is_start_datetime
@@ -121,7 +157,7 @@ def lambda_handler(event, context):
         elif datetime_range:
             index_name = "StartedAtIndex" if is_start_datetime else "LastStatusAtIndex"
             expr = datetime_range
-        elif has_completed_query:
+        elif completed_query:
             index_name = "CompletedIndex"
             expr = completed_query
         else:
@@ -131,13 +167,4 @@ def lambda_handler(event, context):
             result = get_items(task_table, index_name, expr)
     except DynamoDBError:
         return {"statusCode": 500, "body": "DynamoDB Error"}
-
-    return {
-        "statusCode": 200,
-        "body": json_dumps(result),
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-        },
-    }
+    return result
