@@ -20,7 +20,7 @@ jobs:
         uses: isort/isort-action@v1
         id: action_isort
         with:
-          configuration: '. --profile=black'
+          configuration: '--profile=black'
       - name: Annotate diff changes using reviewdog
         uses: reviewdog/action-suggester@v1
   flake8-lint:
@@ -37,3 +37,5 @@ jobs:
         run: pip install pyproject-flake8
       - name: flake8 Lint
         uses: reviewdog/action-flake8@v3
+        with:
+          reporter: github-pr-review
