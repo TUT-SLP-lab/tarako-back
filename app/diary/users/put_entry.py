@@ -19,6 +19,7 @@ def lambda_handler(event, context):
     serious = body.get("serious", None)
     task_ids = body.get("task_ids", None)
 
+    # validation
     if user_id is None or not isinstance(user_id, str):
         return {"statusCode": 400, "body": "Bad Request: Invalid user_id"}
     if diary_id is None or not isinstance(diary_id, str):
