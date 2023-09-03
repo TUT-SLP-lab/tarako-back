@@ -1,5 +1,3 @@
-import json
-
 from layer.table_utils import json_dumps, user_diary_table
 
 
