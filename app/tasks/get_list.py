@@ -6,23 +6,24 @@ def lambda_handler(event, context):
     qsp = event.get("queryStringParameters")
     if qsp:
         not_assigned = qsp.get("not_assigned", None)
+        status = qsp.get("status", None)
+
+        # start_datetimeとlast_status_datetimeは同時に指定できない
         from_datetime = qsp.get("from_start_datetime", None)
         to_datetime = qsp.get("to_start_datetime", None)
-        if from_datetime or to_datetime:
-            is_start_datetime = True
-            datetime_key_name = "started_at"
-        else:
+        is_start_datetime = True
+        datetime_key_name = "started_at"
+
+        if not (from_datetime or to_datetime):
             from_datetime = qsp.get("from_last_status", None)
             to_datetime = qsp.get("to_last_status", None)
             is_start_datetime = False
             datetime_key_name = "last_status_at"
-        status = qsp.get("status", None)
     else:
         not_assigned = None
         from_datetime = None
         to_datetime = None
-        from_datetime = None
-        to_datetime = None
+        is_start_datetime = None
         status = None
     mqsp = event.get("multiValueQueryStringParameters")
     if mqsp:
@@ -100,17 +101,6 @@ def lambda_handler(event, context):
     }
 
 
-def user_ids_get_item(user_ids, index_name, append_expr=None):
-    result = []
-    for user_id_ in user_ids:
-        if append_expr:
-            expr = Key("assigned_to").eq(user_id_) & append_expr
-        else:
-            expr = Key("assigned_to").eq(user_id_)
-        result.extend(get_items(task_table, index_name, expr))
-    return result
-
-
 def get_status_string(status):
     return "True" if status == "completed" else "False"
 
@@ -122,6 +112,17 @@ def get_datetime_range(key_name, from_datetime, to_datetime):
         return Key("started_at").gte(from_datetime)
     else:
         return Key("started_at").lte(to_datetime)
+
+
+def user_ids_get_item(user_ids, index_name, append_expr=None):
+    result = []
+    for user_id_ in user_ids:
+        if append_expr:
+            expr = Key("assigned_to").eq(user_id_) & append_expr
+        else:
+            expr = Key("assigned_to").eq(user_id_)
+        result.extend(get_items(task_table, index_name, expr))
+    return result
 
 
 def get_result(
