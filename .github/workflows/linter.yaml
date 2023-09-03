@@ -20,7 +20,7 @@ jobs:
         uses: isort/isort-action@v1
         id: action_isort
         with:
-          isort_args: '. --profile=black'
+          configuration: '. --profile=black'
       - name: Annotate diff changes using reviewdog
         uses: reviewdog/action-suggester@v1
   flake8-lint:
