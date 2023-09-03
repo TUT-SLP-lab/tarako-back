@@ -6,8 +6,8 @@ on:
       - 'layer/**.py'
 
 jobs:
-  black-isort-lint:
-    name: Black and isort lint
+  black:
+    name: Black lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -23,7 +23,23 @@ jobs:
           configuration: '--profile=black'
       - name: Annotate diff changes using reviewdog
         uses: reviewdog/action-suggester@v1
-  flake8-lint:
+        with:
+          tool_name: 'black'
+  isort:
+    name: isort lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check import order using isort
+        uses: isort/isort-action@v1
+        id: action_isort
+        with:
+          configuration: '--profile=black'
+      - name: Annotate diff changes using reviewdog
+        uses: reviewdog/action-suggester@v1
+        with:
+          tool_name: 'isort'
+  flake8:
     runs-on: ubuntu-latest
     name: flake8 Lint
     steps:
@@ -35,7 +51,11 @@ jobs:
           python-version: "3.10"
       - name: Install pyproject-flake8
         run: pip install pyproject-flake8
-      - name: flake8 Lint
+      - name: flake8 Lint comment to PR
         uses: reviewdog/action-flake8@v3
         with:
           reporter: github-pr-review
+      - name: flake8 Lint comment to PR check
+        uses: reviewdog/action-flake8@v3
+        with:
+          reporter: github-pr-check
