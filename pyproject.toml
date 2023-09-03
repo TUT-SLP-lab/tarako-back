@@ -26,4 +26,4 @@ profile = "black"
 
 [tool.flake8]
 max-line-length = 119
-extend-ignore = "W605,"
+extend-ignore = "W605,E501"
