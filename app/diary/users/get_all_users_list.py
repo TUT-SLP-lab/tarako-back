@@ -1,5 +1,3 @@
-import json
-
 from boto3.dynamodb.conditions import Key
 from table_utils import json_dumps, user_diary_table
 
@@ -26,7 +24,6 @@ def lambda_handler(event, context):
     ]
 
     # get user diary list between from_date and to_date
-    user_daily_list = []
     if from_date is None and to_date is None:
         option = {"IndexName": "UserIndex"}
         datetime_range = None
