@@ -45,10 +45,11 @@ def lambda_handler(event, context):
         msg = form.getfirst("text", None)
         if "file" in form:
             file_item = form["file"]
-            file_data = file_item.file.read()  # ファイルデータを読み込む
+            # 現状では、ファイルは無視する
+            # file_data = file_item.file.read()  # ファイルデータを読み込む
         else:
             file_item = None
-            file_data = None
+            # file_data = None
     except Exception as e:
         print(e)
         return {
