@@ -1,6 +1,7 @@
 import json
 
 from boto3.dynamodb.conditions import Key
+
 from table_utils import DynamoDBError, get_items, json_dumps, task_table
 
 
