@@ -124,6 +124,8 @@ def lambda_handler(event, context):
         elif has_completed_query:
             index_name = "CompletedIndex"
             expr = completed_query
+        else:
+            result = task_table.scan()["Items"]
 
         if result is None:
             result = get_items(task_table, index_name, expr)
