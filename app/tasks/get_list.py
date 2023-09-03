@@ -5,7 +5,7 @@ from table_utils import DynamoDBError, get_items, json_dumps, task_table
 def lambda_handler(event, context):
     qsp = event.get("queryStringParameters")
     if qsp:
-        not_assigned_by = qsp.get("not_assigned_by", None)
+        not_assigned = qsp.get("not_assigned", None)
         from_datetime = qsp.get("from_start_datetime", None)
         to_datetime = qsp.get("to_start_datetime", None)
         if from_datetime or to_datetime:
@@ -18,6 +18,7 @@ def lambda_handler(event, context):
             datetime_key_name = "last_status_at"
         status = qsp.get("status", None)
     else:
+        not_assigned = None
         from_datetime = None
         to_datetime = None
         from_datetime = None
@@ -30,9 +31,8 @@ def lambda_handler(event, context):
         user_ids = None
 
     # バリデーション
+    # NOTE: not_assigned は、指定されていれば値はなんでも良いので、バリデーションしない
     error_strings = []
-    if not_assigned_by and not isinstance(not_assigned_by, bool):
-        error_strings.append("Invalid not_assigned_by query")
     if from_datetime and not isinstance(from_datetime, str):
         error_strings.append(
             "Invalid from_start_datetime query"
@@ -47,7 +47,7 @@ def lambda_handler(event, context):
         )
     if status and status not in ["in_progress", "completed"]:
         error_strings.append("Invalid status query")
-    if user_ids:
+    if not_assigned is None and user_ids:
         for user_id_ in user_ids:  # NOTE: user_idはlistで与えられる
             if not isinstance(user_id_, str):
                 error_strings.append("Invalid user_id query")
@@ -65,7 +65,12 @@ def lambda_handler(event, context):
         }
 
     # Make query
-    has_user_query = user_ids is not None
+    if not_assigned:
+        # not_assignedがTrueの場合は、assigned_toが存在しないアイテムを取得する
+        user_ids = [""]
+        has_user_query = True
+    else:
+        has_user_query = user_ids is not None
     completed_query = (
         None if status is None else Key("completed").eq(get_status_string(status))
     )
