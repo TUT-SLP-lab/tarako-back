@@ -118,9 +118,7 @@ def lambda_handler(event, context):
                 expr = Key("assigned_to").eq(user_id_)
                 result.extend(get_items(task_table, index_name, expr))
         elif datetime_range:
-            index_name = (
-                "StartedAtIndex" if is_start_datetime else "LastStatusAtIndex"
-            )
+            index_name = "StartedAtIndex" if is_start_datetime else "LastStatusAtIndex"
             expr = datetime_range
         elif has_completed_query:
             index_name = "CompletedIndex"
