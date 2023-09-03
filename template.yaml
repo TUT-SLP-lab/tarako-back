@@ -625,10 +625,16 @@ Resources:
           AttributeType: N
         - AttributeName: category
           AttributeType: S
-        - AttributeName: serious
-          AttributeType: N
+        # - AttributeName: serious
+        #   AttributeType: N
         - AttributeName: completed
           AttributeType: S
+        - AttributeName: started_at
+          AttributeType: S
+        - AttributeName: last_status_at
+          AttributeType: S
+        - AttributeName: placeholder
+          AttributeType: N
       KeySchema:
         - AttributeName: task_id
           KeyType: HASH
@@ -663,6 +669,15 @@ Resources:
           ProvisionedThroughput:
             ReadCapacityUnits: 5
             WriteCapacityUnits: 5
+        - IndexName: SectionIdIndex
+          KeySchema:
+            - AttributeName: section_id
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
         - IndexName: SectionCompletedIndex
           KeySchema:
             - AttributeName: section_id
@@ -674,22 +689,77 @@ Resources:
           ProvisionedThroughput:
             ReadCapacityUnits: 5
             WriteCapacityUnits: 5
-        - IndexName: UserSeriousIndex
+        - IndexName: StartedAtIndex
           KeySchema:
-            - AttributeName: assigned_to
+            - AttributeName: placeholder
               KeyType: HASH
-            - AttributeName: serious
+            - AttributeName: started_at
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
           ProvisionedThroughput:
             ReadCapacityUnits: 5
             WriteCapacityUnits: 5
-        - IndexName: SectionSeriousIndex
+        - IndexName: LastStatusAtIndex
           KeySchema:
-            - AttributeName: section_id
+            - AttributeName: placeholder
               KeyType: HASH
-            - AttributeName: serious
+            - AttributeName: last_status_at
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: UserStartedAtIndex
+          KeySchema:
+            - AttributeName: assigned_to
+              KeyType: HASH
+            - AttributeName: started_at
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: UserLastStatusAtIndex
+          KeySchema:
+            - AttributeName: assigned_to
+              KeyType: HASH
+            - AttributeName: last_status_at
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: UserStatusIndex
+          KeySchema:
+            - AttributeName: assigned_to
+              KeyType: HASH
+            - AttributeName: completed
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: CompletedStartedAtIndex
+          KeySchema:
+            - AttributeName: completed
+              KeyType: HASH
+            - AttributeName: started_at
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: CompletedLastStatusAtIndex
+          KeySchema:
+            - AttributeName: completed
+              KeyType: HASH
+            - AttributeName: last_status_at
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
