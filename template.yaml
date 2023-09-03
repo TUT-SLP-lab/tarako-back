@@ -759,7 +759,7 @@ Resources:
         - AttributeName: date
           AttributeType: S
         - AttributeName: section_id
-          AttributeType: S
+          AttributeType: N
         - AttributeName: serious
           AttributeType: N
 
