@@ -33,3 +33,28 @@ def translate_object(obj):
 
 def json_dumps(obj):
     return json.dumps(obj, default=translate_object)
+
+
+def get_items(table, index_name, expr) -> list:
+    """テーブルからアイテムを取得する
+
+    Args:
+        table (boto3.resource.Table): テーブル
+        index_name str: インデックス名
+        expr: キー条件式
+
+    Returns:
+        list: アイテムのリスト
+
+    Raises:
+        DynamoDBError: DynamoDBのエラー
+    """
+    option = {"IndexName": index_name, "KeyConditionExpression": expr}
+    response = table.scan(**option)
+    if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
+        raise DynamoDBError()
+    return response["Items"]
+
+
+class DynamoDBError(Exception):
+    pass
