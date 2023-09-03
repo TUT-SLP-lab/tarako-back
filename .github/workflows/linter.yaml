@@ -6,8 +6,8 @@ on:
       - 'layer/**.py'
 
 jobs:
-  lint:
-    name: lint python
+  black-isort-lint:
+    name: Black and isort lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -22,7 +22,18 @@ jobs:
         with:
           isort_args: '. --profile=black'
       - name: Annotate diff changes using reviewdog
-        if: steps.action_black.outputs.is_formatted == 'true'
         uses: reviewdog/action-suggester@v1
+  flake8-lint:
+    runs-on: ubuntu-latest
+    name: flake8 Lint
+    steps:
+      - name: Check out source repository
+        uses: actions/checkout@v3
+      - name: Set up Python environment
+        uses: actions/setup-python@v2
         with:
-          tool_name: black & isort
+          python-version: "3.10"
+      - name: Install pyproject-flake8
+        run: pip install pyproject-flake8
+      - name: flake8 Lint
+        uses: reviewdog/action-flake8@v3
