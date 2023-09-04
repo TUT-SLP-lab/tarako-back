@@ -1,4 +1,4 @@
-from layer.table_utils import json_dumps, user_diary_table
+from table_utils import DynamoDBError, get_item, json_dumps, user_diary_table
 
 
 def lambda_handler(event, context):
@@ -12,14 +12,14 @@ def lambda_handler(event, context):
         return {"statusCode": 400, "body": "Bad Request: Invalid diary_id"}
 
     # search user diary
-    option = {"Key": {"diary_id": diary_id}}
-    response = user_diary_table.get_item(**option)
-    if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
-        return {"statusCode": 500, "body": "DynamoDB Error"}
-    if "Item" not in response:
-        return {"statusCode": 404, "body": "TaskID is not found"}
+    try:
+        user_diary = get_item(user_diary_table, "diary_id", diary_id)
+    except DynamoDBError as e:
+        return {"statusCode": 500, "body": str(e)}
+    except IndexError:
+        return {"statusCode": 404, "body": f"Not Found: user_id={user_id}"}
 
-    if response["Item"]["user_id"] != user_id:
+    if user_diary["user_id"] != user_id:
         return {"statusCode": 403, "body": "Forbidden: Invalid user_id"}
 
     # delete user diary

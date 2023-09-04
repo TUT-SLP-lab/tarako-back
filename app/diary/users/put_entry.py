@@ -1,7 +1,14 @@
 import json
 from datetime import datetime
 
-from table_utils import json_dumps, user_diary_table
+from table_utils import (
+    DynamoDBError,
+    get_item,
+    get_items,
+    json_dumps,
+    user_diary_table,
+    user_table,
+)
 
 
 def lambda_handler(event, context):
@@ -31,33 +38,26 @@ def lambda_handler(event, context):
     if task_ids is None or not isinstance(task_ids, list):
         return {"statusCode": 400, "body": "Bad Request: Invalid task_ids"}
 
-    # TODO from user db
-    user_list = [
-        "4f73ab32-21bf-47ef-a119-fa024bc2b9cc",
-        "595c060d-8417-4ac8-bcb5-c8e733dc64e0",
-        "e08bf311-b1bc-4a38-bac1-374c3ede7203",
-    ]
-    if user_id not in user_list:
-        return {"statusCode": 400, "body": "Bad Request: user_id not found"}
+    try:
+        user_list = get_items(user_table, "user_id", user_id)
+        user_ids = [user["user_id"] for user in user_list]
+        if user_id not in user_ids:
+            return {"statusCode": 400, "body": "Bad Request: user_id not found"}
 
-    # get diary
-    option = {"Key": {"diary_id": diary_id}}
-    response = user_diary_table.get_item(**option)
+        user_diary = get_item(user_diary_table, "diary_id", diary_id)
 
-    # Validation
-    if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
-        return {"statusCode": 500, "body": "Internal Server Error"}
-    if "Item" not in response:
-        return {"statusCode": 404, "body": "Not Found"}
+        # user ID check
+        if user_diary["user_id"] != user_id:
+            return {"statusCode": 403, "body": "Forbidden"}
+    except DynamoDBError as e:
+        return {"statusCode": 500, "body": f"Internal Server Error: {e}"}
+    except IndexError as e:
+        return {"statusCode": 404, "body": f"Not Found: {e}"}
 
-    # user ID check
-    if response["Item"]["user_id"] != user_id:
-        return {"statusCode": 403, "body": "Forbidden"}
-
-    item = response["Item"]
-    item["details"] = detailes
-    item["serious"] = serious
-    item["task_ids"] = task_ids
+    user_diary["details"] = detailes
+    user_diary["serious"] = serious
+    user_diary["task_ids"] = task_ids
+    user_diary["updated_at"] = datetime.now().isoformat()
 
     response = user_diary_table.update_item(
         Key={"diary_id": diary_id},
@@ -70,12 +70,13 @@ def lambda_handler(event, context):
         },
         ReturnValues="UPDATED_NEW",
     )
+    if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
+        return {"statusCode": 500, "body": "DynamoDB update Error"}
+
     # get diary again
-    option = {"Key": {"diary_id": diary_id}}
-    response = user_diary_table.get_item(**option)
     return {
         "statusCode": 200,
-        "body": json_dumps(response["Item"]),
+        "body": json_dumps(user_diary),
         "headers": {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "PUT",
