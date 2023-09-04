@@ -117,7 +117,12 @@ def lambda_handler(event, context):
 
     # task_tableに追加する
     task_table.put_item(Item=task)
-    return {"statusCode": 200, "body": json_dumps(task)}
+
+    response = {
+        "message": gpt_output.get("response_message"),
+        "task": task,
+    }
+    return {"statusCode": 201, "body": json_dumps(response)}
 
 
 def check_suggest_task():
@@ -151,4 +156,5 @@ def gen_dummy_data(msg):
         "progress": random.randint(0, 100),
         "serious": random.randint(0, 5),
         "details": msg,
+        "response_message": "タスクを作成しました",
     }
