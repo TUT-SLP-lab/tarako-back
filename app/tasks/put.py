@@ -1,40 +1,126 @@
 import json
+from datetime import datetime
+
+from table_utils import json_dumps, task_table
 
 
 def lambda_handler(event, context):
-    task_id = event.get("pathParameters", {}).get("task_id")
-    body = json.loads(event.get("body", "{}"))
+    ppm = event.get("pathParameters")
+    if ppm is None:
+        return {"statusCode": 400, "body": "Bad Request: Missing pathParameters"}
+    task_id = ppm.get("task_id")
+    body = event.get("body", None)
 
-    if task_id is None or not isinstance(task_id, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid task_id"}
+    # バリデーション
+    erro_msg = []
+    if not task_id:
+        return {"statusCode": 400, "body": "Bad Request: Missing task_id"}
+    elif not isinstance(task_id, str):
+        erro_msg.append("task_id must be string")
+    else:
+        option = {"Key": {"task_id": task_id}}
+        response = task_table.get_item(**option)
+        if "Item" not in response:
+            return {"statusCode": 404, "body": "Not Found: Diary not found"}
+
     if not body:
-        return {"statusCode": 400, "body": "Bad Request: Empty request body"}
+        return {"statusCode": 400, "body": "Bad Request: Missing body"}
+    else:
+        body = json.loads(body)
+    if not isinstance(body, dict):
+        return {"statusCode": 400, "body": "Bad Request: body must be dict"}
 
-    # ここに処理を書く
-    example = {
-        "task_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        "assigned_by": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        "title": "単体テスト作成",
-        "category": "HR",
-        "tags": ["人事", "休暇"],
-        "progresses": [
-            {"datetime": "2020-01-01T00:00:00+09:00", "percentage": 0},
-            {"datetime": "2020-01-02T00:00:00+09:00", "percentage": 50},
-            {"datetime": "2020-01-03T00:00:00+09:00", "percentage": 100},
-        ],
-        "completed": True,
-        "serious": 0,
-        "details": "hoge.fugaの単体テストを作成する",
-        "created_at": "2020-01-01T00:00:00+09:00",
-        "updated_at": "2020-01-01T00:00:00+09:00",
+    # bodyのバリデーション
+    is_valid, erro_msg = validate_body(body)
+    if not is_valid:
+        return {"statusCode": 400, "body": f"Bad Request: {', '.join(erro_msg)}"}
+    last_progress = body.get("progresses")[-1]
+
+    update_object = {
+        ":completed": "True" if last_progress["percentage"] == 100 else "False",
+        ":last_status_at": last_progress["datetime"],
+        ":updated_at": datetime.now().isoformat(),
+        ":assigned_to": body.get("assigned_to"),
+        ":section_id": body.get("section_id"),
+        ":title": body.get("title"),
+        ":category": body.get("category"),
+        ":tags": body.get("tags"),
+        ":progresses": body.get("progresses"),
+        ":serious": body.get("serious"),
+        ":details": body.get("details"),
     }
+
+    expr = (
+        "SET completed = :completed"
+        "last_status_at = :last_status_at"
+        "updated_at = :updated_at"
+        "assigned_to = :assigned_to"
+        "section_id = :section_id"
+        "title = :title"
+        "category = :category"
+        "tags = :tags"
+        "progresses = :progresses"
+        "serious = :serious"
+        "details = :details"
+    )
+
+    response = task_table.update_item(
+        Key=option["Key"],
+        UpdateExpression=expr,
+        ExpressionAttributeValues=update_object,
+        ReturnValues="UPDATED_NEW",
+    )
 
     return {
         "statusCode": 200,
-        "body": json.dumps(example),
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "PUT",
-            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-        },
+        "body": json_dumps(response["Item"]),
     }
+
+
+def check_in_body_and_type(body, key, type) -> (bool, str):
+    if key not in body:
+        return False, f"{key} is required"
+    if not isinstance(body[key], type):
+        return False, f"{key} must be {type}"
+    return True, ""
+
+
+def validate_body(body: dict) -> (bool, list[str]):
+    error_msg = []
+    key_type = {
+        "assigned_to": str,
+        "title": str,
+        "category": str,
+        "tags": list,
+        "progresses": list,
+        "serious": int,
+        "details": str,
+        "section_id": int,
+    }
+    for key, type in key_type.items():
+        is_valid, msg = check_in_body_and_type(body, key, type)
+        if not is_valid:
+            error_msg.append(msg)
+        if key == "tags":
+            if not all(isinstance(tag, str) for tag in body["tags"]):
+                error_msg.append("all tags must be string")
+        if key == "serious":
+            if not (0 <= body["serious"] <= 5):
+                error_msg.append("serious must be 0 <= serious <= 5")
+        if key == "progresses":
+            if not all(
+                isinstance(progress, dict)
+                and "datetime" in progress
+                and "percentage" in progress
+                for progress in body["progresses"]
+            ):
+                error_msg.append(
+                    "all progresses must be dict and have datetime and percentage"
+                )
+            if not all(
+                isinstance(progress["datetime"], str)
+                and isinstance(progress["percentage"], int)
+                for progress in body["progresses"]
+            ):
+                error_msg.append("all progresses must be datetime and percentage")
+    return len(error_msg) == 0, error_msg

@@ -1009,7 +1009,15 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/RequestTextFileTask'
+            allOf:
+              - $ref: '#/components/schemas/Task'
+            type: object
+            properties:
+              assigned_to:
+                allOf:
+                  - $ref: '#/components/schemas/UserId'
+                nullable: true
+                readOnly: false
     CreateUser:
       required: true
       content:
