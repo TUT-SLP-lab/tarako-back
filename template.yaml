@@ -24,6 +24,9 @@ Parameters:
     Type: String
     Description: "S3 Directory name"
     Default: dev
+  OpenAiApiKey:
+    Type: String
+    Description: "OpenAI API Key"
 
 Resources:
   ApiGateway:
@@ -263,6 +266,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+          OPENAI_API_KEY: !Ref OpenAiApiKey
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         TasksPostEvent:
