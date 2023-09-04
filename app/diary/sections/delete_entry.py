@@ -1,6 +1,6 @@
 import json
 
-from table_utils import section_diary_table
+from table_utils import DynamoDBError, get_item, section_diary_table
 
 
 def lambda_handler(event, context):
@@ -21,22 +21,18 @@ def lambda_handler(event, context):
     if diary_id is None or not isinstance(diary_id, str):
         return {"statusCode": 400, "body": "Bad Request: Invalid diary_id"}
 
-    option = {"Key": {"diary_id": diary_id}}
-    response = section_diary_table.get_item(**option)
-    print(response)
-    if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
-        return {
-            "statusCode": 500,
-            "body": f"Failed to find diary with section id: {section_id}",
-        }
-    if "Item" not in response:
-        return {
-            "statusCode": 404,
-            "body": f"Item is not found with {section_id}",
-        }
-    if response["Item"]["section_id"] != section_id:
+    # sectionの確認
+    try:
+        print(section_diary_table.name, diary_id)
+        diary = get_item(section_diary_table, "diary_id", diary_id)
+    except DynamoDBError as e:
+        return {"statusCode": 500, "body": f"Failed: {e}"}
+    except IndexError as e:
+        return {"statusCode": 404, "body": f"Failed: {e}"}
+    if diary["section_id"] != section_id:
         return {"statsCode": 404, "body": f"Failed to fild section_id: {section_id}"}
 
+    # 削除処理
     option = {"Key": {"diary_id": diary_id}}
     response = section_diary_table.delete_item(**option)
 

@@ -1,8 +1,8 @@
-import datetime
+from datetime import datetime
 import json
 
-from table_utils import (json_dumps, section_diary_table, section_table,
-                         user_table)
+from table_utils import (DynamoDBError, get_item, json_dumps,
+                         section_diary_table, section_table, user_table)
 
 
 def lambda_handler(event, context):
@@ -13,6 +13,11 @@ def lambda_handler(event, context):
     section_id = ppm.get("section_id")
     diary_id = ppm.get("diary_id")
     body = event.get("body", "{}")
+    try:
+        section_id = int(section_id)
+    except ValueError:
+        return {"statusCode": 400, "body": "Bad Request: section_id is not int"}
+
     if body is None:
         return {"statusCode": 400, "body": "Bad Request: Invalid body"}
     body = json.loads(body)
@@ -22,58 +27,44 @@ def lambda_handler(event, context):
     user_ids = body.get("user_ids", None)
 
     # バリデーション
+    error_messages = []
     if section_id is None or not isinstance(section_id, int):
-        return {"statusCode": 400, "body": "Bad Request: Invalid section_id"}
+        error_messages.append("Bad Request: Invalid section_id")
     if diary_id is None or not isinstance(diary_id, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid diary_id"}
+        error_messages.append("Bad Request: Invalid diary_id")
     if details is None or not isinstance(details, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid details"}
+        error_messages.append("Bad Request: Invalid details")
     if serious is None or not isinstance(serious, int):
-        return {"statusCode": 400, "body": "Bad Request: Invalid serious"}
+        error_messages.append("Bad Request: Invalid serious")
     if user_ids is None or not isinstance(user_ids, list):
-        return {"statusCode": 400, "body": "Bad Request: Invalid user_ids"}
-
-    for user_id in user_ids:
-        user_table_resp = user_table.get_item(Key={"user_id": user_id})
-        if user_table_resp["ResponseMetadata"]["HTTPStatusCode"] != 200:
-            return {
-                "statusCode": 500,
-                "body": f"Failed to find user with user id: {user_id}",
-            }
-        if "Item" not in user_table_resp:
-            return {"statusCode": 404, "body": f"User {user_id} is not found"}
-
-    diary_resp = section_diary_table.get_item(Key={"diary_id": diary_id})
-    if diary_resp["ResponseMetadata"]["HTTPStatusCode"] != 200:
-        return {
-            "statusCode": 500,
-            "body": f"Failed to find diary with diary id: {diary_id}",
-        }
-    if "Item" not in diary_resp:
-        return {
-            "statusCode": 404,
-            "body": f"Item is not found with {diary_id}",
-        }
-
-    section_resp = section_table.get_item(Key={"section_id": section_id})
-    if section_resp["ResponseMetadata"]["HTTPStatusCode"] != 200:
-        return {
-            "statusCode": 500,
-            "body": f"Failed to find section with section id: {section_id}",
-        }
-    if "Item" not in section_resp:
-        return {
-            "statusCode": 404,
-            "body": f"Item is not found with {section_id}",
-        }
-    section = section_resp["Item"]
-
-    if diary_resp["Item"]["section_id"] != section_id:
+        error_messages.append("Bad Request: Invalid user_ids")
+    if len(error_messages) > 0:
         return {
             "statusCode": 400,
-            "body": "Bad Request: Invalid section_id",
+            "body": "\n".join(error_messages),
         }
 
+    # ユーザーの存在確認
+    try:
+        for user_id in user_ids:
+            get_item(user_table, "user_id", user_id)
+        # sectionの取得
+        section = get_item(section_table, "section_id", section_id)
+        # get diary
+        diary = get_item(section_diary_table, "diary_id", diary_id)
+
+        # section validation
+        if section["section_id"] != section_id:
+            return {
+                "statusCode": 400,
+                "body": "Bad Request: Invalid section_id",
+            }
+    except DynamoDBError as e:
+        return {"statusCode": 500, "body": f"Failed: {e}"}
+    except IndexError as e:
+        return {"statusCode": 404, "body": f"Failed: {e}"}
+
+    # update
     update_resp = section_diary_table.update_item(
         Key={"diary_id": diary_id},
         UpdateExpression="set details=:d, serious=:s, user_ids=:u, updated_at=:upd",
@@ -91,7 +82,7 @@ def lambda_handler(event, context):
             "body": f"Failed to update diary with diary id: {diary_id}",
         }
 
-    diary = diary_resp["Item"]
+    diary = diary
     diary["details"] = details
     diary["serious"] = serious
     diary["user_ids"] = user_ids

@@ -3,21 +3,23 @@ import uuid
 from datetime import datetime
 
 from boto3.dynamodb.conditions import Key
-from table_utils import (json_dumps, section_diary_table, section_table,
-                         user_table)
+from table_utils import (DynamoDBError, get_item, get_items, json_dumps,
+                         section_diary_table, section_table, user_table)
 
 
 def lambda_handler(event, context):
     ppm = event.get("pathParameters", {})
 
+    # validation
     if ppm is None:
         return {"statusCode": 400, "body": "Bad Request: Invalid path parameters"}
     section_id = ppm.get("section_id")
     try:
         section_id = int(section_id)
     except ValueError:
-        return {"statusCode": 400, "body": "Bad Request: Invalid section_id"}
+        return {"statusCode": 400, "body": "Bad Request: section_id is not int"}
 
+    # body balidation
     body = event.get("body", "{}")
     if body is None:
         return {"statusCode": 400, "body": "Bad Request: Invalid body"}
@@ -26,45 +28,36 @@ def lambda_handler(event, context):
     date = body.get("date", None)
     message = body.get("message", None)
 
-    print(date, message)
-
     # バリデーション
     if section_id is None or not isinstance(section_id, int):
         return {"statusCode": 400, "body": "Bad Request: Invalid section_id"}
+    if date is None or not isinstance(date, str):
+        return {"statusCode": 400, "body": "Bad Request: Invalid date"}
+    if message is None or not isinstance(message, str):
+        return {"statusCode": 400, "body": "Bad Request: Invalid message"}
+    try:
+        datetime.fromisoformat(date)
+    except ValueError:
+        return {"statusCode": 400, "body": "Bad Request: Invalid date format"}
 
-    param = {
-        "IndexName": "SectionIndex",
-        "KeyConditionExpression": Key("section_id").eq(section_id),
-    }
-    user_resp = user_table.query(**param)
-    if user_resp["ResponseMetadata"]["HTTPStatusCode"] != 200:
-        return {
-            "statusCode": 500,
-            "body": f"Failed to find diary with section id: {section_id}",
-        }
-    if "Items" not in user_resp:
-        return {
-            "statusCode": 404,
-            "body": f"Item is not found with {section_id}",
-        }
-    print(user_resp)
-    user_ids = [item["user_id"] for item in user_resp["Items"]]
+    print(date, message)
 
-    # TODO Chat GPTに聞く
+    try:
+        user_list = get_items(
+            user_table, "SectionIndex", Key("section_id").eq(section_id)
+        )
+        user_ids = [item["user_id"] for item in user_list]
 
-    # section 情報の取得
-    section_resp = section_table.get_item(Key={"section_id": section_id})
-    if section_resp["ResponseMetadata"]["HTTPStatusCode"] != 200:
-        return {
-            "statusCode": 500,
-            "body": f"Failed to find section with section id: {section_id}",
-        }
-    if "Item" not in section_resp:
-        return {
-            "statusCode": 404,
-            "body": f"Item is not found with {section_id}",
-        }
-    section = section_resp["Item"]
+        # TODO Chat GPTに聞く
+
+        # section 情報の取得
+
+        section = get_item(section_table, "section_id", section_id)
+
+    except DynamoDBError as e:
+        return {"statusCode": 500, "body": f"Failed: {e}"}
+    except IndexError as e:
+        return {"statusCode": 404, "body": f"Failed: {e}"}
 
     diary_id = str(uuid.uuid4())
     # Update 処理
