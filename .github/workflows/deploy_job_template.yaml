@@ -68,7 +68,9 @@ jobs:
       - run: aws sts get-caller-identity
 
       - name: Upload to Amazon S3
-        run: aws s3 cp --region ${AWS_REGION} ${OPENAPI_FILE} s3://${AWS_S3_BUCKET}/${S3_DIR}/${OPENAPI_FILE}
+        run: |-
+          aws s3 cp --region ${AWS_REGION} ${OPENAPI_FILE} s3://${AWS_S3_BUCKET}/${S3_DIR}/${OPENAPI_FILE}
+          aws s3api put-object-tagging --region ${AWS_REGION} --bucket ${AWS_S3_BUCKET} --key ${S3_DIR}/${OPENAPI_FILE} --tagging "TagSet=[{Key=public,Value=yes}]"
 
       - name: Build and Deploy Cloud Formation stacks
         id: deploy_step
