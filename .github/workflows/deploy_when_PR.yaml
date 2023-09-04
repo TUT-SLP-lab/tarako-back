@@ -28,4 +28,5 @@ jobs:
       AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
       AWS_ACCOUNT_NAME: ${{ secrets.AWS_ACCOUNT_NAME }}
       AWS_GITHUB_OIDC_ROLE_NAME: ${{ secrets.AWS_GITHUB_OIDC_ROLE_NAME }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
