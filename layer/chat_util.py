@@ -111,8 +111,13 @@ def gen_task_data(
     if response["choices"][0]["message"]["function_call"]["name"] == "create_task":
         task_str = response["choices"][0]["message"]["function_call"]["arguments"]
         task = json.loads(task_str)
-    elif response["choices"][0]["message"]["function_call"]["name"] == "suggest_similer_task":
-        suggest_task_str = response["choices"][0]["message"]["function_call"]["arguments"]
+    elif (
+        response["choices"][0]["message"]["function_call"]["name"]
+        == "suggest_similer_task"
+    ):
+        suggest_task_str = response["choices"][0]["message"]["function_call"][
+            "arguments"
+        ]
         suggest_task = json.loads(suggest_task_str)
     return task, suggest_task
 
