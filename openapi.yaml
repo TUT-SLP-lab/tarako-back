@@ -773,9 +773,7 @@ components:
       in: path
       required: True
       schema:
-        type: string
-        format: uuid
-        description: 課ID
+        $ref: '#/components/schemas/SectionId'
     from_datetime_query:
       name: from
       in: query
