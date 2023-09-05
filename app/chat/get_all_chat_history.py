@@ -47,7 +47,7 @@ def lambda_handler(event, context):
 
     return {
         "statusCode": 200,
-        "body": json_dumps(chat_history),
+        "body": json_dumps(chat_history["Items"]),
         "headers": {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET",
