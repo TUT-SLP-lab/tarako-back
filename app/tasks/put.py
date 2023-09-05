@@ -1,7 +1,8 @@
 import json
 from datetime import datetime
 
-from table_utils import json_dumps, task_table, validate_task_id
+from table_utils import json_dumps, task_table
+from validation import validate_task_id
 
 
 def lambda_handler(event, context):
@@ -31,6 +32,7 @@ def lambda_handler(event, context):
     if not is_valid:
         return {"statusCode": 400, "body": f"Bad Request: {', '.join(error_msg)}"}
 
+    last_progress = json_body.get("progresses")[-1]
     expr = ", ".join(
         [
             "SET completed=:completed",

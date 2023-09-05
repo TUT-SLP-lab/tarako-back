@@ -1,18 +1,11 @@
 import json
 from datetime import datetime
 
-from table_utils import (
-    DynamoDBError,
-    get_item,
-    get_items,
-    json_dumps,
-    put_item,
-    user_diary_table,
-    user_table,
-    validate_diary_id,
+from table_utils import DynamoDBError, get_item, json_dumps, put_item, user_diary_table
+from validation import (
     validate_details_not_none,
+    validate_diary_id,
     validate_serious,
-    validate_task_ids,
     validate_user_id,
 )
 

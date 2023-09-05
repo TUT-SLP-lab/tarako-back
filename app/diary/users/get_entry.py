@@ -1,4 +1,5 @@
-from table_utils import DynamoDBError, get_item, json_dumps, user_diary_table, validate_diary_id, validate_user_id
+from table_utils import DynamoDBError, get_item, json_dumps, user_diary_table
+from validation import validate_diary_id, validate_user_id
 
 
 def lambda_handler(event, context):

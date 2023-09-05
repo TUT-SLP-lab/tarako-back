@@ -1,12 +1,7 @@
 import json
 
-from table_utils import (
-    DynamoDBError,
-    get_item,
-    section_diary_table,
-    validate_diary_id,
-    validate_section_id,
-)
+from table_utils import DynamoDBError, get_item, section_diary_table
+from validation import validate_diary_id, validate_section_id
 
 
 def lambda_handler(event, context):

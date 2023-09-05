@@ -3,6 +3,8 @@ from table_utils import (
     get_item,
     json_dumps,
     user_diary_table,
+)
+from validation import (
     validate_diary_id,
     validate_user_id,
 )

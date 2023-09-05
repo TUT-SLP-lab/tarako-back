@@ -1,4 +1,5 @@
-from table_utils import json_dumps, task_table, validate_task_id
+from table_utils import json_dumps, task_table
+from validation import validate_task_id
 
 
 def lambda_handler(event, context):
@@ -11,13 +12,6 @@ def lambda_handler(event, context):
     is_valid, err_msg = validate_task_id(task_id)
     if not is_valid:
         return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
-
-    option = {"Key": {"task_id": task_id}}
-    response = task_table.get_item(**option)
-    if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
-        return {"statusCode": 500, "body": "DynamoDB Error"}
-    if "Item" not in response:
-        return {"statusCode": 404, "body": f"task_id:{task_id} Not Found"}
 
     response = task_table.delete_item(**option)
     if response["ResponseMetadata"]["HTTPStatusCode"] != 200:

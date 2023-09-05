@@ -6,8 +6,8 @@ from table_utils import (
     json_dumps,
     user_diary_table,
     user_table,
-    validate_datetime,
 )
+from validatoin import validate_datetime
 
 
 def lambda_handler(event, context):

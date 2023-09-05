@@ -8,12 +8,13 @@ from table_utils import (
     put_item,
     section_diary_table,
     section_table,
-    user_table,
+)
+from validation import (
     validate_diary_id,
     validate_message,
     validate_section_id,
     validate_serious,
-    validate_user_ids_not_none
+    validate_user_ids_not_none,
 )
 
 

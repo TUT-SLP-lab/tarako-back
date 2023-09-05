@@ -1,4 +1,5 @@
-from table_utils import json_dumps, task_table, validate_task_id
+from table_utils import json_dumps, task_table
+from validation import validate_task_id
 
 
 def lambda_handler(event, context):

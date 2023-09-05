@@ -4,7 +4,8 @@ import random
 import uuid
 from datetime import datetime
 
-from table_utils import add_chat_to_db, json_dumps, task_table, validate_file, validate_task_id, validate_user_id
+from table_utils import add_chat_to_db, json_dumps, task_table
+from validation import validate_file, validate_user_id
 
 # from io import BytesIO
 

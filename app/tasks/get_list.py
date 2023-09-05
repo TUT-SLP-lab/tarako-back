@@ -1,5 +1,6 @@
 from boto3.dynamodb.conditions import Key
-from table_utils import DynamoDBError, get_items, json_dumps, task_table, validate_datetime, validate_user_ids, validate_status
+from table_utils import DynamoDBError, get_items, json_dumps, task_table
+from validatoin import validate_datetime, validate_status, validate_user_ids
 
 
 def lambda_handler(event, context):
