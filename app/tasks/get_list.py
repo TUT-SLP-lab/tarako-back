@@ -73,24 +73,55 @@ def lambda_handler(event, context):
         else get_datetime_range(datetime_key_name, from_datetime, to_datetime)
     )
 
-    result = get_result(
-        has_user_query,
-        datetime_range,
-        completed_query,
-        is_start_datetime,
-        user_ids,
-        status,
-    )
-
-    return {
-        "statusCode": 200,
-        "body": json_dumps(result),
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-        },
-    }
+    try:
+        result = get_result(
+            has_user_query,
+            datetime_range,
+            completed_query,
+            is_start_datetime,
+            user_ids,
+            status,
+        )
+    except DynamoDBError as e:
+        return {
+            "statusCode": 500,
+            "body": json_dumps({"errors": str(e)}),
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET",
+                "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
+            },
+        }
+    except IndexError as e:
+        return {
+            "statusCode": 400,
+            "body": json_dumps({"errors": str(e)}),
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET",
+                "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
+            },
+        }
+    except Exception as e:
+        return {
+            "statusCode": 500,
+            "body": json_dumps({"errors": str(e)}),
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET",
+                "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
+            },
+        }
+    else:
+        return {
+            "statusCode": 200,
+            "body": json_dumps(result),
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "GET",
+                "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
+            },
+        }
 
 
 def get_status_string(status):
@@ -120,49 +151,46 @@ def user_ids_get_item(user_ids, index_name, append_expr=None):
 def get_result(
     has_user_query, datetime_range, completed_query, is_start_datetime, user_ids, status
 ):
-    try:
-        result = None
-        index_name = ""
-        if has_user_query and datetime_range:
-            index_name = (
-                "UserStartedAtIndex" if is_start_datetime else "UserLastStatusAtIndex"
-            )
-            result = user_ids_get_item(user_ids, index_name, datetime_range)
-            # 3つのクエリがある場合は、更に絞り込みが必要
-            # NOTE: あらかじめ大量に絞り込めるものを優先して絞った
-            if completed_query:
-                tmp = get_status_string(status)
-                result = [item for item in result if item["completed"] == tmp]
-        elif has_user_query and completed_query:
-            index_name = "UserStatusIndex"
-            result = []
-            for user_id_ in user_ids:
-                expr = Key("assigned_to").eq(user_id_) & completed_query
-                result.extend(get_items(task_table, index_name, expr))
-        elif completed_query and datetime_range:
-            index_name = (
-                "CompletedStartedAtIndex"
-                if is_start_datetime
-                else "CompletedLastStatusAtIndex"
-            )
-            expr = completed_query & datetime_range
-        elif has_user_query:
-            index_name = "AssignedToIndex"
-            result = []
-            for user_id_ in user_ids:
-                expr = Key("assigned_to").eq(user_id_)
-                result.extend(get_items(task_table, index_name, expr))
-        elif datetime_range:
-            index_name = "StartedAtIndex" if is_start_datetime else "LastStatusAtIndex"
-            expr = Key("placeholder").eq(0) & datetime_range
-        elif completed_query:
-            index_name = "CompletedIndex"
-            expr = completed_query
-        else:
-            result = task_table.scan()["Items"]
+    result = None
+    index_name = ""
+    if has_user_query and datetime_range:
+        index_name = (
+            "UserStartedAtIndex" if is_start_datetime else "UserLastStatusAtIndex"
+        )
+        result = user_ids_get_item(user_ids, index_name, datetime_range)
+        # 3つのクエリがある場合は、更に絞り込みが必要
+        # NOTE: あらかじめ大量に絞り込めるものを優先して絞った
+        if completed_query:
+            tmp = get_status_string(status)
+            result = [item for item in result if item["completed"] == tmp]
+    elif has_user_query and completed_query:
+        index_name = "UserStatusIndex"
+        result = []
+        for user_id_ in user_ids:
+            expr = Key("assigned_to").eq(user_id_) & completed_query
+            result.extend(get_items(task_table, index_name, expr))
+    elif completed_query and datetime_range:
+        index_name = (
+            "CompletedStartedAtIndex"
+            if is_start_datetime
+            else "CompletedLastStatusAtIndex"
+        )
+        expr = completed_query & datetime_range
+    elif has_user_query:
+        index_name = "AssignedToIndex"
+        result = []
+        for user_id_ in user_ids:
+            expr = Key("assigned_to").eq(user_id_)
+            result.extend(get_items(task_table, index_name, expr))
+    elif datetime_range:
+        index_name = "StartedAtIndex" if is_start_datetime else "LastStatusAtIndex"
+        expr = Key("placeholder").eq(0) & datetime_range
+    elif completed_query:
+        index_name = "CompletedIndex"
+        expr = completed_query
+    else:
+        result = get_all_items(task_table)
 
-        if result is None:
-            result = get_items(task_table, index_name, expr)
-    except DynamoDBError:
-        return {"statusCode": 500, "body": "DynamoDB Error"}
+    if result is None:
+        result = get_items(task_table, index_name, expr)
     return result

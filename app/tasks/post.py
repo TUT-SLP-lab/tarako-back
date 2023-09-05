@@ -4,7 +4,7 @@ import random
 import uuid
 from datetime import datetime
 
-from table_utils import add_chat_to_db, json_dumps, task_table
+from table_utils import add_chat_to_db, json_dumps, task_table, post_item
 from validation import validate_file, validate_user_id
 
 # from io import BytesIO
@@ -131,7 +131,7 @@ def lambda_handler(event, context):
     }
 
     # task_tableに追加する
-    task_table.put_item(Item=task)
+    task = post_item(task_table, task)
     # Chatデータベースにシステムからのメッセージを追加する
     add_chat_to_db(user_id, gpt_output.get("response_message"), is_user_message=False)
 

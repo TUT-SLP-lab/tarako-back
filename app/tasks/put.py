@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 
-from table_utils import json_dumps, task_table
+from table_utils import DynamoDBError, json_dumps, put_item, task_table
 from validation import validate_task_id
 
 
@@ -17,8 +17,6 @@ def lambda_handler(event, context):
     is_valid, err_msg = validate_task_id(task_id)
     if not is_valid:
         return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
-    option = {"Key": {"task_id": task_id}}
-    response = task_table.get_item(**option)
 
     if body is None:
         return {"statusCode": 400, "body": "Bad Request: Missing body"}
@@ -64,16 +62,16 @@ def lambda_handler(event, context):
         ":details": json_body.get("details"),
     }
 
-    response = task_table.update_item(
-        Key=option["Key"],
-        UpdateExpression=expr,
-        ExpressionAttributeValues=update_object,
-        ReturnValues="ALL_NEW",
-    )
+    try:
+        task = put_item(task_table, "task_id", task_id, expr, update_object)
+    except DynamoDBError as e:
+        return {"statusCode": 500, "body": f"Internal Server Error: {e}"}
+    except IndexError as e:
+        return {"statusCode": 404, "body": f"Not Found: {e}"}
 
     return {
         "statusCode": 200,
-        "body": json_dumps(response["Attributes"]),
+        "body": json_dumps(task),
         "headers": {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET",

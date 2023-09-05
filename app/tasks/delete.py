@@ -13,7 +13,7 @@ def lambda_handler(event, context):
     if not is_valid:
         return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
 
-    response = task_table.delete_item(**option)
+    response = task_table.delete_item(Key={"task_id": task_id})
     if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
         return {
             "statusCode": 500,

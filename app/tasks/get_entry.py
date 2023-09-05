@@ -1,4 +1,4 @@
-from table_utils import json_dumps, task_table
+from table_utils import json_dumps, task_table, get_item
 from validation import validate_task_id
 
 
@@ -13,13 +13,15 @@ def lambda_handler(event, context):
     if not is_valid:
         return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
 
-    response = task_table.get_item(Key={"task_id": task_id})
-    if "Item" not in response:
-        return {"statusCode": 404, "body": "Not Found"}
-
+    try:
+        response = get_item(task_table, "task_id", task_id)
+    except DynamoDBError as e:
+        return {"statusCode": 500, "body": f"Failed to get task with ID: {task_id}"}
+    except IndexError as e:
+        return {"statusCode": 404, "body": f"Failed to get task with ID: {task_id}"}
     return {
         "statusCode": 200,
-        "body": json_dumps(response["Item"]),
+        "body": json_dumps(response),
         "headers": {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET",
