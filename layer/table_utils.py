@@ -1,4 +1,6 @@
 import json
+import uuid
+from datetime import datetime
 from decimal import Decimal
 from os import getenv
 
@@ -126,6 +128,30 @@ def validate_file(file_item):
     if len(file_item.value) > max_file_size:
         return False
     return True
+
+
+def add_chat_to_db(user_id: str, message: str, is_user_message: bool) -> None:
+    """チャット履歴をDBに追加する
+
+    Args:
+        user_id (str): ユーザID
+        text (str): テキスト
+        is_user_message (bool): ユーザメッセージかどうか
+    """
+    dt = datetime.now().isoformat()
+    response = chat_history_table.put_item(
+        Item={
+            "chat_id": str(uuid.uuid4()),
+            "user_id": user_id,
+            "timestamp": dt,
+            "message": message,
+            "is_user_message": is_user_message,
+            "created_at": dt,
+            "updated_at": dt,
+        }
+    )
+    if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
+        raise DynamoDBError("add to chat is failed")
 
 
 # def extract_text_from_docx(docx_file):
