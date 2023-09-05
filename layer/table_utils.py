@@ -35,6 +35,22 @@ def translate_object(obj):
 def json_dumps(obj):
     return json.dumps(obj, default=translate_object)
 
+def get_all_items(table) -> list:
+    """
+    テーブルから全てのアイテムを取得する
+    Args:
+        table (boto3.resource.Table): テーブル
+    Returns:
+        list: アイテムのリスト
+    Raises:
+        DynamoDBError: DynamoDBのエラー
+    """
+    response = table.scan()
+    if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
+        raise DynamoDBError(f"Failed to find {table.name}")
+    if "Items" not in response:
+        raise IndexError(f"Items of {table.name} are not found")
+    return response["Items"]
 
 def get_items(table, index_name: str, expr: Key) -> list:
     """テーブルからアイテムを取得する

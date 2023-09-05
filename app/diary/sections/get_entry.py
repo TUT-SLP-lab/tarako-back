@@ -1,4 +1,10 @@
-from table_utils import json_dumps, section_diary_table, section_table
+from table_utils import (
+    DynamoDBError,
+    get_item,
+    json_dumps,
+    section_diary_table,
+    section_table,
+)
 
 
 def lambda_handler(event, context):
@@ -18,28 +24,25 @@ def lambda_handler(event, context):
     except ValueError:
         return {"statusCode": 400, "body": "Bad Request: Invalid section_id"}
 
-    # diary_idの確認
-    diary_resp = section_diary_table.get_item(Key={"diary_id": diary_id})
-    if diary_resp["ResponseMetadata"]["HTTPStatusCode"] != 200:
-        return {"statusCode": 500, "body": "Internal Server Error: Section get failed"}
-    if "Item" not in diary_resp:
-        return {"statusCode": 404, "body": "Not Found: Diary not found"}
-    if diary_resp["Item"]["section_id"] != section_id:
-        return {"statusCode": 404, "body": "Not Found: Diary not found"}
+    try:
+        # diary_idの確認
+        diary = get_item(section_diary_table, "diary_id", diary_id)
+        if diary["section_id"] != section_id:
+            return {"statusCode": 404, "body": "Not Found: Diary not found"}
 
-    # get section info
-    section_resp = section_table.get_item(Key={"section_id": section_id})
-    if section_resp["ResponseMetadata"]["HTTPStatusCode"] != 200:
-        return {"statusCode": 500, "body": "Internal Server Error: Section get failed"}
-    if "Item" not in section_resp:
-        return {"statusCode": 404, "body": "Not Found: Section not found"}
+        # get section info
+        section = get_item(section_table, "section_id", section_id)
 
-    # section情報の追加
-    diary_resp["Item"]["section"] = section_resp["Item"]
+        # section情報の追加
+        diary["section"] = section
+    except DynamoDBError as e:
+        return {"statusCode": 500, "body": f"Internal Server Error: {e}"}
+    except IndexError as e:
+        return {"statusCode": 404, "body": f"Not Found: {e}"}
 
     return {
         "statusCode": 200,
-        "body": json_dumps(diary_resp["Item"]),
+        "body": json_dumps(diary),
         "headers": {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET",
