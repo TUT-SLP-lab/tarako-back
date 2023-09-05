@@ -68,12 +68,12 @@ def lambda_handler(event, context):
         Key=option["Key"],
         UpdateExpression=expr,
         ExpressionAttributeValues=update_object,
-        ReturnValues="UPDATED_NEW",
+        ReturnValues="ALL_NEW",
     )
 
     return {
         "statusCode": 200,
-        "body": json_dumps(response["Item"]),
+        "body": json_dumps(response["Attributes"]),
     }
 
 
