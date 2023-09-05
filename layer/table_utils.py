@@ -17,6 +17,7 @@ SECTION_TABLE_NAME = f"SectionTable-{PR_NUM}"
 TASK_TABLE_NAME = f"TasksTable-{PR_NUM}"
 USER_DIARY_TABLE_NAME = f"UserDiaryTable-{PR_NUM}"
 SECTION_DIARY_TABLE_NAME = f"SectionDiaryTable-{PR_NUM}"
+CHAT_HISTORY_TABLE_NAME = f"ChatHistoryTable-{PR_NUM}"
 
 # テーブルの定義
 dynamodb = boto3.resource("dynamodb")
@@ -25,6 +26,7 @@ section_table = dynamodb.Table(SECTION_TABLE_NAME)
 task_table = dynamodb.Table(TASK_TABLE_NAME)
 user_diary_table = dynamodb.Table(USER_DIARY_TABLE_NAME)
 section_diary_table = dynamodb.Table(SECTION_DIARY_TABLE_NAME)
+chat_history_table = dynamodb.Table(CHAT_HISTORY_TABLE_NAME)
 
 
 def translate_object(obj):
