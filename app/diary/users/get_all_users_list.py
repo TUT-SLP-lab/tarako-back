@@ -1,5 +1,12 @@
 from boto3.dynamodb.conditions import Key
-from table_utils import json_dumps, user_diary_table
+from table_utils import (
+    DynamoDBError,
+    get_all_items,
+    get_items,
+    json_dumps,
+    user_diary_table,
+    user_table,
+)
 
 
 def lambda_handler(event, context):
@@ -10,45 +17,44 @@ def lambda_handler(event, context):
     else:
         from_date = None
         to_date = None
+
     # バリデーション
     if from_date is not None and not isinstance(from_date, str):
         return {"statusCode": 400, "body": "Bad Request: Invalid from_date"}
     if to_date is not None and not isinstance(to_date, str):
         return {"statusCode": 400, "body": "Bad Request: Invalid to_date"}
 
-    # TODO from user DB
-    user_list = [
-        "4f73ab32-21bf-47ef-a119-fa024bc2b9cc",
-        "595c060d-8417-4ac8-bcb5-c8e733dc64e0",
-        "e08bf311-b1bc-4a38-bac1-374c3ede7203",
-    ]
+    try:
+        users = get_all_items(user_table)
+        user_ids = [user["user_id"] for user in users]
 
-    # get user diary list between from_date and to_date
-    if from_date is None and to_date is None:
-        option = {"IndexName": "UserIndex"}
-        datetime_range = None
-    else:
-        if from_date is not None and to_date is not None:
-            datetime_range = Key("date").between(from_date, to_date)
-        elif from_date is not None:
-            datetime_range = Key("date").gte(from_date)
-        elif to_date is not None:
-            datetime_range = Key("date").lte(to_date)
-        option = {"IndexName": "UserDateIndex"}
-
-    user_daily_list = []
-    for user in user_list:
-        user_id_key = Key("user_id").eq(user)
-        if datetime_range is not None:
-            expr = user_id_key & datetime_range
+        # get user diary list between from_date and to_date
+        if from_date is None and to_date is None:
+            index_name = "UserIndex"
+            datetime_range = None
         else:
-            expr = user_id_key
-        option["KeyConditionExpression"] = expr
+            if from_date is not None and to_date is not None:
+                datetime_range = Key("date").between(from_date, to_date)
+            elif from_date is not None:
+                datetime_range = Key("date").gte(from_date)
+            elif to_date is not None:
+                datetime_range = Key("date").lte(to_date)
+            index_name = "UserDateIndex"
 
-        response = user_diary_table.query(**option)
-        if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
-            return {"statusCode": 500, "body": "DynamoDB Error"}
-        user_daily_list += response["Items"]
+        user_daily_list = []
+        for user_id in user_ids:
+            user_id_key = Key("user_id").eq(user_id)
+            if datetime_range is not None:
+                expr = user_id_key & datetime_range
+            else:
+                expr = user_id_key
+
+            user_diary = get_items(user_diary_table, index_name, expr)
+            user_daily_list += user_diary
+    except DynamoDBError as e:
+        return {"statusCode": 500, "body": f"Internal Server Error: {e}"}
+    except IndexError as e:
+        return {"statusCode": 404, "body": f"Not Found: {e}"}
 
     return {
         "statusCode": 200,

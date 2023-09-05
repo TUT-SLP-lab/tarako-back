@@ -43,6 +43,24 @@ def json_dumps(obj):
     return json.dumps(obj, default=translate_object)
 
 
+def get_all_items(table) -> list:
+    """
+    テーブルから全てのアイテムを取得する
+    Args:
+        table (boto3.resource.Table): テーブル
+    Returns:
+        list: アイテムのリスト
+    Raises:
+        DynamoDBError: DynamoDBのエラー
+    """
+    response = table.scan()
+    if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
+        raise DynamoDBError(f"Failed to find {table.name}")
+    if "Items" not in response:
+        raise IndexError(f"Items of {table.name} are not found")
+    return response["Items"]
+
+
 def get_items(table, index_name: str, expr: Key) -> list:
     """テーブルからアイテムを取得する
 
@@ -111,6 +129,22 @@ def put_item(table, key: str, value: str, UpdExp: str, ExpAtt: dict) -> dict:
     if "Attributes" not in response:
         raise IndexError(f"Attributes of {table.name} is not found with {value}")
     return response["Attributes"]
+
+
+def post_item(table, item: dict) -> dict:
+    """テーブルにアイテムを追加する
+    Args:
+        table (boto3.resource.Table): テーブル
+        item (dict): アイテム
+    Returns:
+        dict: アイテム
+    Raises:
+        DynamoDBError: DynamoDBのエラー
+    """
+    response = table.put_item(Item=item, ReturnValues="NONE")
+    if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
+        raise DynamoDBError(f"Failed to find {table.name}")
+    return item
 
 
 class DynamoDBError(Exception):

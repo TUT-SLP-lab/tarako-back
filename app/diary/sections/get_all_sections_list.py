@@ -1,7 +1,14 @@
 import datetime
 
 from boto3.dynamodb.conditions import Key
-from table_utils import json_dumps, section_diary_table, section_table
+from table_utils import (
+    DynamoDBError,
+    get_all_items,
+    get_items,
+    json_dumps,
+    section_diary_table,
+    section_table,
+)
 
 
 def lambda_handler(event, context):
@@ -37,44 +44,37 @@ def lambda_handler(event, context):
     if from_date and to_date and from_date_datetime >= to_date_datetime:
         return {"statusCode": 400, "body": "Bad Request: from_date >= to_date"}
 
-    # get all sections
-    section_req = section_table.scan()
-    if section_req["ResponseMetadata"]["HTTPStatusCode"] != 200:
-        return {"statusCode": 500, "body": "Internal Server Error: User scan failed"}
-    if "Items" not in section_req:
-        return {"statusCode": 404, "body": "Not Found: No section found"}
-    # get user diary list between from_date and to_date
-    if from_date is None and to_date is None:
-        option = {"IndexName": "SectionIndex"}
-        datetime_range = None
-    else:
-        if from_date is not None and to_date is not None:
-            datetime_range = Key("date").between(from_date, to_date)
-        elif from_date is not None:
-            datetime_range = Key("date").gte(from_date)
-        elif to_date is not None:
-            datetime_range = Key("date").lte(to_date)
-        option = {"IndexName": "SectionDateIndex"}
-
-    section_diary_list = []
-    for section in section_req["Items"]:
-        section_id_key = Key("section_id").eq(section["section_id"])
-        if datetime_range is not None:
-            expr = section_id_key & datetime_range
+    try:
+        # get all sections
+        section_list = get_all_items(section_table)
+        # get user diary list between from_date and to_date
+        if from_date is None and to_date is None:
+            index_name = "SectionIndex"
+            datetime_range = None
         else:
-            expr = section_id_key
-        option["KeyConditionExpression"] = expr
+            if from_date is not None and to_date is not None:
+                datetime_range = Key("date").between(from_date, to_date)
+            elif from_date is not None:
+                datetime_range = Key("date").gte(from_date)
+            elif to_date is not None:
+                datetime_range = Key("date").lte(to_date)
+            index_name = "SectionDateIndex"
 
-        response = section_diary_table.query(**option)
-        if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
-            return {
-                "statusCode": 500,
-                "body": "Internal Server Error: SectionDiary query failed",
-            }
+        section_diary_list = []
+        for section in section_list:
+            section_id_key = Key("section_id").eq(section["section_id"])
+            if datetime_range is not None:
+                expr = section_id_key & datetime_range
+            else:
+                expr = section_id_key
 
-        for i in range(len(response["Items"])):
-            response["Items"][i]["section"] = section
-        section_diary_list += response["Items"]
+            section_diary = get_items(section_diary_table, index_name, expr)
+
+            section_diary_list += section_diary
+    except DynamoDBError as e:
+        return {"statusCode": 500, "body": f"Internal Server Error: {e}"}
+    except IndexError as e:
+        return {"statusCode": 404, "body": f"Not Found: {e}"}
 
     return {
         "statusCode": 200,

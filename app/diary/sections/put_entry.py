@@ -1,8 +1,15 @@
 import json
 from datetime import datetime
 
-from table_utils import (DynamoDBError, get_item, json_dumps, put_item,
-                         section_diary_table, section_table, user_table)
+from table_utils import (
+    DynamoDBError,
+    get_item,
+    json_dumps,
+    put_item,
+    section_diary_table,
+    section_table,
+    user_table,
+)
 
 
 def lambda_handler(event, context):

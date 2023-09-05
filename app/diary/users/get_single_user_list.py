@@ -1,5 +1,5 @@
 from boto3.dynamodb.conditions import Key
-from table_utils import json_dumps, user_diary_table
+from table_utils import DynamoDBError, get_items, json_dumps, user_diary_table
 
 
 def lambda_handler(event, context):
@@ -26,7 +26,7 @@ def lambda_handler(event, context):
     # Get user diary list
     user_id_key = Key("user_id").eq(user_id)
     if from_date is None and to_date is None:
-        option = {"IndexName": "UserIndex"}
+        index_name = "UserIndex"
         expr = user_id_key
     else:
         if from_date is not None and to_date is not None:
@@ -35,19 +35,19 @@ def lambda_handler(event, context):
             datetime_range = Key("date").gte(from_date)
         elif to_date is not None:
             datetime_range = Key("date").lte(to_date)
-        option = {"IndexName": "UserDateIndex"}
+        index_name = "UserDateIndex"
         expr = user_id_key & datetime_range
 
-    option["KeyConditionExpression"] = expr
-    response = user_diary_table.query(**option)
-
-    # Validation
-    if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
-        return {"statusCode": 500, "body": "DynamoDB Error"}
+    try:
+        user_diary = get_items(user_diary_table, index_name, expr)
+    except DynamoDBError as e:
+        return {"statusCode": 500, "body": f"Internal Server Error: {e}"}
+    except IndexError as e:
+        return {"statusCode": 404, "body": f"Not Found: {e}"}
 
     return {
         "statusCode": 200,
-        "body": json_dumps(response["Items"]),
+        "body": json_dumps(user_diary),
         "headers": {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET",

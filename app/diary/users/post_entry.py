@@ -2,7 +2,14 @@ import json
 import uuid
 from datetime import datetime
 
-from table_utils import json_dumps, user_diary_table
+from table_utils import (
+    DynamoDBError,
+    get_item,
+    json_dumps,
+    post_item,
+    user_diary_table,
+    user_table,
+)
 
 
 def lambda_handler(event, context):
@@ -25,37 +32,39 @@ def lambda_handler(event, context):
         return {"statusCode": 400, "body": "Bad Request: Invalid date"}
     if message is None or not isinstance(message, str):
         return {"statusCode": 400, "body": "Bad Request: Invalid message"}
+    try:
+        datetime.fromisoformat(date)
+    except ValueError:
+        return {"statusCode": 400, "body": "Bad Request: Invalid date format"}
 
-    # TODO from user db
-    user_list = [
-        "4f73ab32-21bf-47ef-a119-fa024bc2b9cc",
-        "595c060d-8417-4ac8-bcb5-c8e733dc64e0",
-        "e08bf311-b1bc-4a38-bac1-374c3ede7203",
-    ]
-    if user_id not in user_list:
-        return {"statusCode": 400, "body": "Bad Request: user_id not found"}
+    # user 存在確認
+    try:
+        get_item(user_table, "user_id", user_id)
+        # TODO get from task
 
-    # get from task
-    # TODO send message to ChatGPT
-    diary_id = str(uuid.uuid4())
-    item = {
-        "diary_id": diary_id,
-        "section_id": 1,
-        "date": date,
-        "details": "hogehoge",
-        "serious": 0,
-        "created_at": datetime.now().isoformat(),
-        "updated_at": datetime.now().isoformat(),
-        "user_id": user_id,
-        "task_ids": ["aaaa", "aaa"],
-    }
-    response = user_diary_table.put_item(Item=item)
-    if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
-        return {"statusCode": 500, "body": "Internal Server Error"}
-    response = user_diary_table.get_item(Key={"diary_id": diary_id})
+        # TODO send message to ChatGPT
+        diary_id = str(uuid.uuid4())
+        item = {
+            "diary_id": diary_id,
+            "section_id": 1,
+            "date": date,
+            "details": "hogehoge",
+            "serious": 0,
+            "created_at": datetime.now().isoformat(),
+            "updated_at": datetime.now().isoformat(),
+            "user_id": user_id,
+            "task_ids": ["aaaa", "aaa"],
+        }
+        user_diary = post_item(user_diary_table, item)
+
+    except DynamoDBError as e:
+        return {"statusCode": 500, "body": f"Internal Server Error: {e}"}
+    except IndexError as e:
+        return {"statusCode": 404, "body": f"Not Found: {e}"}
+
     return {
         "statusCode": 200,
-        "body": json_dumps(response["Item"]),
+        "body": json_dumps(user_diary),
         "headers": {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "POST",
