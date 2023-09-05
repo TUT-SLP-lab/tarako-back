@@ -81,7 +81,6 @@ def lambda_handler(event, context):
             "body": json_dumps({"error": "\n".join(error_msg)}),
         }
 
-
     gpt_output = gen_dummy_data(msg)
 
     # TODO: 似たタスクがあるかどうかを確認する
