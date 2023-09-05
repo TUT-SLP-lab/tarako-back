@@ -1,11 +1,6 @@
 import datetime
 
-from table_utils import (
-    DynamoDBError,
-    get_item,
-    user_table,
-    task_table,
-)
+from table_utils import DynamoDBError, get_item, task_table, user_table
 
 
 def validate_file(file_item):

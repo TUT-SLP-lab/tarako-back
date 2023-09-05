@@ -1,6 +1,6 @@
 import json
 
-from table_utils import DynamoDBError, get_item, section_diary_table, delete_item
+from table_utils import DynamoDBError, delete_item, get_item, section_diary_table
 from validation import validate_diary_id, validate_section_id
 
 

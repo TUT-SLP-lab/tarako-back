@@ -167,8 +167,6 @@ class DynamoDBError(Exception):
     pass
 
 
-
-
 def add_chat_to_db(user_id: str, message: str, is_user_message: bool) -> None:
     """チャット履歴をDBに追加する
 
