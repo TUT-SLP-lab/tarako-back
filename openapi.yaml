@@ -795,10 +795,6 @@ components:
       allOf:
         - $ref: "#/components/schemas/DiaryBase"
       properties:
-        section:
-          allOf:
-            - $ref: "#/components/schemas/Section"
-          readOnly: true
         user_ids:
           type: array
           description: 日報の作成に用いられたユーザーのIDリスト
