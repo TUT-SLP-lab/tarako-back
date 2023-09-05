@@ -496,58 +496,36 @@ paths:
     get:
       tags:
         - chat
-      description: 全課のチャット一覧
-      operationId: get-all-chat
+      description: 全ユーザーのチャット一覧
+      operationId: get-all-chat-history
       parameters:
-        - $ref: "#/components/parameters/from_date_query"
-        - $ref: "#/components/parameters/to_date_query"
+        - $ref: "#/components/parameters/from_chat_datetime_query"
+        - $ref: "#/components/parameters/to_chat_datetime_query"
       responses:
         "200":
-          $ref: "#/components/responses/Chat"
+          $ref: "#/components/responses/ChatArray"
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetAllSectionsDiariesFunction.Arn}/invocations"
+        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetAllChatHistoryFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         passthroughBehavior: "when_no_match"
-
   /chat/{user_id}:
     get:
       tags:
         - chat
       description: ユーザのチャット履歴一覧
-      operationId: get-section-diaries
+      operationId: get-user-chat-history
       parameters:
         - $ref: "#/components/parameters/user_id_path"
-        - $ref: "#/components/parameters/from_date_query"
-        - $ref: "#/components/parameters/to_date_query"
+        - $ref: "#/components/parameters/from_chat_datetime_query"
+        - $ref: "#/components/parameters/to_chat_datetime_query"
       responses:
         "200":
-          $ref: "#/components/responses/Chat"
+          $ref: "#/components/responses/ChatArray"
         "404":
           $ref: "#/components/responses/404NotFound"
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetSectionDiariesFunction.Arn}/invocations"
-        httpMethod: POST
-        type: aws_proxy
-        passthroughBehavior: "when_no_match"
-    post:
-      tags:
-        - chat
-      description: ユーザのチャットを作成
-      operationId: post-section-diary-entry
-      parameters:
-        - $ref: "#/components/parameters/user_id_path"
-      requestBody:
-        $ref: "#/components/requestBodies/PostChat"
-      responses:
-        "201":
-          $ref: "#/components/responses/Chat"
-        "404":
-          $ref: "#/components/responses/404NotFound"
-        "409":
-          $ref: "#/components/responses/409Conflict"
-      x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${PostSectionDiaryFunction.Arn}/invocations"
+        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUserChatHistoryFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         passthroughBehavior: "when_no_match"
@@ -842,22 +820,14 @@ components:
           type: string
           description: チャット内容
           example: こんにちは
+        is_user_message:
+          type: boolean
+          description: ユーザーからのメッセージかどうか
+          example: true
         created_at:
           $ref: "#/components/schemas/createdAt"
         updated_at:
           $ref: "#/components/schemas/updatedAt"
-    CreateChat:
-      type: object
-      properties:
-        timestamp:
-          type: string
-          format: datetime
-          description: チャットの日付
-          example: 2020-01-01T00:00:00+09:00
-        message:
-          type: string
-          description: チャットメッセージ
-          example: こんにちは
   parameters:
     task_id_path:
       name: task_id
@@ -914,6 +884,22 @@ components:
       name: to_last_status
       in: query
       description: タスクの最新更新時間の後方の絞り込み。指定しなかった場合、制限なし*_start_datetimeが指定されている場合、無視される
+      required: false
+      schema:
+        type: string
+        format: datetime
+        example: 2020-01-01T00:00:00+09:00
+    from_chat_datetime_query:
+      name: from
+      in: query
+      required: false
+      schema:
+        type: string
+        format: datetime
+        example: 2020-01-01T00:00:00+09:00
+    to_chat_datetime_query:
+      name: to
+      in: query
       required: false
       schema:
         type: string
@@ -1197,10 +1183,3 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/SectionDiary"
-    PostChat:
-      required: true
-      description: チャットの追加
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/CreateChat"

@@ -11,6 +11,7 @@ def lambda_handler(event, context):
             "user_id": "4f73ab32-21bf-47ef-a119-fa024bc2b9cc",
             "timestamp": "2020-01-01T00:00:00+09:00",
             "message": "こんにちは",
+            "is_user_message": False,
             "created_at": "2020-01-01T00:00:00+09:00",
             "updated_at": "2020-01-01T00:00:00+09:00",
         }
