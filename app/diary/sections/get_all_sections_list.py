@@ -1,14 +1,8 @@
 import datetime
 
 from boto3.dynamodb.conditions import Key
-from table_utils import (
-    DynamoDBError,
-    get_all_items,
-    get_items,
-    json_dumps,
-    section_diary_table,
-    section_table,
-)
+from table_utils import (DynamoDBError, get_all_items, get_items, json_dumps,
+                         section_diary_table, section_table)
 
 
 def lambda_handler(event, context):
@@ -46,7 +40,7 @@ def lambda_handler(event, context):
 
     try:
         # get all sections
-        section = get_all_items(section_table)
+        section_list = get_all_items(section_table)
         # get user diary list between from_date and to_date
         if from_date is None and to_date is None:
             index_name = "SectionIndex"
@@ -61,7 +55,7 @@ def lambda_handler(event, context):
             index_name = "SectionDateIndex"
 
         section_diary_list = []
-        for section in section:
+        for section in section_list:
             section_id_key = Key("section_id").eq(section["section_id"])
             if datetime_range is not None:
                 expr = section_id_key & datetime_range
@@ -70,8 +64,6 @@ def lambda_handler(event, context):
 
             section_diary = get_items(section_diary_table, index_name, expr)
 
-            for i in range(len(section_diary)):
-                section_diary[i]["section"] = section
             section_diary_list += section_diary
     except DynamoDBError as e:
         return {"statusCode": 500, "body": f"Internal Server Error: {e}"}

@@ -4,7 +4,8 @@ from datetime import datetime
 
 from boto3.dynamodb.conditions import Key
 from table_utils import (DynamoDBError, get_item, get_items, json_dumps,
-                         section_diary_table, section_table, user_table)
+                         post_item, section_diary_table, section_table,
+                         user_table)
 
 
 def lambda_handler(event, context):
@@ -50,35 +51,25 @@ def lambda_handler(event, context):
 
         # TODO Chat GPTに聞く
 
-        # section 情報の取得
+        diary_id = str(uuid.uuid4())
+        # Update 処理
+        item = {
+            "diary_id": diary_id,
+            "date": date,
+            "details": "hoge.fugaの単体テストを作成する",
+            "serious": 0,
+            "created_at": datetime.now().isoformat(),
+            "updated_at": datetime.now().isoformat(),
+            "section_id": section_id,
+            "user_ids": user_ids,
+        }
 
-        section = get_item(section_table, "section_id", section_id)
+        item = post_item(section_diary_table, item)
 
     except DynamoDBError as e:
         return {"statusCode": 500, "body": f"Failed: {e}"}
     except IndexError as e:
         return {"statusCode": 404, "body": f"Failed: {e}"}
-
-    diary_id = str(uuid.uuid4())
-    # Update 処理
-    item = {
-        "diary_id": diary_id,
-        "date": date,
-        "details": "hoge.fugaの単体テストを作成する",
-        "serious": 0,
-        "created_at": datetime.now().isoformat(),
-        "updated_at": datetime.now().isoformat(),
-        "section_id": section_id,
-        "section": section,
-        "user_ids": user_ids,
-    }
-    put_resp = section_diary_table.put_item(Item=item)
-    if put_resp["ResponseMetadata"]["HTTPStatusCode"] != 200:
-        return {
-            "statusCode": 500,
-            "body": f"Failed to put diary with section id: {section_id}",
-        }
-
     return {
         "statusCode": 200,
         "body": json_dumps(item),

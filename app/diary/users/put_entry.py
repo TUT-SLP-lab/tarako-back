@@ -1,14 +1,8 @@
 import json
 from datetime import datetime
 
-from table_utils import (
-    DynamoDBError,
-    get_item,
-    get_items,
-    json_dumps,
-    user_diary_table,
-    user_table,
-)
+from table_utils import (DynamoDBError, get_item, get_items, json_dumps,
+                         put_item, user_diary_table, user_table)
 
 
 def lambda_handler(event, context):
@@ -45,33 +39,29 @@ def lambda_handler(event, context):
             return {"statusCode": 400, "body": "Bad Request: user_id not found"}
 
         user_diary = get_item(user_diary_table, "diary_id", diary_id)
-
         # user ID check
         if user_diary["user_id"] != user_id:
             return {"statusCode": 403, "body": "Forbidden"}
-    except DynamoDBError as e:
-        return {"statusCode": 500, "body": f"Internal Server Error: {e}"}
-    except IndexError as e:
-        return {"statusCode": 404, "body": f"Not Found: {e}"}
 
-    user_diary["details"] = detailes
-    user_diary["serious"] = serious
-    user_diary["task_ids"] = task_ids
-    user_diary["updated_at"] = datetime.now().isoformat()
-
-    response = user_diary_table.update_item(
-        Key={"diary_id": diary_id},
-        UpdateExpression="set details=:d, serious=:s, task_ids=:t, updated_at=:u",
-        ExpressionAttributeValues={
+        UpdateExpression = "set details=:d, serious=:s, task_ids=:t, updated_at=:u"
+        ExpressionAttributeValues = {
             ":d": detailes,
             ":s": serious,
             ":t": task_ids,
             ":u": datetime.now().isoformat(),
-        },
-        ReturnValues="UPDATED_NEW",
-    )
-    if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
-        return {"statusCode": 500, "body": "DynamoDB update Error"}
+        }
+        user_diary = put_item(
+            user_diary_table,
+            "diary_id",
+            diary_id,
+            UpdateExpression,
+            ExpressionAttributeValues,
+        )
+
+    except DynamoDBError as e:
+        return {"statusCode": 500, "body": f"Internal Server Error: {e}"}
+    except IndexError as e:
+        return {"statusCode": 404, "body": f"Not Found: {e}"}
 
     # get diary again
     return {

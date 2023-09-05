@@ -2,13 +2,8 @@ import json
 import uuid
 from datetime import datetime
 
-from layer.table_utils import (
-    DynamoDBError,
-    get_item,
-    json_dumps,
-    user_diary_table,
-    user_table,
-)
+from table_utils import (DynamoDBError, get_item, json_dumps, post_item,
+                               user_diary_table, user_table)
 
 
 def lambda_handler(event, context):
@@ -39,33 +34,31 @@ def lambda_handler(event, context):
     # user 存在確認
     try:
         get_item(user_table, "user_id", user_id)
+        # TODO get from task
+
+        # TODO send message to ChatGPT
+        diary_id = str(uuid.uuid4())
+        item = {
+            "diary_id": diary_id,
+            "section_id": 1,
+            "date": date,
+            "details": "hogehoge",
+            "serious": 0,
+            "created_at": datetime.now().isoformat(),
+            "updated_at": datetime.now().isoformat(),
+            "user_id": user_id,
+            "task_ids": ["aaaa", "aaa"],
+        }
+        user_diary = post_item(user_diary_table, item)
+
     except DynamoDBError as e:
         return {"statusCode": 500, "body": f"Internal Server Error: {e}"}
     except IndexError as e:
         return {"statusCode": 404, "body": f"Not Found: {e}"}
 
-    # TODO get from task
-
-    # TODO send message to ChatGPT
-    diary_id = str(uuid.uuid4())
-    item = {
-        "diary_id": diary_id,
-        "section_id": 1,
-        "date": date,
-        "details": "hogehoge",
-        "serious": 0,
-        "created_at": datetime.now().isoformat(),
-        "updated_at": datetime.now().isoformat(),
-        "user_id": user_id,
-        "task_ids": ["aaaa", "aaa"],
-    }
-    response = user_diary_table.put_item(Item=item)
-    if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
-        return {"statusCode": 500, "body": "Internal Server Error"}
-
     return {
         "statusCode": 200,
-        "body": json_dumps(item),
+        "body": json_dumps(user_diary),
         "headers": {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "POST",

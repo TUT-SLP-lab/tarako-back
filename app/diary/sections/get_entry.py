@@ -30,11 +30,6 @@ def lambda_handler(event, context):
         if diary["section_id"] != section_id:
             return {"statusCode": 404, "body": "Not Found: Diary not found"}
 
-        # get section info
-        section = get_item(section_table, "section_id", section_id)
-
-        # section情報の追加
-        diary["section"] = section
     except DynamoDBError as e:
         return {"statusCode": 500, "body": f"Internal Server Error: {e}"}
     except IndexError as e:

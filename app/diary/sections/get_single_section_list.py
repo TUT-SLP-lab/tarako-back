@@ -1,15 +1,8 @@
 import datetime
 
 from boto3.dynamodb.conditions import Key
-
-from table_utils import (
-    DynamoDBError,
-    get_item,
-    get_items,
-    json_dumps,
-    section_diary_table,
-    section_table,
-)
+from table_utils import (DynamoDBError, get_item, get_items, json_dumps,
+                         section_diary_table, section_table)
 
 
 def lambda_handler(event, context):
@@ -60,9 +53,6 @@ def lambda_handler(event, context):
         return {"statusCode": 400, "body": "Bad Request: from_date >= to_date"}
 
     try:
-        # get section 存在チェック
-        section = get_item(section_table, "section_id", section_id)
-
         # get section diary
         if from_date is None and to_date is None:
             index_name = "SectionIndex"
@@ -83,9 +73,6 @@ def lambda_handler(event, context):
             expr = section_id_key
 
         section_diary = get_items(section_diary_table, index_name, expr)
-
-        for i in range(len(section_diary)):
-            section_diary[i]["section"] = section
 
     except DynamoDBError as e:
         return {"statusCode": 500, "body": f"error: {e}"}
