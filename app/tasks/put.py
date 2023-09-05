@@ -36,20 +36,6 @@ def lambda_handler(event, context):
         return {"statusCode": 400, "body": f"Bad Request: {', '.join(erro_msg)}"}
     last_progress = body.get("progresses")[-1]
 
-    update_object = {
-        ":completed": "True" if last_progress["percentage"] == 100 else "False",
-        ":last_status_at": last_progress["datetime"],
-        ":updated_at": datetime.now().isoformat(),
-        ":assigned_to": body.get("assigned_to"),
-        ":section_id": body.get("section_id"),
-        ":title": body.get("title"),
-        ":category": body.get("category"),
-        ":tags": body.get("tags"),
-        ":progresses": body.get("progresses"),
-        ":serious": body.get("serious"),
-        ":details": body.get("details"),
-    }
-
     expr = (
         "SET completed = :completed"
         "last_status_at = :last_status_at"
@@ -63,6 +49,20 @@ def lambda_handler(event, context):
         "serious = :serious"
         "details = :details"
     )
+
+    update_object = {
+        ":completed": "True" if last_progress["percentage"] == 100 else "False",
+        ":last_status_at": last_progress["datetime"],
+        ":updated_at": datetime.now().isoformat(),
+        ":assigned_to": body.get("assigned_to"),
+        ":section_id": body.get("section_id"),
+        ":title": body.get("title"),
+        ":category": body.get("category"),
+        ":tags": body.get("tags"),
+        ":progresses": body.get("progresses"),
+        ":serious": body.get("serious"),
+        ":details": body.get("details"),
+    }
 
     response = task_table.update_item(
         Key=option["Key"],
