@@ -122,23 +122,33 @@ def gen_task_data(
     return task, suggest_task
 
 
-def gen_create_user_diary_prompt(msg):
+def gen_create_user_diary_prompt(msg, task_dict: dict[str, str]):
     return f"""
-次の内容の日報を作成してください。
+次の内容は事務員の今日タスクです。これらの内容から日報を作成してください。
+```
+{json.dumps(task_dict)}
+
+最後に従業員の一言です．{msg}
+```
 """
 
 
 def create_user_diary_function():
     return {
-        "name": "create_task",
-        "description": "タスクオブジェクトを作成する",
+        "name": "create_diary",
+        "description": "複数タスクの情報から日報を作成する",
         "parameters": {
             "type": "object",
             "properties": {
-                "title": {"type": "string", "description": "日報名"},
                 "details": {
                     "type": "string",
-                    "description": "日報の詳細。タイトルでは表現できない内容を記述する",
+                    "description": "日報の詳細。タスクの情報をできるだけ網羅できていて，"
+                    + "分かりやすい内容でMarkdown形式で記述する．",
+                },
+                "ai_analysis": {
+                    "type": "string",
+                    "description": "メッセージやタスクからAIが自動で分析した内容を記述する．"
+                    + "思いやりがあって，従業員がやる気になるような内容を記述する．",
                 },
                 "serious": {
                     "type": "integer",
@@ -155,7 +165,22 @@ def create_user_diary_function():
 
 
 def gen_user_diary_data(msg: str, task_dict: dict[str, str] = {}):
-    pass
+    response = openai.ChatCompletion.create(
+        model=CHATGPT_MODEL,
+        messages=[
+            {"role": "user", "content": gen_create_user_diary_prompt(task_dict, msg)},
+        ],
+        functions=[
+            create_user_diary_function(),
+        ],
+    )
+    if "function_call" not in response["choices"][0]["message"]:
+        raise FunctionCallingError("function_callがありません")
+    diary = None
+    if response["choices"][0]["message"]["function_call"]["name"] == "create_diary":
+        diary_str = response["choices"][0]["message"]["function_call"]["arguments"]
+        diary = json.loads(diary_str)
+    return diary
 
 
 class FunctionCallingError(Exception):
