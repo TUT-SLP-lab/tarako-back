@@ -162,7 +162,7 @@ def get_result(
                 result.extend(get_items(task_table, index_name, expr))
         elif datetime_range:
             index_name = "StartedAtIndex" if is_start_datetime else "LastStatusAtIndex"
-            expr = datetime_range
+            expr = Key("placeholder").eq(0) & datetime_range
         elif completed_query:
             index_name = "CompletedIndex"
             expr = completed_query
