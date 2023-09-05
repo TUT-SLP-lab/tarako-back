@@ -36,19 +36,19 @@ def lambda_handler(event, context):
         return {"statusCode": 400, "body": f"Bad Request: {', '.join(erro_msg)}"}
     last_progress = body.get("progresses")[-1]
 
-    expr = (
-        "SET completed = :completed"
-        "last_status_at = :last_status_at"
-        "updated_at = :updated_at"
-        "assigned_to = :assigned_to"
-        "section_id = :section_id"
-        "title = :title"
-        "category = :category"
-        "tags = :tags"
-        "progresses = :progresses"
-        "serious = :serious"
-        "details = :details"
-    )
+    expr = ", ".join([
+        "SET completed=:completed",
+        "last_status_at=:last_status_at",
+        "updated_at=:updated_at",
+        "assigned_to=:assigned_to",
+        "section_id=:section_id",
+        "title=:title",
+        "category=:category",
+        "tags=:tags",
+        "progresses=:progresses",
+        "serious=:serious",
+        "details=:details",
+    ])
 
     update_object = {
         ":completed": "True" if last_progress["percentage"] == 100 else "False",
