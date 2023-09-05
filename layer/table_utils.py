@@ -147,6 +147,22 @@ def post_item(table, item: dict) -> dict:
     return item
 
 
+def delete_item(table, key: str, value: str) -> dict:
+    """テーブルからアイテムを削除する
+    Args:
+        table (boto3.resource.Table): テーブル
+        key (str): キー
+        value (str): 値
+    Returns:
+        dict: アイテム
+    Raises:
+        DynamoDBError: DynamoDBのエラー
+    """
+    response = table.delete_item(Key={key: value}, ReturnValues="NONE")
+    if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
+        raise DynamoDBError(f"Failed to find {table.name} with {key}: {value}")
+
+
 class DynamoDBError(Exception):
     pass
 

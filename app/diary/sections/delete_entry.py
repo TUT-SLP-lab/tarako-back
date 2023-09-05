@@ -1,6 +1,6 @@
 import json
 
-from table_utils import DynamoDBError, get_item, section_diary_table
+from table_utils import DynamoDBError, get_item, section_diary_table, delete_item
 from validation import validate_diary_id, validate_section_id
 
 
@@ -36,14 +36,10 @@ def lambda_handler(event, context):
         return {"statsCode": 404, "body": f"Failed to fild section_id: {section_id}"}
 
     # 削除処理
-    option = {"Key": {"diary_id": diary_id}}
-    response = section_diary_table.delete_item(**option)
-
-    if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
-        return {
-            "statusCode": 500,
-            "body": f"Failed to delete diary with ID: {diary_id} for section with ID: {section_id}",
-        }
+    try:
+        delete_item(section_diary_table, "diary_id", diary_id)
+    except DynamoDBError as e:
+        return {"statusCode": 500, "body": str(e)}
 
     return {
         "statusCode": 200,

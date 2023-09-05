@@ -1,4 +1,4 @@
-from table_utils import json_dumps, task_table
+from table_utils import DynamoDBError, delete_item, json_dumps, task_table
 from validation import validate_task_id
 
 
@@ -13,12 +13,10 @@ def lambda_handler(event, context):
     if not is_valid:
         return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
 
-    response = task_table.delete_item(Key={"task_id": task_id})
-    if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
-        return {
-            "statusCode": 500,
-            "body": f"Failed to delete task with ID: {task_id}",
-        }
+    try:
+        delete_item(task_table, "task_id", task_id)
+    except DynamoDBError as e:
+        return {"statusCode": 500, "body": str(e)}
 
     return {
         "statusCode": 200,

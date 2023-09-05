@@ -1,13 +1,11 @@
 from table_utils import (
     DynamoDBError,
+    delete_item,
     get_item,
     json_dumps,
     user_diary_table,
 )
-from validation import (
-    validate_diary_id,
-    validate_user_id,
-)
+from validation import validate_diary_id, validate_user_id
 
 
 def lambda_handler(event, context):
@@ -34,14 +32,11 @@ def lambda_handler(event, context):
         return {"statusCode": 403, "body": "Forbidden: Invalid user_id"}
 
     # delete user diary
-    option = {"Key": {"diary_id": diary_id}}
-    response = user_diary_table.delete_item(**option)
+    try:
+        delete_item(user_diary_table, "diary_id", diary_id)
+    except DynamoDBError as e:
+        return {"statusCode": 500, "body": str(e)}
 
-    if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
-        return {
-            "statusCode": 500,
-            "body": f"Failed to delete diary with ID: {diary_id} for section with ID: {user_id}",
-        }
     return {
         "statusCode": 200,
         "body": json_dumps(
