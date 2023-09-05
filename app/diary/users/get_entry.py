@@ -1,4 +1,4 @@
-from table_utils import DynamoDBError, get_item, json_dumps, user_diary_table
+from table_utils import DynamoDBError, get_item, json_dumps, user_diary_table, validate_diary_id, validate_user_id
 
 
 def lambda_handler(event, context):
@@ -11,10 +11,12 @@ def lambda_handler(event, context):
         diary_id = path_params.get("diary_id", None)
 
     # Validation
-    if user_id is None or not isinstance(user_id, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid user_id"}
-    if diary_id is None or not isinstance(diary_id, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid diary_id"}
+    is_valid, err_msg = validate_user_id(user_id)
+    if not is_valid:
+        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
+    is_valid, err_msg = validate_diary_id(diary_id)
+    if not is_valid:
+        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
 
     try:
         user_diary = get_item(user_diary_table, "diary_id", diary_id)

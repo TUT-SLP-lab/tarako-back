@@ -1,4 +1,4 @@
-from table_utils import json_dumps, task_table
+from table_utils import json_dumps, task_table, validate_task_id
 
 
 def lambda_handler(event, context):
@@ -8,8 +8,9 @@ def lambda_handler(event, context):
     task_id = ppm.get("task_id")
 
     # バリデーション
-    if not task_id and not isinstance(task_id, str):
-        return {"statusCode": 400, "body": "Bad Request: Missing task_id"}
+    is_valid, err_msg = validate_task_id(task_id)
+    if not is_valid:
+        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
 
     option = {"Key": {"task_id": task_id}}
     response = task_table.get_item(**option)

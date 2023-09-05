@@ -1,8 +1,12 @@
-import datetime
-
 from boto3.dynamodb.conditions import Key
-from table_utils import (DynamoDBError, get_items, json_dumps,
-                         section_diary_table)
+from table_utils import (
+    DynamoDBError,
+    get_items,
+    json_dumps,
+    section_diary_table,
+    validate_datetime,
+    validate_section_id,
+)
 
 
 def lambda_handler(event, context):
@@ -22,35 +26,15 @@ def lambda_handler(event, context):
         to_date = None
 
     # section_idのバリデーション
-    if section_id is None:
-        return {"statusCode": 400, "body": "Bad Request: section_id is None"}
-    try:
-        section_id = int(section_id)
-    except ValueError:
-        return {"statusCode": 400, "body": "Bad Request: section_id is not int"}
+    is_valid, err_msg = validate_section_id(section_id)
+    if not is_valid:
+        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
+    section_id = int(section_id)
+
     # 日付のバリデーション
-    if from_date:
-        if not isinstance(from_date, str):
-            return {"statusCode": 400, "body": "Bad Request: Invalid from_date"}
-        try:
-            from_date_datetime = datetime.date.fromisoformat(from_date)
-        except ValueError:
-            return {
-                "statusCode": 400,
-                "body": "Bad Request: 'from' is invalid date format",
-            }
-    if to_date:
-        if not isinstance(to_date, str):
-            return {"statusCode": 400, "body": "Bad Request: Invalid to_date"}
-        try:
-            to_date_datetime = datetime.date.fromisoformat(to_date)
-        except ValueError:
-            return {
-                "statusCode": 400,
-                "body": "Bad Request: 'to' is invalid date format",
-            }
-    if from_date and to_date and from_date_datetime >= to_date_datetime:
-        return {"statusCode": 400, "body": "Bad Request: from_date >= to_date"}
+    is_valid, err_msg = validate_datetime(from_date, to_date)
+    if not is_valid:
+        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
 
     try:
         # get section diary

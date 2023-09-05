@@ -10,6 +10,9 @@ from table_utils import (
     post_item,
     section_diary_table,
     user_table,
+    validate_date_not_none,
+    validate_message_not_none,
+    validate_section_id,
 )
 
 
@@ -35,16 +38,15 @@ def lambda_handler(event, context):
     message = body.get("message", None)
 
     # バリデーション
-    if section_id is None or not isinstance(section_id, int):
-        return {"statusCode": 400, "body": "Bad Request: Invalid section_id"}
-    if date is None or not isinstance(date, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid date"}
-    if message is None or not isinstance(message, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid message"}
-    try:
-        datetime.fromisoformat(date)
-    except ValueError:
-        return {"statusCode": 400, "body": "Bad Request: Invalid date format"}
+    is_valid, err_msg = validate_section_id(section_id)
+    if not is_valid:
+        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
+    is_valid, err_msg = validate_date_not_none(date)
+    if not is_valid:
+        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
+    is_valid, err_msg = validate_message_not_none(message)
+    if not is_valid:
+        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
 
     print(date, message)
 

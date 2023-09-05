@@ -4,8 +4,19 @@ from datetime import datetime
 
 from boto3.dynamodb.conditions import Key
 from chat_util import gen_user_diary_data
-from table_utils import (DynamoDBError, get_item, get_items, json_dumps,
-                         post_item, task_table, user_diary_table, user_table)
+from table_utils import (
+    DynamoDBError,
+    get_item,
+    get_items,
+    json_dumps,
+    post_item,
+    task_table,
+    user_diary_table,
+    user_table,
+    validate_date,
+    validate_message_not_none,
+    validate_user_id,
+)
 
 
 def lambda_handler(event, context):
@@ -22,16 +33,15 @@ def lambda_handler(event, context):
     message = body.get("message", None)
 
     # バリデーション
-    if user_id is None or not isinstance(user_id, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid user_id"}
-    if date is None or not isinstance(date, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid date"}
-    if message is None or not isinstance(message, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid message"}
-    try:
-        datetime.fromisoformat(date)
-    except ValueError:
-        return {"statusCode": 400, "body": "Bad Request: Invalid date format"}
+    is_valid, err_msg = validate_user_id(user_id)
+    if not is_valid:
+        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
+    is_valid, err_msg = validate_date(date)
+    if not is_valid:
+        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
+    is_valid, err_msg = validate_message_not_none(message)
+    if not is_valid:
+        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
 
     try:
         user = get_item(user_table, "user_id", user_id)

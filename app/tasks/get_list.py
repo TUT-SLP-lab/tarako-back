@@ -1,5 +1,5 @@
 from boto3.dynamodb.conditions import Key
-from table_utils import DynamoDBError, get_items, json_dumps, task_table
+from table_utils import DynamoDBError, get_items, json_dumps, task_table, validate_datetime, validate_user_ids, validate_status
 
 
 def lambda_handler(event, context):
@@ -34,25 +34,16 @@ def lambda_handler(event, context):
     # バリデーション
     # NOTE: not_assigned は、指定されていれば値はなんでも良いので、バリデーションしない
     error_strings = []
-    if from_datetime and not isinstance(from_datetime, str):
-        error_strings.append(
-            "Invalid from_start_datetime query"
-            if is_start_datetime
-            else "Invalid from_last_status_datetime query"
-        )
-    if to_datetime and not isinstance(to_datetime, str):
-        error_strings.append(
-            "Invalid to_start_datetime query"
-            if is_start_datetime
-            else "Invalid to_last_status_datetime query"
-        )
-    if status and status not in ["in_progress", "completed"]:
-        error_strings.append("Invalid status query")
-    if not_assigned is None and user_ids:
-        for user_id_ in user_ids:  # NOTE: user_idはlistで与えられる
-            if not isinstance(user_id_, str):
-                error_strings.append("Invalid user_id query")
-                break
+    is_valid, err_msg = validate_datetime(from_datetime, to_datetime)
+    if not is_valid:
+        error_strings.append(err_msg)
+    is_valid, err_msg = validate_status(status)
+    if not is_valid:
+        error_strings.append(err_msg)
+    if not_assigned is None:
+        is_valid, err_msg = validate_user_ids(user_ids)
+        if not is_valid:
+            error_strings.append(err_msg)
 
     if len(error_strings) > 0:
         return {
@@ -67,7 +58,7 @@ def lambda_handler(event, context):
 
     # Make query
     if not_assigned:
-        # not_assignedがTrueの場合は、assigned_toが存在しないアイテムを取得する
+        # NOTE: not_assignedがTrueの場合は、assigned_toが存在しないアイテムを取得する
         user_ids = [""]
         has_user_query = True
     else:

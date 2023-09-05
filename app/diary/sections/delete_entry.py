@@ -1,6 +1,12 @@
 import json
 
-from table_utils import DynamoDBError, get_item, section_diary_table
+from table_utils import (
+    DynamoDBError,
+    get_item,
+    section_diary_table,
+    validate_diary_id,
+    validate_section_id,
+)
 
 
 def lambda_handler(event, context):
@@ -16,10 +22,12 @@ def lambda_handler(event, context):
         return {"statusCode": 400, "body": "Bad Request: Invalid section_id"}
 
     # バリデーション
-    if section_id is None or not isinstance(section_id, int):
-        return {"statusCode": 400, "body": "Bad Request: Invalid section_id"}
-    if diary_id is None or not isinstance(diary_id, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid diary_id"}
+    is_valid, err_msg = validate_section_id(section_id)
+    if not is_valid:
+        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
+    is_valid, err_msg = validate_diary_id(diary_id)
+    if not is_valid:
+        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
 
     # sectionの確認
     try:

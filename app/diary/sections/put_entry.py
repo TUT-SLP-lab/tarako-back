@@ -9,6 +9,11 @@ from table_utils import (
     section_diary_table,
     section_table,
     user_table,
+    validate_diary_id,
+    validate_message,
+    validate_section_id,
+    validate_serious,
+    validate_user_ids_not_none
 )
 
 
@@ -20,10 +25,6 @@ def lambda_handler(event, context):
     section_id = ppm.get("section_id")
     diary_id = ppm.get("diary_id")
     body = event.get("body", "{}")
-    try:
-        section_id = int(section_id)
-    except ValueError:
-        return {"statusCode": 400, "body": "Bad Request: section_id is not int"}
 
     if body is None:
         return {"statusCode": 400, "body": "Bad Request: Invalid body"}
@@ -35,26 +36,32 @@ def lambda_handler(event, context):
 
     # バリデーション
     error_messages = []
-    if section_id is None or not isinstance(section_id, int):
-        error_messages.append("Bad Request: Invalid section_id")
-    if diary_id is None or not isinstance(diary_id, str):
-        error_messages.append("Bad Request: Invalid diary_id")
-    if details is None or not isinstance(details, str):
-        error_messages.append("Bad Request: Invalid details")
-    if serious is None or not isinstance(serious, int):
-        error_messages.append("Bad Request: Invalid serious")
-    if user_ids is None or not isinstance(user_ids, list):
-        error_messages.append("Bad Request: Invalid user_ids")
+    is_valid, err_msg = validate_section_id(section_id)
+    if not is_valid:
+        error_messages.append(err_msg)
+    is_valid, err_msg = validate_diary_id(diary_id)
+    if not is_valid:
+        error_messages.append(err_msg)
+    is_valid, err_msg = validate_message(details)
+    if not is_valid:
+        error_messages.append("Invalid details")
+    is_valid, err_msg = validate_serious(serious)
+    if not is_valid:
+        error_messages.append(err_msg)
+    is_valid, err_msg = validate_user_ids_not_none(user_ids)
+    if not is_valid:
+        error_messages.append(err_msg)
+
     if len(error_messages) > 0:
         return {
             "statusCode": 400,
             "body": "\n".join(error_messages),
         }
 
-    # ユーザーの存在確認
+    section_id = int(section_id)
+    serious = int(serious)
+
     try:
-        for user_id in user_ids:
-            get_item(user_table, "user_id", user_id)
         # sectionの取得
         section = get_item(section_table, "section_id", section_id)
         # get diary

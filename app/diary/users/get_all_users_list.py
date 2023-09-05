@@ -6,6 +6,7 @@ from table_utils import (
     json_dumps,
     user_diary_table,
     user_table,
+    validate_datetime,
 )
 
 
@@ -19,10 +20,9 @@ def lambda_handler(event, context):
         to_date = None
 
     # バリデーション
-    if from_date is not None and not isinstance(from_date, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid from_date"}
-    if to_date is not None and not isinstance(to_date, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid to_date"}
+    is_valid, err_msg = validate_datetime(from_date, to_date)
+    if not is_valid:
+        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
 
     try:
         users = get_all_items(user_table)

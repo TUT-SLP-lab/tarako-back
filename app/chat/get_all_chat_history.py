@@ -1,5 +1,11 @@
 from boto3.dynamodb.conditions import Key
-from table_utils import DynamoDBError, chat_history_table, get_items, json_dumps
+from table_utils import (
+    DynamoDBError,
+    chat_history_table,
+    get_items,
+    json_dumps,
+    validate_datetime,
+)
 
 
 def lambda_handler(event, context):
@@ -10,10 +16,11 @@ def lambda_handler(event, context):
     else:
         from_date = None
         to_date = None
-    if from_date is not None and not isinstance(from_date, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid from_date"}
-    if to_date is not None and not isinstance(to_date, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid to_date"}
+
+    # Validation
+    is_valid, err_msg = validate_datetime(from_date, to_date)
+    if not is_valid:
+        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
 
     try:
         if from_date is None and to_date is None:

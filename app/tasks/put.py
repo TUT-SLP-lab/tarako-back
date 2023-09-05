@@ -1,7 +1,7 @@
 import json
 from datetime import datetime
 
-from table_utils import json_dumps, task_table
+from table_utils import json_dumps, task_table, validate_task_id
 
 
 def lambda_handler(event, context):
@@ -12,29 +12,24 @@ def lambda_handler(event, context):
     body = event.get("body", None)
 
     # バリデーション
-    erro_msg = []
+    error_msg = []
+    is_valid, err_msg = validate_task_id(task_id)
+    if not is_valid:
+        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
     option = {"Key": {"task_id": task_id}}
-    if not task_id:
-        return {"statusCode": 400, "body": "Bad Request: Missing task_id"}
-    elif not isinstance(task_id, str):
-        erro_msg.append("task_id must be string")
-    else:
-        response = task_table.get_item(**option)
-        if "Item" not in response:
-            return {"statusCode": 404, "body": "Not Found: Diary not found"}
+    response = task_table.get_item(**option)
 
     if body is None:
         return {"statusCode": 400, "body": "Bad Request: Missing body"}
-    else:
+    try:
         json_body = json.loads(body)
-    if not isinstance(body, dict):
-        return {"statusCode": 400, "body": "Bad Request: body must be dict"}
+    except json.JSONDecodeError:
+        return {"statusCode": 400, "body": "Bad Request: Invalid JSON"}
 
     # bodyのバリデーション
-    is_valid, erro_msg = validate_body(json_body)
+    is_valid, error_msg = validate_body(json_body)
     if not is_valid:
-        return {"statusCode": 400, "body": f"Bad Request: {', '.join(erro_msg)}"}
-    last_progress = json_body.get("progresses")[-1]
+        return {"statusCode": 400, "body": f"Bad Request: {', '.join(error_msg)}"}
 
     expr = ", ".join(
         [
@@ -52,6 +47,7 @@ def lambda_handler(event, context):
         ]
     )
 
+    last_progress = json_body.get("progresses")[-1]
     update_object = {
         ":completed": "True" if last_progress["percentage"] == 100 else "False",
         ":last_status_at": last_progress["datetime"],

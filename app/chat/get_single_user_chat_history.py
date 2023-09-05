@@ -1,5 +1,5 @@
 from boto3.dynamodb.conditions import Key
-from table_utils import DynamoDBError, chat_history_table, get_items, json_dumps
+from table_utils import DynamoDBError, chat_history_table, get_items, json_dumps, validate_datetime, validate_user_id
 
 
 def lambda_handler(event, context):
@@ -15,12 +15,13 @@ def lambda_handler(event, context):
         from_date = None
         to_date = None
 
-    if user_id is None or not isinstance(user_id, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid user_id"}
-    if from_date is not None and not isinstance(from_date, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid from_date"}
-    if to_date is not None and not isinstance(to_date, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid to_date"}
+    # Validation
+    is_valid, err_msg = validate_user_id(user_id)
+    if not is_valid:
+        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
+    is_valid, err_msg = validate_datetime(from_date, to_date)
+    if not is_valid:
+        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
 
     try:
         user_id_key = Key("user_id").eq(user_id)

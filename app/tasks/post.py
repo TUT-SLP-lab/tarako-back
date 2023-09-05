@@ -4,7 +4,7 @@ import random
 import uuid
 from datetime import datetime
 
-from table_utils import add_chat_to_db, json_dumps, task_table, validate_file
+from table_utils import add_chat_to_db, json_dumps, task_table, validate_file, validate_task_id, validate_user_id
 
 # from io import BytesIO
 
@@ -69,11 +69,10 @@ def lambda_handler(event, context):
 
     # バリデーションの続き
     error_msg = []
-    # TODO: user_idが存在するかどうかを確認する
-    if user_id is None:
-        error_msg.append("user_id is required")
-    elif not isinstance(user_id, str):
-        error_msg.append("user_id must be string")
+    is_valid, err_msg = validate_user_id(user_id)
+    if not is_valid:
+        error_msg.append(err_msg)
+
     if not (msg or file_item):
         error_msg.append("text or file is required")
     if msg and not isinstance(msg, str):
@@ -102,7 +101,7 @@ def lambda_handler(event, context):
     # TODO: 似たタスクがあるかどうかを確認する
 
     # NOTE: 本来はuser_idからsection_idを取得する
-    # 下剤は、userの直打ちから持ってきている
+    # 現在は、userの直打ちから持ってきている
     section_id_dict = {
         "4f73ab32-21bf-47ef-a119-fa024bc2b9cc": 0,
         "595c060d-8417-4ac8-bcb5-c8e733dc64e0": 0,
@@ -125,7 +124,7 @@ def lambda_handler(event, context):
         "completed": "True" if gpt_output.get("progress") == 100 else "False",
         "serious": gpt_output.get("serious"),
         "details": gpt_output.get("details"),
-        "placeholder": 0,  # NOTE: 検索のためのダミーフィールド。dynamodbの弊害 TODO: 空文字列に変更
+        "placeholder": 0,  # NOTE: 検索のためのダミーフィールド。dynamodbの弊害
         "created_at": now,
         "updated_at": now,
     }
