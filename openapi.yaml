@@ -669,9 +669,11 @@ components:
             - datetime: 2020-01-03T00:00:00+09:00
               percentage: 100
         completed:
-          type: boolean
+          type: string
           description: タスクが完了したかどうか。progressesから自動的に判定される。検索の高速化のために存在
-          example: true
+          enum:
+            - "True"
+            - "False"
           readOnly: true
         serious:
           type: integer
@@ -1012,7 +1014,15 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/RequestTextFileTask'
+            allOf:
+              - $ref: '#/components/schemas/Task'
+            type: object
+            properties:
+              assigned_to:
+                allOf:
+                  - $ref: '#/components/schemas/UserId'
+                nullable: true
+                readOnly: false
     CreateUser:
       required: true
       content:
