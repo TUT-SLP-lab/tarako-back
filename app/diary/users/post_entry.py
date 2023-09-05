@@ -3,10 +3,9 @@ import uuid
 from datetime import datetime
 
 from boto3.dynamodb.conditions import Key
+from chat_util import gen_user_diary_data
 from table_utils import (DynamoDBError, get_item, get_items, json_dumps,
                          post_item, task_table, user_diary_table, user_table)
-
-from layer.chat_util import gen_user_diary_data
 
 
 def lambda_handler(event, context):
@@ -37,12 +36,11 @@ def lambda_handler(event, context):
     try:
         user = get_item(user_table, "user_id", user_id)
 
-        expr = Key("user_id").eq(user_id)
-        task_list = get_items(task_table, "UserIndex", expr)
+        expr = Key("assigned_to").eq(user_id) & Key("started_at").gte(date)
+        task_list = get_items(task_table, "UserStartedAtIndex", expr)
         task_ids = [task["task_id"] for task in task_list]
 
         gpt_diary = gen_user_diary_data(message, task_list)
-
         # TODO send message to ChatGPT
         diary_id = str(uuid.uuid4())
         item = {
@@ -51,7 +49,7 @@ def lambda_handler(event, context):
             "date": date,
             "details": gpt_diary["details"],
             "ai_analysis": gpt_diary["ai_analysis"],
-            "serious": gpt_diary["serious"],
+            "serious": int(gpt_diary["serious"]),
             "created_at": datetime.now().isoformat(),
             "updated_at": datetime.now().isoformat(),
             "user_id": user_id,
@@ -63,7 +61,8 @@ def lambda_handler(event, context):
         return {"statusCode": 500, "body": f"Internal Server Error: {e}"}
     except IndexError as e:
         return {"statusCode": 404, "body": f"Not Found: {e}"}
-
+    except Exception as e:
+        return {"statusCode": 500, "body": f"Internal Server Error: {e}"}
     return {
         "statusCode": 200,
         "body": json_dumps(user_diary),

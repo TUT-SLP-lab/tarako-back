@@ -26,8 +26,8 @@ Parameters:
     Default: dev
   OpenAiApiKey:
     Type: String
-    Description: "OpenAI API Key"
 
+    Description: "open ai api key"
 Resources:
   ApiGateway:
     Type: "AWS::Serverless::Api"
@@ -380,6 +380,7 @@ Resources:
   PostUserDiaryFunction:
     Type: "AWS::Serverless::Function"
     Properties:
+      Timeout: 90
       CodeUri: app/diary/users/
       Handler: post_entry.lambda_handler
       FunctionName: !Sub post-user-diary-${PrNumber}
@@ -388,6 +389,7 @@ Resources:
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
+          OPENAI_API_KEY: !Ref OpenAiApiKey
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         DiaryUsersPostUserEvent:

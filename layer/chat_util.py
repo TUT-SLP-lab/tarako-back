@@ -3,7 +3,7 @@ import os
 
 import openai
 
-openai.apikey = os.environ["OPENAI_API_KEY"]
+openai.api_key = os.environ["OPENAI_API_KEY"]
 CHATGPT_MODEL = "gpt-3.5-turbo"
 
 
@@ -103,6 +103,7 @@ def gen_task_data(
             create_task_function(category_list),
             suggest_similer_task_function(task_title_dict),
         ],
+        function_call="auto",
     )
     if "function_call" not in response["choices"][0]["message"]:
         raise FunctionCallingError("function_callがありません")
@@ -151,15 +152,11 @@ def create_user_diary_function():
                     + "思いやりがあって，従業員がやる気になるような内容を記述する．",
                 },
                 "serious": {
-                    "type": "integer",
-                    "description": "日報の深刻度(0~5)",
+                    "type": "string",
+                    "description": "日報の深刻度(0~5)を整数のみで記述する．",
                 },
-                "required": [
-                    "title",
-                    "details",
-                    "serious",
-                ],
             },
+            "required": ["details", "ai_analysis", "serious"],
         },
     }
 
