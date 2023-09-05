@@ -71,6 +71,9 @@ def lambda_handler(event, context):
     # fileはバイナリデータ
     if file_item and validate_file(file_item):
         error_msg.append("file must be unique")
+    # TODO: ファイルがアップロードされた際の処理を書く
+    if not msg:
+        error_msg.append("ファイルアップロードが未対応の間、textは必須です")
 
     if error_msg:
         return {
@@ -78,9 +81,6 @@ def lambda_handler(event, context):
             "body": json_dumps({"error": "\n".join(error_msg)}),
         }
 
-    # TODO: ファイルがアップロードされた際の処理を書く
-    if not msg:
-        error_msg.append("ファイルアップロードが未対応の間、textは必須です")
 
     gpt_output = gen_dummy_data(msg)
 
