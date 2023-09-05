@@ -16,7 +16,7 @@ Parameters:
   PrNumber:
     Type: String
     Description: "PR number"
-    Default: dev
+    Default: "29"
   S3Bucket:
     Type: String
     Description: "S3 Bucket name"
@@ -943,7 +943,7 @@ Resources:
   TarakoChatHistoryTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: ChatHistory
+      TableName: !Sub ChatHistoryTable-${PrNumber}
       AttributeDefinitions:
         - AttributeName: chat_id
           AttributeType: S
