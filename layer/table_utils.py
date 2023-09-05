@@ -79,6 +79,7 @@ def get_item(table, key: str, value: str) -> dict:
         raise IndexError(f"Item of {table.name} is not found with {value}")
     return response["Item"]
 
+
 def put_item(table, key: str, value: str, UpdExp: str, ExpAtt: dict) -> dict:
     """テーブルにアイテムを追加する
     Args:
@@ -103,6 +104,7 @@ def put_item(table, key: str, value: str, UpdExp: str, ExpAtt: dict) -> dict:
     if "Attributes" not in response:
         raise IndexError(f"Attributes of {table.name} is not found with {value}")
     return response["Attributes"]
+
 
 class DynamoDBError(Exception):
     pass
