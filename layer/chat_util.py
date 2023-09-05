@@ -122,5 +122,41 @@ def gen_task_data(
     return task, suggest_task
 
 
+def gen_create_user_diary_prompt(msg):
+    return f"""
+次の内容の日報を作成してください。
+"""
+
+
+def create_user_diary_function():
+    return {
+        "name": "create_task",
+        "description": "タスクオブジェクトを作成する",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "title": {"type": "string", "description": "日報名"},
+                "details": {
+                    "type": "string",
+                    "description": "日報の詳細。タイトルでは表現できない内容を記述する",
+                },
+                "serious": {
+                    "type": "integer",
+                    "description": "日報の深刻度(0~5)",
+                },
+                "required": [
+                    "title",
+                    "details",
+                    "serious",
+                ],
+            },
+        },
+    }
+
+
+def gen_user_diary_data(msg: str, task_dict: dict[str, str] = {}):
+    pass
+
+
 class FunctionCallingError(Exception):
     pass
