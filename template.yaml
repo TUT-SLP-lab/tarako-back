@@ -16,7 +16,7 @@ Parameters:
   PrNumber:
     Type: String
     Description: "PR number"
-    Default: "dev"
+    Default: "29"
   S3Bucket:
     Type: String
     Description: "S3 Bucket name"
@@ -601,7 +601,7 @@ Resources:
     Type: "AWS::Serverless::Function"
     Properties:
       CodeUri: app/chat/
-      Handler: get_single_user_chat_hidtory.lambda_handler
+      Handler: get_single_user_chat_history.lambda_handler
       FunctionName: !Sub get-single-user-chat-history-${PrNumber}
       Layers:
         - !Ref TarakoLambdaLayer
