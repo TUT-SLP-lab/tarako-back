@@ -5,7 +5,7 @@ import uuid
 from datetime import datetime
 # from io import BytesIO
 
-from table_utils import json_dumps, task_table, validate_file
+from table_utils import add_chat_to_db, json_dumps, task_table, validate_file
 
 category_list = [
     "HR",
@@ -91,6 +91,9 @@ def lambda_handler(event, context):
             "body": json_dumps({"error": "\n".join(error_msg)}),
         }
 
+    # Chatデータベースにメッセージを追加する
+    add_chat_to_db(user_id, msg, is_user_message=True)
+
     # TODO: reference_task_idが指定された場合、タスクの作成時に参照をする
     gpt_output = gen_dummy_data(msg)
 
@@ -127,6 +130,8 @@ def lambda_handler(event, context):
 
     # task_tableに追加する
     task_table.put_item(Item=task)
+    # Chatデータベースにシステムからのメッセージを追加する
+    add_chat_to_db(user_id, gpt_output.get("response_message"), is_user_message=False)
 
     response = {
         "message": gpt_output.get("response_message"),
