@@ -1,8 +1,9 @@
-import cgi
+# import cgi
+import json
 import random
 import uuid
 from datetime import datetime
-from io import BytesIO
+# from io import BytesIO
 
 from table_utils import json_dumps, task_table, validate_file
 
@@ -28,29 +29,35 @@ def lambda_handler(event, context):
             "statusCode": 400,
             "body": json_dumps({"error": "Missing request body"}),
         }
+    body_json = json.loads(body)
 
     # BytesIOを使用してボディをファイルポインタとして扱う
-    body_file = BytesIO(body.encode("utf-8"))
+    # body_file = BytesIO(body.encode("utf-8"))
 
     # FieldStorageを使うと、multipart/form-dataの場合に対応できる
     try:
-        form = cgi.FieldStorage(
-            fp=body_file,
-            environ={
-                "REQUEST_METHOD": "POST",
-                "CONTENT_TYPE": event.get("headers").get("Content-Type"),
-            },
-        )
-        user_id = form.getfirst("user_id", None)
-        msg = form.getfirst("text", None)
-        reference_task_id = form.getfirst("reference_task_id", None)
-        if "file" in form:
-            file_item = form["file"]
-            # 現状では、ファイルは無視する
-            # file_data = file_item.file.read()  # ファイルデータを読み込む
-        else:
-            file_item = None
-            # file_data = None
+        # form = cgi.FieldStorage(
+        #     fp=body_file,
+        #     environ={
+        #         "REQUEST_METHOD": "POST",
+        #         "CONTENT_TYPE": event.get("headers").get("Content-Type"),
+        #     },
+        # )
+        # user_id = form.getfirst("user_id", None)
+        # msg = form.getfirst("text", None)
+        # reference_task_id = form.getfirst("reference_task_id", None)
+        # if "file" in form:
+        #     file_item = form["file"]
+        #     # 現状では、ファイルは無視する
+        #     # file_data = file_item.file.read()  # ファイルデータを読み込む
+        # else:
+        #     file_item = None
+        #     # file_data = None
+
+        user_id = body_json.get("user_id", None)
+        msg = body_json.get("text", None)
+        reference_task_id = body_json.get("reference_task_id", None)
+        file_item = None
     except Exception as e:
         print(e)
         return {

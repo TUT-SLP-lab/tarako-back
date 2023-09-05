@@ -498,12 +498,12 @@ components:
       type: string
       description: タスクの詳細
       example: hoge.fugaの単体テストを作成した
-    RequestFile:
-      type: string
-      format: binary
-      description: タスクで作成したファイル
-      example: hoge.docx
-    RequestTaskAndFile:
+    # RequestFile:
+    #   type: string
+    #   format: binary
+    #   description: タスクで作成したファイル
+    #   example: hoge.docx
+    RequestTask:
       type: object
       properties:
         user_id:
@@ -512,22 +512,36 @@ components:
           readOnly: false
         text:
           $ref: '#/components/schemas/RequestText'
-        file:
-          $ref: '#/components/schemas/RequestFile'
         reference_task_id:
           allOf:
             - $ref: '#/components/schemas/TaskId'
           readOnly: false
           description: 参照するタスクのID。指定した場合、タスクの紐付けが行われやすくなる
-    RequestTextFileTask:
-      type: object
-      properties:
-        task:
-          $ref: '#/components/schemas/RequestText'
-        text:
-          $ref: '#/components/schemas/RequestText'
-        file:
-          $ref: '#/components/schemas/RequestFile'
+    # RequestTaskAndFile:
+    #   type: object
+    #   properties:
+    #     user_id:
+    #       allOf:
+    #         - $ref: '#/components/schemas/UserId'
+    #       readOnly: false
+    #     text:
+    #       $ref: '#/components/schemas/RequestText'
+    #     file:
+    #       $ref: '#/components/schemas/RequestFile'
+    #     reference_task_id:
+    #       allOf:
+    #         - $ref: '#/components/schemas/TaskId'
+    #       readOnly: false
+    #       description: 参照するタスクのID。指定した場合、タスクの紐付けが行われやすくなる
+    # RequestTextFileTask:
+    #   type: object
+    #   properties:
+    #     task:
+    #       $ref: '#/components/schemas/RequestText'
+    #     text:
+    #       $ref: '#/components/schemas/RequestText'
+    #     file:
+    #       $ref: '#/components/schemas/RequestFile'
 
     createdAt:
       type: string
@@ -1026,9 +1040,11 @@ components:
     CreateTask:
       required: true
       content:
-        multipart/form-data:
+        application/json:
+        # multipart/form-data:
           schema:
-            $ref: '#/components/schemas/RequestTaskAndFile'
+            $ref: '#/components/schemas/RequestTask'
+            # $ref: '#/components/schemas/RequestTaskAndFile'
     UpdateTask:
       required: true
       content:
