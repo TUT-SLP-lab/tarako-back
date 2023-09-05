@@ -1,36 +1,87 @@
 import json
+import uuid
+from datetime import datetime
+
+from boto3.dynamodb.conditions import Key
+from table_utils import (DynamoDBError, get_item, get_items, json_dumps,
+                         section_diary_table, section_table, user_table)
 
 
 def lambda_handler(event, context):
-    section_id = event.get("pathParameters", {}).get("section_id")
-    body = json.loads(event.get("body", "{}"))
+    ppm = event.get("pathParameters", {})
+
+    # validation
+    if ppm is None:
+        return {"statusCode": 400, "body": "Bad Request: Invalid path parameters"}
+    section_id = ppm.get("section_id")
+    try:
+        section_id = int(section_id)
+    except ValueError:
+        return {"statusCode": 400, "body": "Bad Request: section_id is not int"}
+
+    # body balidation
+    body = event.get("body", "{}")
+    if body is None:
+        return {"statusCode": 400, "body": "Bad Request: Invalid body"}
+
+    body = json.loads(body)
+    date = body.get("date", None)
+    message = body.get("message", None)
 
     # バリデーション
     if section_id is None or not isinstance(section_id, int):
         return {"statusCode": 400, "body": "Bad Request: Invalid section_id"}
-    if not body:
-        return {"statusCode": 400, "body": "Bad Request: Missing request body"}
+    if date is None or not isinstance(date, str):
+        return {"statusCode": 400, "body": "Bad Request: Invalid date"}
+    if message is None or not isinstance(message, str):
+        return {"statusCode": 400, "body": "Bad Request: Invalid message"}
+    try:
+        datetime.fromisoformat(date)
+    except ValueError:
+        return {"statusCode": 400, "body": "Bad Request: Invalid date format"}
 
-    # ここに処理を書く
-    example = {
-        "diary_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        "date": "2023-08-31",
+    print(date, message)
+
+    try:
+        user_list = get_items(
+            user_table, "SectionIndex", Key("section_id").eq(section_id)
+        )
+        user_ids = [item["user_id"] for item in user_list]
+
+        # TODO Chat GPTに聞く
+
+        # section 情報の取得
+
+        section = get_item(section_table, "section_id", section_id)
+
+    except DynamoDBError as e:
+        return {"statusCode": 500, "body": f"Failed: {e}"}
+    except IndexError as e:
+        return {"statusCode": 404, "body": f"Failed: {e}"}
+
+    diary_id = str(uuid.uuid4())
+    # Update 処理
+    item = {
+        "diary_id": diary_id,
+        "date": date,
         "details": "hoge.fugaの単体テストを作成する",
         "serious": 0,
-        "created_at": "2020-01-01T00:00:00+09:00",
-        "updated_at": "2020-01-01T00:00:00+09:00",
-        "section": {
-            "section_id": 0,
-            "name": "営業課",
-            "created_at": "2020-01-01T00:00:00+09:00",
-            "updated_at": "2020-01-01T00:00:00+09:00",
-        },
-        "user_ids": ["4f73ab32-21bf-47ef-a119-fa024bc2b9cc"],
+        "created_at": datetime.now().isoformat(),
+        "updated_at": datetime.now().isoformat(),
+        "section_id": section_id,
+        "section": section,
+        "user_ids": user_ids,
     }
+    put_resp = section_diary_table.put_item(Item=item)
+    if put_resp["ResponseMetadata"]["HTTPStatusCode"] != 200:
+        return {
+            "statusCode": 500,
+            "body": f"Failed to put diary with section id: {section_id}",
+        }
 
     return {
         "statusCode": 200,
-        "body": json.dumps(example),
+        "body": json_dumps(item),
         "headers": {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "POST",
