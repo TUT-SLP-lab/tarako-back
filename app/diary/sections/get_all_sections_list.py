@@ -1,8 +1,14 @@
 import datetime
 
 from boto3.dynamodb.conditions import Key
-from table_utils import (DynamoDBError, get_all_items, get_items, json_dumps,
-                         section_diary_table, section_table)
+from table_utils import (
+    DynamoDBError,
+    get_all_items,
+    get_items,
+    json_dumps,
+    section_diary_table,
+    section_table,
+)
 
 
 def lambda_handler(event, context):

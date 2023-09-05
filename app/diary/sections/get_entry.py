@@ -3,7 +3,6 @@ from table_utils import (
     get_item,
     json_dumps,
     section_diary_table,
-    section_table,
 )
 
 

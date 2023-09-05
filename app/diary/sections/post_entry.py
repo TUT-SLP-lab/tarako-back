@@ -3,9 +3,14 @@ import uuid
 from datetime import datetime
 
 from boto3.dynamodb.conditions import Key
-from table_utils import (DynamoDBError, get_item, get_items, json_dumps,
-                         post_item, section_diary_table, section_table,
-                         user_table)
+from table_utils import (
+    DynamoDBError,
+    get_items,
+    json_dumps,
+    post_item,
+    section_diary_table,
+    user_table,
+)
 
 
 def lambda_handler(event, context):

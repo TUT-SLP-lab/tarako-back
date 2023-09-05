@@ -1,5 +1,4 @@
 from boto3.dynamodb.conditions import Key
-
 from table_utils import (
     DynamoDBError,
     get_all_items,

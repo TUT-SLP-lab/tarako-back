@@ -2,8 +2,14 @@ import json
 import uuid
 from datetime import datetime
 
-from table_utils import (DynamoDBError, get_item, json_dumps, post_item,
-                               user_diary_table, user_table)
+from table_utils import (
+    DynamoDBError,
+    get_item,
+    json_dumps,
+    post_item,
+    user_diary_table,
+    user_table,
+)
 
 
 def lambda_handler(event, context):
