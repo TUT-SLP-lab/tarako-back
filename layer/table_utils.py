@@ -4,6 +4,9 @@ from os import getenv
 
 import boto3
 
+# from docx import Document
+# from openpyxl import load_workbook
+
 # PR番号
 PR_NUM = getenv("PR_NUM", "dev")
 
@@ -58,3 +61,67 @@ def get_items(table, index_name, expr) -> list:
 
 class DynamoDBError(Exception):
     pass
+
+
+def validate_file(file_item):
+    # ファイル形式の検証
+    allowed_extensions = [".docx", ".xlsx"]
+    filename = file_item.filename.lower()
+    if not any(filename.endswith(ext) for ext in allowed_extensions):
+        return False
+    # ファイルサイズの検証 (例: 5MB以下)
+    max_file_size = 5 * 1024 * 1024  # 5MB
+    if len(file_item.value) > max_file_size:
+        return False
+    return True
+
+
+# def extract_text_from_docx(docx_file):
+#     doc = Document(docx_file)
+#     text = []
+#     for paragraph in doc.paragraphs:
+#         text.append(paragraph.text)
+#     return "\n".join(text)
+#
+#     # # NOTE: .docx ファイルを解析する場合には、以下のようにする
+#     # if 'file' in form:
+#     #     file_item = form['file']
+#     #     validate_file(file_item)
+#     #     docx_text = extract_text_from_docx(file_item.file)
+#     #     # docx_text を ChatGPT に渡して処理する
+#
+#
+# def extract_text_from_xlsx(xlsx_file):
+#     wb = load_workbook(filename=xlsx_file)
+#     text = []
+#     for sheet in wb.worksheets:
+#         for row in sheet.iter_rows(values_only=True):
+#             text.extend(row)
+#     return " ".join(map(str, text))
+#
+#     # # NOTE: .xlsx ファイルを解析する場合には、以下のようにする
+#     # if "file" in form:
+#     #     file_item = form["file"]
+#     #     validate_file(file_item)
+#     #     xlsx_text = extract_text_from_xlsx(file_item.file)
+#     #     # xlsx_text を ChatGPT に渡して処理する
+#
+#
+# def get_file_extension(filename):
+#     # ファイル名から拡張子を取得
+#     return filename.split('.')[-1].lower()
+#
+#     # # NOTE: match構文を使うと、以下のように書ける
+#     # match get_file_extension(filename):
+#     #     case "docx":
+#     #         docx_text = extract_text_from_docx(file_item.file)
+#     #         # docx_text を ChatGPT に渡して処理する
+#     #     case "xlsx":
+#     #         xlsx_text = extract_text_from_xlsx(file_item.file)
+#     #         # xlsx_text を ChatGPT に渡して処理する
+#     #     case _:
+#     #         # 未対応のファイル形式
+#     #         return {
+#     #             "statusCode": 400,
+#     #             "body": json_dumps({"error": "Unsupported file format"}),
+#     #         }
