@@ -1,4 +1,5 @@
 import datetime
+from typing import Optional
 
 from table_utils import DynamoDBError, get_item, task_table, user_table
 
@@ -16,7 +17,7 @@ def validate_file(file_item):
     return True
 
 
-def validate_uuid(uuid: str) -> bool:
+def validate_uuid_not_none(uuid: str) -> bool:
     """UUIDの妥当性を検証する
 
     Args:
@@ -66,7 +67,7 @@ def validate_datetime(from_date: str, to_date: str) -> tuple[bool, str]:
     return True, None
 
 
-def validate_user_ids_not_none(user_ids: list) -> tuple[bool, str]:
+def validate_user_ids_not_none(user_ids: list) -> tuple[bool, Optional[str]]:
     """ユーザIDの妥当性を検証する
 
     Args:
@@ -80,7 +81,7 @@ def validate_user_ids_not_none(user_ids: list) -> tuple[bool, str]:
     return validate_user_ids(user_ids)
 
 
-def validate_user_ids(user_ids: list) -> tuple[bool, str]:
+def validate_user_ids(user_ids: list) -> tuple[bool, Optional[str]]:
     """ユーザIDの妥当性を検証する
 
     Args:
@@ -93,13 +94,13 @@ def validate_user_ids(user_ids: list) -> tuple[bool, str]:
         if not isinstance(user_ids, list):
             return False, "user_ids is required to be list"
         for user_id in user_ids:
-            is_valid, err_msg = validate_user_id(user_id)
+            is_valid, err_msg = validate_user_id_not_none(user_id)
             if not is_valid:
                 return False, err_msg
     return True, None
 
 
-def validate_user_id(user_id: str) -> tuple[bool, str]:
+def validate_user_id_not_none(user_id: str) -> tuple[bool, Optional[str]]:
     """ユーザIDの妥当性を検証する
 
     Args:
@@ -110,7 +111,7 @@ def validate_user_id(user_id: str) -> tuple[bool, str]:
     """
     if user_id is None:
         return False, "user_id is required"
-    if not validate_uuid(user_id):
+    if not validate_uuid_not_none(user_id):
         return False, "user_id is required to be uuid"
     try:
         get_item(user_table, "user_id", user_id)
@@ -121,7 +122,7 @@ def validate_user_id(user_id: str) -> tuple[bool, str]:
     return True, None
 
 
-def validate_section_id(section_id: str) -> tuple[bool, str]:
+def validate_section_id_not_none(section_id: str) -> tuple[bool, Optional[str]]:
     """セクションIDの妥当性を検証する
 
     Args:
@@ -140,7 +141,7 @@ def validate_section_id(section_id: str) -> tuple[bool, str]:
     return True, None
 
 
-def validate_task_id(task_id: str) -> tuple[bool, str]:
+def validate_task_id_not_none(task_id: str) -> tuple[bool, Optional[str]]:
     """タスクIDの妥当性を検証する
 
     Args:
@@ -151,7 +152,7 @@ def validate_task_id(task_id: str) -> tuple[bool, str]:
     """
     if task_id is None:
         return False, "task_id is required"
-    if not validate_uuid(task_id):
+    if not validate_uuid_not_none(task_id):
         return False, "task_id is required to be uuid"
     try:
         get_item(task_table, "task_id", task_id)
@@ -162,7 +163,7 @@ def validate_task_id(task_id: str) -> tuple[bool, str]:
     return True, None
 
 
-def validate_diary_id(diary_id: str) -> tuple[bool, str]:
+def validate_diary_id_not_none(diary_id: str) -> tuple[bool, Optional[str]]:
     """日報IDの妥当性を検証する
 
     Args:
@@ -173,12 +174,12 @@ def validate_diary_id(diary_id: str) -> tuple[bool, str]:
     """
     if diary_id is None:
         return False, "diary_id is required"
-    if not validate_uuid(diary_id):
+    if not validate_uuid_not_none(diary_id):
         return False, "diary_id is required to be uuid"
     return True, None
 
 
-def validate_date_not_none(date: str) -> tuple[bool, str]:
+def validate_date_not_none(date: str) -> tuple[bool, Optional[str]]:
     """日付の妥当性を検証する
 
     Args:
@@ -192,7 +193,7 @@ def validate_date_not_none(date: str) -> tuple[bool, str]:
     return validate_date(date)
 
 
-def validate_date(date: str) -> tuple[bool, str]:
+def validate_date(date: str) -> tuple[bool, Optional[str]]:
     """日付の妥当性を検証する
 
     Args:
@@ -201,15 +202,16 @@ def validate_date(date: str) -> tuple[bool, str]:
     Returns:
         bool: 妥当性
     """
-    try:
-        # dateはYYYY-MM-DDの形式
-        datetime.date.fromisoformat(date)
-    except ValueError:
-        return False, "Invalid format"
+    if date:
+        try:
+            # dateはYYYY-MM-DDの形式
+            datetime.date.fromisoformat(date)
+        except ValueError:
+            return False, "Invalid format"
     return True, None
 
 
-def validate_details_not_none(details: str) -> tuple[bool, str]:
+def validate_details_not_none(details: str) -> tuple[bool, Optional[str]]:
     """詳細の妥当性を検証する
 
     Args:
@@ -223,7 +225,7 @@ def validate_details_not_none(details: str) -> tuple[bool, str]:
     return validate_details(details)
 
 
-def validate_details(details: str) -> tuple[bool, str]:
+def validate_details(details: str) -> tuple[bool, Optional[str]]:
     """詳細の妥当性を検証する
 
     Args:
@@ -232,12 +234,13 @@ def validate_details(details: str) -> tuple[bool, str]:
     Returns:
         bool: 妥当性
     """
-    if details is not None and not isinstance(details, str):
-        return False, "details is required to be str"
+    if details:
+        if not isinstance(details, str):
+            return False, "details is required to be str"
     return True, None
 
 
-def validate_message_not_none(message: str) -> tuple[bool, str]:
+def validate_message_not_none(message: str) -> tuple[bool, Optional[str]]:
     """メッセージの妥当性を検証する
 
     Args:
@@ -251,7 +254,7 @@ def validate_message_not_none(message: str) -> tuple[bool, str]:
     return validate_message(message)
 
 
-def validate_message(message: str) -> tuple[bool, str]:
+def validate_message(message: str) -> tuple[bool, Optional[str]]:
     """メッセージの妥当性を検証する
 
     Args:
@@ -260,12 +263,13 @@ def validate_message(message: str) -> tuple[bool, str]:
     Returns:
         bool: 妥当性
     """
-    if message is not None and not isinstance(message, str):
-        return False, "message is required to be str"
+    if message:
+        if not isinstance(message, str):
+            return False, "message is required to be str"
     return True, None
 
 
-def validate_serious(serious: str) -> tuple[bool, str]:
+def validate_serious_not_none(serious: str) -> tuple[bool, Optional[str]]:
     """重要度の妥当性を検証する
 
     Args:
@@ -283,7 +287,7 @@ def validate_serious(serious: str) -> tuple[bool, str]:
     return True, None
 
 
-def validate_status(status: str) -> tuple[bool, str]:
+def validate_status(status: str) -> tuple[bool, Optional[str]]:
     """ステータスの妥当性を検証する
 
     Args:
@@ -292,6 +296,7 @@ def validate_status(status: str) -> tuple[bool, str]:
     Returns:
         bool: 妥当性
     """
-    if status and status not in ["completed", "incomplete"]:
-        return False, "status is required to be completed or incomplete"
+    if status:
+        if status not in ["completed", "incomplete"]:
+            return False, "status is required to be completed or incomplete"
     return True, None

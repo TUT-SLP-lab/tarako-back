@@ -1,6 +1,6 @@
 from boto3.dynamodb.conditions import Key
 from table_utils import DynamoDBError, get_items, json_dumps, user_diary_table
-from validatoin import validate_datetime, validate_user_id
+from validatoin import validate_datetime, validate_user_id_not_none
 
 
 def lambda_handler(event, context):
@@ -17,7 +17,7 @@ def lambda_handler(event, context):
         to_date = None
 
     # Validation
-    is_valid, err_msg = validate_user_id(user_id)
+    is_valid, err_msg = validate_user_id_not_none(user_id)
     if not is_valid:
         return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
     is_valid, err_msg = validate_datetime(from_date, to_date)

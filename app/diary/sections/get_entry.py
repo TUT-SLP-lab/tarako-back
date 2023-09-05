@@ -1,5 +1,6 @@
-from table_utils import DynamoDBError, get_item, json_dumps, section_diary_table
-from validation import validate_diary_id, validate_section_id
+from table_utils import (DynamoDBError, get_item, json_dumps,
+                         section_diary_table)
+from validation import validate_diary_id_not_none, validate_section_id_not_none
 
 
 def lambda_handler(event, context):
@@ -10,10 +11,10 @@ def lambda_handler(event, context):
     diary_id = path_params.get("diary_id", None)
 
     # バリデーション
-    is_valid, err_msg = validate_section_id(section_id)
+    is_valid, err_msg = validate_section_id_not_none(section_id)
     if not is_valid:
         return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
-    is_valid, err_msg = validate_diary_id(diary_id)
+    is_valid, err_msg = validate_diary_id_not_none(diary_id)
     if not is_valid:
         return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
 

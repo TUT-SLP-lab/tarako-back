@@ -1,6 +1,7 @@
 from boto3.dynamodb.conditions import Key
-from table_utils import DynamoDBError, get_items, json_dumps, section_diary_table
-from validatoin import validate_datetime, validate_section_id
+from table_utils import (DynamoDBError, get_items, json_dumps,
+                         section_diary_table)
+from validatoin import validate_datetime, validate_section_id_not_none
 
 
 def lambda_handler(event, context):
@@ -20,7 +21,7 @@ def lambda_handler(event, context):
         to_date = None
 
     # section_idのバリデーション
-    is_valid, err_msg = validate_section_id(section_id)
+    is_valid, err_msg = validate_section_id_not_none(section_id)
     if not is_valid:
         return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
     section_id = int(section_id)

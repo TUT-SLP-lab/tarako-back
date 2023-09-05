@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 from table_utils import DynamoDBError, json_dumps, put_item, task_table
-from validation import validate_task_id
+from validation import validate_task_id_not_none
 
 
 def lambda_handler(event, context):
@@ -14,7 +14,7 @@ def lambda_handler(event, context):
 
     # バリデーション
     error_msg = []
-    is_valid, err_msg = validate_task_id(task_id)
+    is_valid, err_msg = validate_task_id_not_none(task_id)
     if not is_valid:
         return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
 

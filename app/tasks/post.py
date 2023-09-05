@@ -4,8 +4,8 @@ import random
 import uuid
 from datetime import datetime
 
-from table_utils import add_chat_to_db, json_dumps, task_table, post_item
-from validation import validate_file, validate_user_id
+from table_utils import add_chat_to_db, json_dumps, post_item, task_table
+from validation import validate_file, validate_user_id_not_none
 
 # from io import BytesIO
 
@@ -70,7 +70,7 @@ def lambda_handler(event, context):
 
     # バリデーションの続き
     error_msg = []
-    is_valid, err_msg = validate_user_id(user_id)
+    is_valid, err_msg = validate_user_id_not_none(user_id)
     if not is_valid:
         error_msg.append(err_msg)
 

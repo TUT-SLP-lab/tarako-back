@@ -14,7 +14,11 @@ from table_utils import (
     user_diary_table,
     user_table,
 )
-from validation import validate_date, validate_message_not_none, validate_user_id
+from validation import (
+    validate_date,
+    validate_message_not_none,
+    validate_user_id_not_none,
+)
 
 
 def lambda_handler(event, context):
@@ -31,7 +35,7 @@ def lambda_handler(event, context):
     message = body.get("message", None)
 
     # バリデーション
-    is_valid, err_msg = validate_user_id(user_id)
+    is_valid, err_msg = validate_user_id_not_none(user_id)
     if not is_valid:
         return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
     is_valid, err_msg = validate_date(date)

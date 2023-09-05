@@ -1,21 +1,11 @@
 import json
 from datetime import datetime
 
-from table_utils import (
-    DynamoDBError,
-    get_item,
-    json_dumps,
-    put_item,
-    section_diary_table,
-    section_table,
-)
-from validation import (
-    validate_diary_id,
-    validate_message,
-    validate_section_id,
-    validate_serious,
-    validate_user_ids_not_none,
-)
+from table_utils import (DynamoDBError, get_item, json_dumps, put_item,
+                         section_diary_table, section_table)
+from validation import (validate_diary_id_not_none, validate_message,
+                        validate_section_id_not_none,
+                        validate_serious_not_none, validate_user_ids_not_none)
 
 
 def lambda_handler(event, context):
@@ -37,16 +27,16 @@ def lambda_handler(event, context):
 
     # バリデーション
     error_messages = []
-    is_valid, err_msg = validate_section_id(section_id)
+    is_valid, err_msg = validate_section_id_not_none(section_id)
     if not is_valid:
         error_messages.append(err_msg)
-    is_valid, err_msg = validate_diary_id(diary_id)
+    is_valid, err_msg = validate_diary_id_not_none(diary_id)
     if not is_valid:
         error_messages.append(err_msg)
     is_valid, err_msg = validate_message(details)
     if not is_valid:
         error_messages.append("Invalid details")
-    is_valid, err_msg = validate_serious(serious)
+    is_valid, err_msg = validate_serious_not_none(serious)
     if not is_valid:
         error_messages.append(err_msg)
     is_valid, err_msg = validate_user_ids_not_none(user_ids)

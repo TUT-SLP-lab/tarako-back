@@ -1,5 +1,5 @@
 from table_utils import DynamoDBError, delete_item, json_dumps, task_table
-from validation import validate_task_id
+from validation import validate_task_id_not_none
 
 
 def lambda_handler(event, context):
@@ -9,7 +9,7 @@ def lambda_handler(event, context):
     task_id = ppm.get("task_id")
 
     # バリデーション
-    is_valid, err_msg = validate_task_id(task_id)
+    is_valid, err_msg = validate_task_id_not_none(task_id)
     if not is_valid:
         return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
 

@@ -3,19 +3,10 @@ import uuid
 from datetime import datetime
 
 from boto3.dynamodb.conditions import Key
-from table_utils import (
-    DynamoDBError,
-    get_items,
-    json_dumps,
-    post_item,
-    section_diary_table,
-    user_table,
-)
-from validatoin import (
-    validate_date_not_none,
-    validate_message_not_none,
-    validate_section_id,
-)
+from table_utils import (DynamoDBError, get_items, json_dumps, post_item,
+                         section_diary_table, user_table)
+from validatoin import (validate_date_not_none, validate_message_not_none,
+                        validate_section_id_not_none)
 
 
 def lambda_handler(event, context):
@@ -40,7 +31,7 @@ def lambda_handler(event, context):
     message = body.get("message", None)
 
     # バリデーション
-    is_valid, err_msg = validate_section_id(section_id)
+    is_valid, err_msg = validate_section_id_not_none(section_id)
     if not is_valid:
         return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
     is_valid, err_msg = validate_date_not_none(date)
