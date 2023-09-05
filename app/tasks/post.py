@@ -3,9 +3,11 @@ import json
 import random
 import uuid
 from datetime import datetime
-# from io import BytesIO
 
 from table_utils import add_chat_to_db, json_dumps, task_table, validate_file
+
+# from io import BytesIO
+
 
 category_list = [
     "HR",
@@ -137,7 +139,15 @@ def lambda_handler(event, context):
         "message": gpt_output.get("response_message"),
         "task": task,
     }
-    return {"statusCode": 201, "body": json_dumps(response)}
+    return {
+        "statusCode": 201,
+        "body": json_dumps(response),
+        "headers": {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET",
+            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
+        },
+    }
 
 
 def check_suggest_task():
