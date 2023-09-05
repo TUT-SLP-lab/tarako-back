@@ -1,5 +1,4 @@
-from table_utils import (DynamoDBError, get_item, json_dumps,
-                         section_diary_table)
+from table_utils import DynamoDBError, get_item, json_dumps, section_diary_table
 from validation import validate_diary_id_not_none, validate_section_id_not_none
 
 

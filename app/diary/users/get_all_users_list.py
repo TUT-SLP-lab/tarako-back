@@ -1,6 +1,12 @@
 from boto3.dynamodb.conditions import Key
-from table_utils import (DynamoDBError, get_all_items, get_items, json_dumps,
-                         user_diary_table, user_table)
+from table_utils import (
+    DynamoDBError,
+    get_all_items,
+    get_items,
+    json_dumps,
+    user_diary_table,
+    user_table,
+)
 from validatoin import validate_datetime
 
 

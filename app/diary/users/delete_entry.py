@@ -1,5 +1,10 @@
-from table_utils import (DynamoDBError, delete_item, get_item, json_dumps,
-                         user_diary_table)
+from table_utils import (
+    DynamoDBError,
+    delete_item,
+    get_item,
+    json_dumps,
+    user_diary_table,
+)
 from validation import validate_diary_id_not_none, validate_user_id_not_none
 
 

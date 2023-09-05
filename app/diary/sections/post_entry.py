@@ -3,10 +3,19 @@ import uuid
 from datetime import datetime
 
 from boto3.dynamodb.conditions import Key
-from table_utils import (DynamoDBError, get_items, json_dumps, post_item,
-                         section_diary_table, user_table)
-from validatoin import (validate_date_not_none, validate_message_not_none,
-                        validate_section_id_not_none)
+from table_utils import (
+    DynamoDBError,
+    get_items,
+    json_dumps,
+    post_item,
+    section_diary_table,
+    user_table,
+)
+from validatoin import (
+    validate_date_not_none,
+    validate_message_not_none,
+    validate_section_id_not_none,
+)
 
 
 def lambda_handler(event, context):

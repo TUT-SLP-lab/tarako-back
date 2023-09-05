@@ -1,11 +1,21 @@
 import json
 from datetime import datetime
 
-from table_utils import (DynamoDBError, get_item, json_dumps, put_item,
-                         section_diary_table, section_table)
-from validation import (validate_diary_id_not_none, validate_message,
-                        validate_section_id_not_none,
-                        validate_serious_not_none, validate_user_ids_not_none)
+from table_utils import (
+    DynamoDBError,
+    get_item,
+    json_dumps,
+    put_item,
+    section_diary_table,
+    section_table,
+)
+from validation import (
+    validate_diary_id_not_none,
+    validate_message,
+    validate_section_id_not_none,
+    validate_serious_not_none,
+    validate_user_ids_not_none,
+)
 
 
 def lambda_handler(event, context):

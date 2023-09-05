@@ -1,6 +1,5 @@
 from boto3.dynamodb.conditions import Key
-from table_utils import (DynamoDBError, chat_history_table, get_items,
-                         json_dumps)
+from table_utils import DynamoDBError, chat_history_table, get_items, json_dumps
 from validation import validate_datetime, validate_user_id_not_none
 
 
