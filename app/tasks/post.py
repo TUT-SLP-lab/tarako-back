@@ -43,6 +43,7 @@ def lambda_handler(event, context):
         )
         user_id = form.getfirst("user_id", None)
         msg = form.getfirst("text", None)
+        reference_task_id = form.getfirst("reference_task_id", None)
         if "file" in form:
             file_item = form["file"]
             # 現状では、ファイルは無視する
@@ -74,6 +75,8 @@ def lambda_handler(event, context):
     # TODO: ファイルがアップロードされた際の処理を書く
     if not msg:
         error_msg.append("ファイルアップロードが未対応の間、textは必須です")
+    if reference_task_id and not isinstance(reference_task_id, str):
+        error_msg.append("reference_task_id must be string")
 
     if error_msg:
         return {
@@ -81,6 +84,7 @@ def lambda_handler(event, context):
             "body": json_dumps({"error": "\n".join(error_msg)}),
         }
 
+    # TODO: reference_task_idが指定された場合、タスクの作成時に参照をする
     gpt_output = gen_dummy_data(msg)
 
     # TODO: 似たタスクがあるかどうかを確認する
