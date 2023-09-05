@@ -35,6 +35,7 @@ def translate_object(obj):
 def json_dumps(obj):
     return json.dumps(obj, default=translate_object)
 
+
 def get_all_items(table) -> list:
     """
     テーブルから全てのアイテムを取得する
@@ -51,6 +52,7 @@ def get_all_items(table) -> list:
     if "Items" not in response:
         raise IndexError(f"Items of {table.name} are not found")
     return response["Items"]
+
 
 def get_items(table, index_name: str, expr: Key) -> list:
     """テーブルからアイテムを取得する
