@@ -512,6 +512,11 @@ components:
           $ref: '#/components/schemas/RequestText'
         file:
           $ref: '#/components/schemas/RequestFile'
+        reference_task_id:
+          allOf:
+            - $ref: '#/components/schemas/TaskId'
+          readOnly: false
+          description: 参照するタスクのID。指定した場合、タスクの紐付けが行われやすくなる
     RequestTextFileTask:
       type: object
       properties:
@@ -999,7 +1004,7 @@ components:
     CreateTask:
       required: true
       content:
-        application/json:
+        multipart/form-data:
           schema:
             $ref: '#/components/schemas/RequestTaskAndFile'
     UpdateTask:
