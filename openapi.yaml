@@ -514,7 +514,7 @@ paths:
       tags:
         - chat
       description: ユーザのチャット履歴一覧
-      operationId: get-user-chat-history
+      operationId: get-single-user-chat-history
       parameters:
         - $ref: "#/components/parameters/user_id_path"
         - $ref: "#/components/parameters/from_chat_datetime_query"
@@ -525,7 +525,7 @@ paths:
         "404":
           $ref: "#/components/responses/404NotFound"
       x-amazon-apigateway-integration:
-        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetUserChatHistoryFunction.Arn}/invocations"
+        uri: "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetSingleUserChatHistoryFunction.Arn}/invocations"
         httpMethod: POST
         type: aws_proxy
         passthroughBehavior: "when_no_match"
