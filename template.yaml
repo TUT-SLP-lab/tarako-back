@@ -576,6 +576,67 @@ Resources:
             Path: /diary/sections/{section_id}/{diary_id}
             Method: delete
             RestApiId: !Ref ApiGateway
+  
+  GetAllChatHistoryFunction:
+    Type: "AWS::Serverless::Function"
+    Properties:
+      CodeUri: app/chat/
+      Handler: get_all_chat_history.lambda_handler
+      FunctionName: !Sub get-all-chat-history-${PrNumber}
+      Layers:
+        - !Ref TarakoLambdaLayer
+      Environment:
+        Variables:
+          PR_NUM: !Ref PrNumber
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Events:
+        DiarySectionsGetEvent:
+          Type: Api
+          Properties:
+            Path: /chat
+            Method: get
+            RestApiId: !Ref ApiGateway
+
+  GetSingleUserChatHistoryFunction:
+    Type: "AWS::Serverless::Function"
+    Properties:
+      CodeUri: app/chat/
+      Handler: get_single_user_chat_hidtory.lambda_handler
+      FunctionName: !Sub get-single-user-chat-history-${PrNumber}
+      Layers:
+        - !Ref TarakoLambdaLayer
+      Environment:
+        Variables:
+          PR_NUM: !Ref PrNumber
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Events:
+        DiarySectionsGetSectionEvent:
+          Type: Api
+          Properties:
+            Path: /chat/{user_id}
+            Method: get
+            RestApiId: !Ref ApiGateway
+
+  PostSectionDiaryFunction:
+    Type: "AWS::Serverless::Function"
+    Properties:
+      CodeUri: app/chat/
+      Handler: post_chat.lambda_handler
+      FunctionName: !Sub post-section-diary-${PrNumber}
+      Layers:
+        - !Ref TarakoLambdaLayer
+      Environment:
+        Variables:
+          PR_NUM: !Ref PrNumber
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Events:
+        DiarySectionsPostSectionEvent:
+          Type: Api
+          Properties:
+            Path: /chat/{user_id}
+            Method: post
+            RestApiId: !Ref ApiGateway
+
 
   TarakoSectionTable:
     Type: 'AWS::DynamoDB::Table'
@@ -872,6 +933,45 @@ Resources:
             - AttributeName: section_id
               KeyType: HASH
             - AttributeName: serious
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+
+  TarakoChatHistoryTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: ChatHistory
+      AttributeDefinitions:
+        - AttributeName: chat_id
+          AttributeType: N
+        - AttributeName: timestamp
+          AttributeType: S
+        - AttributeName: user_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: chat_id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      GlobalSecondaryIndexes:
+        - IndexName: UserIndex
+          KeySchema:
+            - AttributeName: user_id
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+          ProvisionedThroughput:
+            ReadCapacityUnits: 5
+            WriteCapacityUnits: 5
+        - IndexName: UserDateIndex
+          KeySchema:
+            - AttributeName: user_id
+              KeyType: HASH
+            - Attributename: timestamp
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
