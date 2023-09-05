@@ -79,6 +79,30 @@ def get_item(table, key: str, value: str) -> dict:
         raise IndexError(f"Item of {table.name} is not found with {value}")
     return response["Item"]
 
+def put_item(table, key: str, value: str, UpdExp: str, ExpAtt: dict) -> dict:
+    """テーブルにアイテムを追加する
+    Args:
+        table (boto3.resource.Table): テーブル
+        key (str): キー
+        value (str): 値
+        UpdExp (str): UpdateExpression
+        ExpAtt (dict): ExpressionAttributeValues
+    Returns:
+        dict: アイテム
+    Raises:
+        DynamoDBError: DynamoDBのエラー
+    """
+    response = table.update_item(
+        Key={key: value},
+        UpdateExpression=UpdExp,
+        ExpressionAttributeValues=ExpAtt,
+        ReturnValues="ALL_NEW",
+    )
+    if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
+        raise DynamoDBError(f"Failed to find {table.name} with {key}: {value}")
+    if "Attributes" not in response:
+        raise IndexError(f"Attributes of {table.name} is not found with {value}")
+    return response["Attributes"]
 
 class DynamoDBError(Exception):
     pass
