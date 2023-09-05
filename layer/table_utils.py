@@ -134,12 +134,10 @@ def post_item(table, item: dict) -> dict:
     Raises:
         DynamoDBError: DynamoDBのエラー
     """
-    response = table.put_item(Item=item, ReturnValues="ALL_NEW")
+    response = table.put_item(Item=item, ReturnValues="NONE")
     if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
-        raise DynamoDBError(f"Failed to find {table.name} with {item}")
-    if "Attributes" not in response:
-        raise IndexError(f"Attributes of {table.name} is not found with {item}")
-    return response["Attributes"]
+        raise DynamoDBError(f"Failed to find {table.name}")
+    return item
 
 
 class DynamoDBError(Exception):
