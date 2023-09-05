@@ -13,28 +13,28 @@ def lambda_handler(event, context):
 
     # バリデーション
     erro_msg = []
+    option = {"Key": {"task_id": task_id}}
     if not task_id:
         return {"statusCode": 400, "body": "Bad Request: Missing task_id"}
     elif not isinstance(task_id, str):
         erro_msg.append("task_id must be string")
     else:
-        option = {"Key": {"task_id": task_id}}
         response = task_table.get_item(**option)
         if "Item" not in response:
             return {"statusCode": 404, "body": "Not Found: Diary not found"}
 
-    if not body:
+    if body is None:
         return {"statusCode": 400, "body": "Bad Request: Missing body"}
     else:
-        body = json.loads(body)
+        json_body = json.loads(body)
     if not isinstance(body, dict):
         return {"statusCode": 400, "body": "Bad Request: body must be dict"}
 
     # bodyのバリデーション
-    is_valid, erro_msg = validate_body(body)
+    is_valid, erro_msg = validate_body(json_body)
     if not is_valid:
         return {"statusCode": 400, "body": f"Bad Request: {', '.join(erro_msg)}"}
-    last_progress = body.get("progresses")[-1]
+    last_progress = json_body.get("progresses")[-1]
 
     expr = ", ".join([
         "SET completed=:completed",
@@ -54,14 +54,14 @@ def lambda_handler(event, context):
         ":completed": "True" if last_progress["percentage"] == 100 else "False",
         ":last_status_at": last_progress["datetime"],
         ":updated_at": datetime.now().isoformat(),
-        ":assigned_to": body.get("assigned_to"),
-        ":section_id": body.get("section_id"),
-        ":title": body.get("title"),
-        ":category": body.get("category"),
-        ":tags": body.get("tags"),
-        ":progresses": body.get("progresses"),
-        ":serious": body.get("serious"),
-        ":details": body.get("details"),
+        ":assigned_to": json_body.get("assigned_to"),
+        ":section_id": json_body.get("section_id"),
+        ":title": json_body.get("title"),
+        ":category": json_body.get("category"),
+        ":tags": json_body.get("tags"),
+        ":progresses": json_body.get("progresses"),
+        ":serious": json_body.get("serious"),
+        ":details": json_body.get("details"),
     }
 
     response = task_table.update_item(
@@ -77,7 +77,7 @@ def lambda_handler(event, context):
     }
 
 
-def check_in_body_and_type(body, key, type) -> (bool, str):
+def check_in_body_and_type(body, key, type) -> tuple[bool, str]:
     if key not in body:
         return False, f"{key} is required"
     if not isinstance(body[key], type):
@@ -85,7 +85,7 @@ def check_in_body_and_type(body, key, type) -> (bool, str):
     return True, ""
 
 
-def validate_body(body: dict) -> (bool, list[str]):
+def validate_body(body: dict) -> tuple[bool, list[str]]:
     error_msg = []
     key_type = {
         "assigned_to": str,
