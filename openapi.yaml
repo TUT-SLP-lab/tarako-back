@@ -161,8 +161,10 @@ paths:
       parameters:
         - $ref: '#/components/parameters/not_assigned'
         - $ref: '#/components/parameters/user_id_query'
-        - $ref: '#/components/parameters/from_datetime_query'
-        - $ref: '#/components/parameters/to_datetime_query'
+        - $ref: '#/components/parameters/from_start_datetime_query'
+        - $ref: '#/components/parameters/to_start_datetime_query'
+        - $ref: '#/components/parameters/from_last_status_query'
+        - $ref: '#/components/parameters/to_last_status_query'
         - name: status
           in: query
           description: 進行中か否かで絞り込み。指定しなかった場合、現状での絞り込みを行わない
@@ -781,19 +783,37 @@ components:
       required: True
       schema:
         $ref: '#/components/schemas/SectionId'
-    from_datetime_query:
-      name: from
+    from_start_datetime_query:
+      name: from_start_datetime
       in: query
-      description: タスクの開始期間で絞り込み。指定しなかった場合、制限なし
+      description: タスクの開始期間の前方の絞り込み。指定しなかった場合、制限なし
       required: false
       schema:
         type: string
         format: datetime
         example: 2020-01-01T00:00:00+09:00
-    to_datetime_query:
-      name: to
+    to_start_datetime_query:
+      name: to_start_datetime
       in: query
-      description: タスクの終了期間で絞り込み。指定しなかった場合、制限なし
+      description: タスクの開始期間の後方の絞り込み。指定しなかった場合、制限なし
+      required: false
+      schema:
+        type: string
+        format: datetime
+        example: 2020-01-01T00:00:00+09:00
+    from_last_status_query:
+      name: from_last_status
+      in: query
+      description: タスクの最新更新時間の前方の絞り込み。指定しなかった場合、制限なし。*_start_datetimeが指定されている場合、無視される
+      required: false
+      schema:
+        type: string
+        format: datetime
+        example: 2020-01-01T00:00:00+09:00
+    to_last_status_query:
+      name: to_last_status
+      in: query
+      description: タスクの最新更新時間の後方の絞り込み。指定しなかった場合、制限なし*_start_datetimeが指定されている場合、無視される
       required: false
       schema:
         type: string
