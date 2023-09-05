@@ -78,19 +78,22 @@ task_ids = []
 for idx in range(5):
     item = {
         "task_id": str(uuid.uuid4()),
-        "assigned_by": random.choice(user_list),
+        "assigned_to": random.choice(user_list),
         "section_id": 1,
         "title": "単体テスト作成",
         "category": "HR",
         "tags": ["人事", "休暇"],
         "progresses": [
             {"datetime": "2020-01-01T00:00:00+09:00", "percentage": 0},
-            {"datetime": "2020-01-01T00:00:00+09:00", "percentage": 50},
+            {"datetime": "2020-01-02T00:00:00+09:00", "percentage": 50},
             {
-                "datetime": "2020-01-01T00:00:00+09:00",
+                "datetime": "2020-01-03T00:00:00+09:00",
                 "percentage": 100,
             },
         ],
+        "started_at": "2020-01-01T00:00:00+09:00",
+        "last_status_at": "2020-01-03T00:00:00+09:00",
+        "placeholder": 0,
         "completed": "True",
         "serious": 0,
         "details": "hoge.fugaの単体テストを作成する",
