@@ -5,7 +5,7 @@ from datetime import datetime
 import boto3
 from boto3.dynamodb.types import TypeSerializer
 
-PR_NUM = "dev"
+PR_NUM = "35"
 
 dynamodb = boto3.client("dynamodb", region_name="ap-northeast-1")
 

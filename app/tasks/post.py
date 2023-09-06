@@ -9,8 +9,9 @@ from responses import post_response
 from table_utils import add_chat_to_db, json_dumps, post_item, task_table
 from validation import validate_file, validate_user_id_not_none
 
-# from io import BytesIO
+from table_utils import add_chat_to_db, json_dumps, task_table, validate_file
 
+from chat_util import gen_task_data
 
 category_list = [
     "HR",
@@ -90,7 +91,9 @@ def lambda_handler(event, context):
     add_chat_to_db(user_id, msg, is_user_message=True)
 
     # TODO: reference_task_idが指定された場合、タスクの作成時に参照をする
-    gpt_output = gen_dummy_data(msg)
+    #gpt_output = gen_dummy_data(msg)
+    gpt_output, _ = gen_task_data(msg, category_list)
+    __import__("pprint").pprint(gpt_output)
 
     # TODO: 似たタスクがあるかどうかを確認する
 
@@ -110,7 +113,7 @@ def lambda_handler(event, context):
         "assigned_to": user_id,
         "section_id": section_id,
         "title": gpt_output.get("title"),
-        "category": gpt_output.get("category"),
+        "category": str(gpt_output.get("category")),
         "tags": gpt_output.get("tags"),
         "progresses": [{"datetime": now, "percentage": gpt_output.get("progress")}],
         "started_at": now,
