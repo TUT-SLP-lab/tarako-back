@@ -11,7 +11,7 @@ from table_utils import (
     section_diary_table,
     user_table,
 )
-from validatoin import (
+from validation import (
     validate_date_not_none,
     validate_message_not_none,
     validate_section_id_not_none,

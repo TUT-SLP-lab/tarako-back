@@ -9,7 +9,7 @@ from table_utils import (
     section_diary_table,
     section_table,
 )
-from validatoin import validate_datetime
+from validation import validate_datetime
 
 
 def lambda_handler(event, context):

@@ -1,6 +1,6 @@
 from boto3.dynamodb.conditions import Key
 from table_utils import DynamoDBError, get_items, json_dumps, section_diary_table
-from validatoin import validate_datetime, validate_section_id_not_none
+from validation import validate_datetime, validate_section_id_not_none
 
 
 def lambda_handler(event, context):
