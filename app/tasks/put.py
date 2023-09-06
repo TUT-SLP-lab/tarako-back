@@ -1,6 +1,7 @@
 import json
 from datetime import datetime
 
+from data_formatter import task_to_front
 from table_utils import DynamoDBError, json_dumps, put_item, task_table
 from validation import validate_task_id_not_none
 
@@ -63,7 +64,7 @@ def lambda_handler(event, context):
     }
 
     try:
-        task = put_item(task_table, "task_id", task_id, expr, update_object)
+        task = task_to_front(put_item(task_table, "task_id", task_id, expr, update_object))
     except DynamoDBError as e:
         return {"statusCode": 500, "body": f"Internal Server Error: {e}"}
     except IndexError as e:
@@ -112,17 +113,12 @@ def validate_body(body: dict) -> tuple[bool, list[str]]:
                 error_msg.append("serious must be 0 <= serious <= 5")
         if key == "progresses":
             if not all(
-                isinstance(progress, dict)
-                and "datetime" in progress
-                and "percentage" in progress
+                isinstance(progress, dict) and "datetime" in progress and "percentage" in progress
                 for progress in body["progresses"]
             ):
-                error_msg.append(
-                    "all progresses must be dict and have datetime and percentage"
-                )
+                error_msg.append("all progresses must be dict and have datetime and percentage")
             if not all(
-                isinstance(progress["datetime"], str)
-                and isinstance(progress["percentage"], int)
+                isinstance(progress["datetime"], str) and isinstance(progress["percentage"], int)
                 for progress in body["progresses"]
             ):
                 error_msg.append("all progresses must be datetime and percentage")

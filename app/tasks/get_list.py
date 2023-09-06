@@ -1,6 +1,13 @@
 from boto3.dynamodb.conditions import Key
+from data_formatter import task_to_front
 from table_utils import DynamoDBError, get_all_items, get_items, json_dumps, task_table
 from validation import validate_datetime, validate_status, validate_user_ids
+
+RESPONSE_HEADER = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET",
+    "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
+}
 
 
 def lambda_handler(event, context):
@@ -50,11 +57,7 @@ def lambda_handler(event, context):
         return {
             "statusCode": 400,
             "body": json_dumps({"errors": "\n".join(error_strings)}),
-            "headers": {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET",
-                "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-            },
+            "headers": RESPONSE_HEADER,
         }
 
     # Make query
@@ -64,9 +67,7 @@ def lambda_handler(event, context):
         has_user_query = True
     else:
         has_user_query = user_ids is not None
-    completed_query = (
-        None if status is None else Key("completed").eq(get_status_string(status))
-    )
+    completed_query = None if status is None else Key("completed").eq(get_status_string(status))
     datetime_range = (
         None
         if not (from_datetime or to_datetime)
@@ -86,41 +87,25 @@ def lambda_handler(event, context):
         return {
             "statusCode": 500,
             "body": json_dumps({"errors": str(e)}),
-            "headers": {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET",
-                "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-            },
+            "headers": RESPONSE_HEADER,
         }
     except IndexError as e:
         return {
             "statusCode": 400,
             "body": json_dumps({"errors": str(e)}),
-            "headers": {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET",
-                "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-            },
+            "headers": RESPONSE_HEADER,
         }
     except Exception as e:
         return {
             "statusCode": 500,
             "body": json_dumps({"errors": str(e)}),
-            "headers": {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET",
-                "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-            },
+            "headers": RESPONSE_HEADER,
         }
     else:
         return {
             "statusCode": 200,
             "body": json_dumps(result),
-            "headers": {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET",
-                "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-            },
+            "headers": RESPONSE_HEADER,
         }
 
 
@@ -148,15 +133,11 @@ def user_ids_get_item(user_ids, index_name, append_expr=None):
     return result
 
 
-def get_result(
-    has_user_query, datetime_range, completed_query, is_start_datetime, user_ids, status
-):
+def get_result(has_user_query, datetime_range, completed_query, is_start_datetime, user_ids, status):
     result = None
     index_name = ""
     if has_user_query and datetime_range:
-        index_name = (
-            "UserStartedAtIndex" if is_start_datetime else "UserLastStatusAtIndex"
-        )
+        index_name = "UserStartedAtIndex" if is_start_datetime else "UserLastStatusAtIndex"
         result = user_ids_get_item(user_ids, index_name, datetime_range)
         # 3つのクエリがある場合は、更に絞り込みが必要
         # NOTE: あらかじめ大量に絞り込めるものを優先して絞った
@@ -170,11 +151,7 @@ def get_result(
             expr = Key("assigned_to").eq(user_id_) & completed_query
             result.extend(get_items(task_table, index_name, expr))
     elif completed_query and datetime_range:
-        index_name = (
-            "CompletedStartedAtIndex"
-            if is_start_datetime
-            else "CompletedLastStatusAtIndex"
-        )
+        index_name = "CompletedStartedAtIndex" if is_start_datetime else "CompletedLastStatusAtIndex"
         expr = completed_query & datetime_range
     elif has_user_query:
         index_name = "AssignedToIndex"
@@ -193,4 +170,4 @@ def get_result(
 
     if result is None:
         result = get_items(task_table, index_name, expr)
-    return result
+    return [task_to_front(item) for item in result]
