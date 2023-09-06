@@ -61,16 +61,11 @@ items = [
         "icon": "/admin.png",
     },
 ]
-dynamodb.put_item(
-    TableName=f"UserTable-{PR_NUM}",
-    Item={k: serializer.serialize(v) for k, v in items[0].items()},
-)
-
-user_list = [
-    "4f73ab32-21bf-47ef-a119-fa024bc2b9cc",
-    "595c060d-8417-4ac8-bcb5-c8e733dc64e0",
-    "e08bf311-b1bc-4a38-bac1-374c3ede7203",
-]
+for user in items:
+    dynamodb.put_item(
+        TableName=f"UserTable-{PR_NUM}",
+        Item={k: serializer.serialize(v) for k, v in user.items()},
+    )
 
 
 # Init task
@@ -86,10 +81,7 @@ for idx in range(5):
         "progresses": [
             {"datetime": "2020-01-01T00:00:00+09:00", "percentage": 0},
             {"datetime": "2020-01-02T00:00:00+09:00", "percentage": 50},
-            {
-                "datetime": "2020-01-03T00:00:00+09:00",
-                "percentage": 100,
-            },
+            {"datetime": "2020-01-03T00:00:00+09:00", "percentage": 100},
         ],
         "started_at": "2020-01-01T00:00:00+09:00",
         "last_status_at": "2020-01-03T00:00:00+09:00",
