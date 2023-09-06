@@ -39,11 +39,7 @@ def lambda_handler(event, context):
 
     return {
         "statusCode": 200,
-        "body": json_dumps(
-            {
-                "message": f"Deleted diary with ID: {diary_id} for section with ID: {user_id}"
-            }
-        ),
+        "body": json_dumps({"message": f"Deleted diary with ID: {diary_id} for section with ID: {user_id}"}),
         "headers": {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "DELETE",
