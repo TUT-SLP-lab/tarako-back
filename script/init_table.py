@@ -18,8 +18,8 @@ user_list = [
 
 # Init section
 section_list = []
-random_name = ["営業課", "人事課", "総務課", "経理課", "開発課"]
-for idx in range(5):
+random_name = ["営業課", "管理課", "開発課", "人事課", "企画課", "広報課"]
+for idx in range(len(random_name)):
     section_list.append(idx)
     item = [
         {
@@ -40,7 +40,7 @@ items = [
         "user_id": "4f73ab32-21bf-47ef-a119-fa024bc2b9cc",
         "name": "田中夏子",
         "description": "田中夏子です。よろしくお願いします。趣味は読書です。",
-        "section_id": random.choice(section_list),
+        "section_id": 0,
         "email": "tanaka.natsuko@tarako",
         "icon": "/user_1.png",
     },
@@ -48,7 +48,7 @@ items = [
         "user_id": "595c060d-8417-4ac8-bcb5-c8e733dc64e0",
         "name": "山田太郎",
         "description": "山田太郎です。よろしくお願いします。趣味は野球です。",
-        "section_id": random.choice(section_list),
+        "section_id": 0,
         "email": "yamada.taro@tarako",
         "icon": "/user_2.png",
     },
@@ -56,7 +56,7 @@ items = [
         "user_id": "e08bf311-b1bc-4a38-bac1-374c3ede7203",
         "name": "管理五郎",
         "description": "管理者五郎です。よろしくお願いします。人と関わる仕事が好きです。",
-        "section": random.choice(section_list),
+        "section": 1,
         "email": "admin.goro@tarako",
         "icon": "/admin.png",
     },
