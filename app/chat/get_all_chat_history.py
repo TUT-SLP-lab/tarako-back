@@ -1,6 +1,6 @@
 from boto3.dynamodb.conditions import Key
 from table_utils import DynamoDBError, chat_history_table, get_items, json_dumps
-from validateion import validate_datetime
+from validation import validate_datetime
 
 
 def lambda_handler(event, context):

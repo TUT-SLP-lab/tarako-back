@@ -1,3 +1,4 @@
+from data_formatter import task_to_front
 from table_utils import DynamoDBError, get_item, json_dumps, task_table
 from validation import validate_task_id_not_none
 
@@ -14,7 +15,7 @@ def lambda_handler(event, context):
         return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
 
     try:
-        response = get_item(task_table, "task_id", task_id)
+        response = task_to_front(get_item(task_table, "task_id", task_id))
     except DynamoDBError as e:
         return {"statusCode": 500, "body": str(e)}
     except IndexError as e:
