@@ -1,4 +1,5 @@
 import datetime
+import uuid
 from typing import Optional
 
 from table_utils import DynamoDBError, get_item, task_table, user_table
@@ -17,7 +18,7 @@ def validate_file(file_item):
     return True
 
 
-def validate_uuid_not_none(uuid: str) -> bool:
+def validate_uuid_not_none(uuid_str: str) -> bool:
     """UUIDの妥当性を検証する
 
     Args:
@@ -26,10 +27,10 @@ def validate_uuid_not_none(uuid: str) -> bool:
     Returns:
         bool: 妥当性
     """
-    if uuid is None:
+    if uuid_str is None:
         return False
     try:
-        uuid.UUID(uuid)
+        uuid.UUID(uuid_str)
     except ValueError:
         return False
     return True
@@ -45,7 +46,7 @@ def validate_datetime(from_date: str, to_date: str) -> tuple[bool, str]:
         bool: 妥当性
     """
 
-    class FromToError:
+    class FromToError(Exception):
         pass
 
     try:
@@ -57,9 +58,9 @@ def validate_datetime(from_date: str, to_date: str) -> tuple[bool, str]:
             if not isinstance(to_date, str):
                 raise ValueError
             to_date_datetime = datetime.date.fromisoformat(to_date)
-        if from_date and to_date and from_date_datetime >= to_date_datetime:
-            raise FromToError
-        datetime.date.fromisoformat(datetime)
+        if from_date and to_date:
+            if from_date_datetime >= to_date_datetime:
+                raise FromToError
     except ValueError:
         return False, "Invalid format"
     except FromToError:
