@@ -39,6 +39,7 @@ def lambda_handler(event, context):
         expr = Key("assigned_to").eq(user_id) & Key("started_at").gte(date)
         task_list = get_items(task_table, "UserStartedAtIndex", expr)
         task_ids = [task["task_id"] for task in task_list]
+        serious = sum([int(task["serious"]) for task in task_list])
 
         gpt_diary = gen_user_diary_data(message, task_list)
         # TODO send message to ChatGPT
@@ -49,7 +50,8 @@ def lambda_handler(event, context):
             "date": date,
             "details": gpt_diary["details"],
             "ai_analysis": gpt_diary["ai_analysis"],
-            "serious": int(gpt_diary["serious"]),
+            # "serious": int(gpt_diary["serious"]),
+            "serious": serious,
             "created_at": datetime.now().isoformat(),
             "updated_at": datetime.now().isoformat(),
             "user_id": user_id,

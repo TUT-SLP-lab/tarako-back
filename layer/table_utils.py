@@ -40,7 +40,7 @@ def translate_object(obj):
 
 
 def json_dumps(obj):
-    return json.dumps(obj, default=translate_object)
+    return json.dumps(obj, default=translate_object, ensure_ascii=False)
 
 
 def get_all_items(table) -> list:

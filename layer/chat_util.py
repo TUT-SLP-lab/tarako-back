@@ -2,6 +2,7 @@ import json
 import os
 
 import openai
+from table_utils import json_dumps
 
 openai.api_key = os.environ["OPENAI_API_KEY"]
 CHATGPT_MODEL = "gpt-3.5-turbo"
@@ -124,13 +125,26 @@ def gen_task_data(
 
 
 def gen_create_user_diary_prompt(msg, task_dict: dict[str, str]):
+    prompt_task_dict = []
+    for task in task_dict:
+        prompt_task_dict.append(
+            {
+                "title": task["title"],
+                "category": task["category"],
+                "tags": task["tags"],
+                "progress": task["progresses"][-1],
+                "serious": task["serious"],
+                "details": task["details"],
+            }
+        )
+    # print(json_dumps(prompt_task_dict))
     return f"""
 次の内容は事務員の今日タスクです。これらの内容から日報を作成してください。
 ```
-{json.dumps(task_dict)}
-
-最後に従業員の一言です．{msg}
+{json_dumps(prompt_task_dict)}
 ```
+最後に従業員の一言です．
+{msg}
 """
 
 
@@ -151,10 +165,10 @@ def create_user_diary_function():
                     "description": "メッセージやタスクからAIが自動で分析した内容を記述する．"
                     + "思いやりがあって，従業員がやる気になるような内容を記述する．",
                 },
-                "serious": {
-                    "type": "string",
-                    "description": "日報の深刻度(0~5)を整数のみで記述する．",
-                },
+                # "serious": {
+                #     "type": "string",
+                #     "description": "日報の深刻度(0~5)を整数のみで記述する．",
+                # },
             },
             "required": ["details", "ai_analysis", "serious"],
         },
@@ -165,12 +179,13 @@ def gen_user_diary_data(msg: str, task_dict: dict[str, str] = {}):
     response = openai.ChatCompletion.create(
         model=CHATGPT_MODEL,
         messages=[
-            {"role": "user", "content": gen_create_user_diary_prompt(task_dict, msg)},
+            {"role": "user", "content": gen_create_user_diary_prompt(msg, task_dict)},
         ],
         functions=[
             create_user_diary_function(),
         ],
     )
+
     if "function_call" not in response["choices"][0]["message"]:
         raise FunctionCallingError("function_callがありません")
     diary = None
