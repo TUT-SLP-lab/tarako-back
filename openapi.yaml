@@ -765,6 +765,11 @@ components:
           type: string
           description: タスクの詳細
           example: hoge.fugaの単体テストを作成する
+        ai_analysis:
+          type: string
+          description: AIからの分析
+          example: hoge.fugaの分析
+          readOnly: true
         serious:
           type: integer
           description: 深刻度の総計
