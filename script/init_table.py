@@ -1,11 +1,12 @@
 import random
 import uuid
+import os
 from datetime import datetime
 
 import boto3
 from boto3.dynamodb.types import TypeSerializer
 
-PR_NUM = "dev"
+PR_NUM = os.getenv("PR_NUM", "dev")
 
 dynamodb = boto3.client("dynamodb", region_name="ap-northeast-1")
 
