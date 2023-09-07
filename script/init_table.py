@@ -1,6 +1,6 @@
+import os
 import random
 import uuid
-import os
 from datetime import datetime
 
 import boto3
