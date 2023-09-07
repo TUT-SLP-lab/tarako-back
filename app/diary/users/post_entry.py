@@ -49,8 +49,12 @@ def lambda_handler(event, context):
     try:
         user = get_item(user_table, "user_id", user_id)
 
-        expr = Key("assigned_to").eq(user_id) & Key("started_at").gte(date)
-        task_list = get_items(task_table, "UserStartedAtIndex", expr)
+        # date(YYYY-MM-DD)をdatetimeに変換
+        dt = datetime.strptime(date, "%Y-%m-%d")
+        # dtが日本時間での0時を取得しているので、9時間引く
+        dt = dt - datetime.timedelta(hours=9)
+        expr = Key("assigned_to").eq(user_id) & Key("last_status_at").gte(dt)
+        task_list = get_items(task_table, "UserLastStatusAtIndex", expr)
         task_ids = [task["task_id"] for task in task_list]
         serious = sum([int(task["serious"]) for task in task_list])
 
