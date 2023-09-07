@@ -2,7 +2,7 @@ import datetime
 import json
 
 from responses import put_response
-from table_utils import put_item, user_table
+from table_utils import json_dumps, put_item, user_table
 from validation import validate_message_not_none, validate_user_id_not_none
 
 
@@ -36,17 +36,19 @@ def lambda_handler(event, context):
         return put_response(400, "\n".join(error_msgs))
 
     now = datetime.datetime.now().isoformat()
-    expression = "SET name=:name, icon=:icon, email=:email, section_id=:section_id, updated_at=:updated_at"
+    # nameは予約語なので、#nameとしている
+    expression = "SET #name=:n, icon=:i, email=:e, section_id=:s, updated_at=:u"
+    exp_att_names = {"#name": "name"}
     vals = {
-        ":name": name,
-        ":icon": icon,
-        ":email": email,
-        ":section_id": section_id,
-        ":updated_at": now,
+        ":n": name,
+        ":i": icon,
+        ":e": email,
+        ":s": section_id,
+        ":u": now,
     }
     try:
-        response = put_item(user_table, "user_id", user_id, expression, vals)
+        response = put_item(user_table, "user_id", user_id, expression, vals, exp_att_names)
     except Exception as e:
-        return put_response(500, e)
+        return put_response(500, json_dumps(str(e)))
 
-    return put_response(200, response)
+    return put_response(200, json_dumps(response))
