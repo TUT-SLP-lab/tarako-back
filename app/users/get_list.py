@@ -9,15 +9,15 @@ def lambda_handler(event, context):
     if qsp:
         section_id = qsp.get("section_id", None)
     else:
-        section = None
+        section_id = None
 
     is_valid, err_msg = validate_section_id(section_id)
     if not is_valid:
         return get_response(400, err_msg)
-    # ここに処理を書く
     try:
         if section_id:
-            response = get_items(user_table, "SectionIndex", Key("section_id").eq(section))
+            section_id = int(section_id)
+            response = get_items(user_table, "SectionIndex", Key("section_id").eq(section_id))
         else:
             response = get_all_items(user_table)
     except DynamoDBError as e:
