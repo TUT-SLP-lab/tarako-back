@@ -1,15 +1,50 @@
+import datetime
 import json
+import uuid
 
 from responses import post_response
+from table_utils import json_dumps, post_item, user_table
+from validation import validate_message_not_none
 
 
 def lambda_handler(event, context):
     body = json.loads(event.get("body", "{}"))
+    name = body.get("name", None)
+    icon = body.get("icon", None)
+    email = body.get("email", None)
+    section_id = body.get("section_id", None)
 
     # バリデーション
-    if not body:
-        return post_response(400, "Bad Request: Invalid body")
+    error_msgs = []
+    is_valid, err_msg = validate_message_not_none(name)
+    if not is_valid:
+        error_msgs.append("name is invalid")
+    is_valid, err_msg = validate_message_not_none(icon)
+    if not is_valid:
+        error_msgs.append("icon is invalid")
+    is_valid, err_msg = validate_message_not_none(email)
+    if not is_valid:
+        error_msgs.append("email is invalid")
+    is_valid, err_msg = validate_message_not_none(section_id)
+    if not is_valid:
+        error_msgs.append("section_id is invalid")
+    if len(error_msgs) > 0:
+        return post_response(400, "\n".join(error_msgs))
 
-    # ここに処理を書く
+    user_id = str(uuid.uuid4())
+    now = str(datetime.datetime.now().isoformat())
+    item = {
+        "user_id": user_id,
+        "name": name,
+        "icon": icon,
+        "email": email,
+        "section_id": section_id,
+        "created_at": now,
+        "updated_at": now,
+    }
 
-    return post_response(405, "Method Not Allowed")
+    try:
+        response = post_item(user_table, item)
+    except Exception as e:
+        return post_response(500, e)
+    return post_response(200, json_dumps(response))

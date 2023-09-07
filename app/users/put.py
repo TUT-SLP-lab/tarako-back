@@ -1,21 +1,52 @@
+import datetime
 import json
 
 from responses import put_response
+from table_utils import put_item, user_table
+from validation import validate_message_not_none, validate_user_id_not_none
 
 
 def lambda_handler(event, context):
     user_id = event.get("pathParameters", {}).get("user_id")
 
-    if not user_id:
-        return put_response(400, "Bad Request: Invalid path parameters")
+    is_valid, err_msg = validate_user_id_not_none(user_id)
+    if not is_valid:
+        return put_response(400, err_msg)
     body = json.loads(event.get("body", "{}"))
+    name = body.get("name", None)
+    icon = body.get("icon", None)
+    email = body.get("email", None)
+    section_id = body.get("section_id", None)
 
     # バリデーション
-    if user_id and not isinstance(user_id, int):
-        return put_response(400, "Bad Request: Invalid user_id")
-    if not body:
-        return put_response(400, "Bad Request: Invalid body")
+    error_msgs = []
+    is_valid, err_msg = validate_message_not_none(name)
+    if not is_valid:
+        error_msgs.append("name is invalid")
+    is_valid, err_msg = validate_message_not_none(icon)
+    if not is_valid:
+        error_msgs.append("icon is invalid")
+    is_valid, err_msg = validate_message_not_none(email)
+    if not is_valid:
+        error_msgs.append("email is invalid")
+    is_valid, err_msg = validate_message_not_none(section_id)
+    if not is_valid:
+        error_msgs.append("section_id is invalid")
+    if len(error_msgs) > 0:
+        return put_response(400, "\n".join(error_msgs))
 
-    # ここに処理を書く
+    now = datetime.datetime.now().isoformat()
+    expression = "SET name=:name, icon=:icon, email=:email, section_id=:section_id, updated_at=:updated_at"
+    vals = {
+        ":name": name,
+        ":icon": icon,
+        ":email": email,
+        ":section_id": section_id,
+        ":updated_at": now,
+    }
+    try:
+        response = put_item(user_table, "user_id", user_id, expression, vals)
+    except Exception as e:
+        return put_response(500, e)
 
-    return put_response(405, "Method Not Allowed")
+    return put_response(200, response)

@@ -1,52 +1,28 @@
-import json
-
+from boto3.dynamodb.conditions import Key
 from responses import get_response
+from table_utils import DynamoDBError, get_all_items, get_items, json_dumps, user_table
 from validation import validate_section_id
 
 
 def lambda_handler(event, context):
     qsp = event.get("queryStringParameters")
     if qsp:
-        section_id = qsp.get("section_id")
+        section_id = qsp.get("section_id", None)
+    else:
+        section = None
 
-        # バリデーション
-        if section_id:
-            is_valid, err_msg = validate_section_id(section_id)
-            if not is_valid:
-                return get_response(400, f"Bad Request: {err_msg}")
-
+    is_valid, err_msg = validate_section_id(section_id)
+    if not is_valid:
+        return get_response(400, err_msg)
     # ここに処理を書く
-    example = [
-        {
-            "user_id": "4f73ab32-21bf-47ef-a119-fa024bc2b9cc",
-            "name": "田中夏子",
-            "description": "田中夏子です。よろしくお願いします。趣味は読書です。",
-            "section_id": 0,
-            "email": "tanaka.natsuko@tarako",
-            "icon": "/user_1.png",
-            "created_at": "2020-01-01T00:00:00+09:00",
-            "updated_at": "2020-01-01T00:00:00+09:00",
-        },
-        {
-            "user_id": "595c060d-8417-4ac8-bcb5-c8e733dc64e0",
-            "name": "山田太郎",
-            "description": "山田太郎です。よろしくお願いします。趣味は野球です。",
-            "section_id": 0,
-            "email": "yamada.taro@tarako",
-            "icon": "/user_2.png",
-            "created_at": "2020-01-01T00:00:00+09:00",
-            "updated_at": "2020-01-01T00:00:00+09:00",
-        },
-        {
-            "user_id": "e08bf311-b1bc-4a38-bac1-374c3ede7203",
-            "name": "管理五郎",
-            "description": "管理者五郎です。よろしくお願いします。人と関わる仕事が好きです。",
-            "section_id": 1,
-            "email": "admin.goro@tarako",
-            "icon": "/admin.png",
-            "created_at": "2020-01-01T00:00:00+09:00",
-            "updated_at": "2020-01-01T00:00:00+09:00",
-        },
-    ]
+    try:
+        if section_id:
+            response = get_items(user_table, "SectionIndex", Key("section_id").eq(section))
+        else:
+            response = get_all_items(user_table)
+    except DynamoDBError as e:
+        return get_response(500, e)
+    except Exception as e:
+        return get_response(500, e)
 
-    return get_response(200, json.dumps(example))
+    return get_response(200, json_dumps(response))
