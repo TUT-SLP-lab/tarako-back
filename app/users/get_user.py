@@ -14,8 +14,8 @@ def lambda_handler(event, context):
     try:
         response = get_item(user_table, "user_id", user_id)
     except IndexError as e:
-        return get_response(404, e)
+        return get_response(404, json_dumps(e))
     except Exception as e:
-        return get_response(500, e)
+        return get_response(500, json_dumps(e))
 
     return get_response(200, json_dumps(response))
