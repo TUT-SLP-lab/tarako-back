@@ -293,9 +293,8 @@ def gen_section_diary_data(user_diary_dict: dict[str, str] = {}):
             create_section_diary_function(),
         ],
     )
-
     if "function_call" not in response["choices"][0]["message"]:
-        raise FunctionCallingError("function_callがありません")
+        raise FunctionCallingError(f"function_callがありません{response}")
     diary = None
     if response["choices"][0]["message"]["function_call"]["name"] == "create_section_diary":
         diary_str = response["choices"][0]["message"]["function_call"]["arguments"]

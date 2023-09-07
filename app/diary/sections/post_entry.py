@@ -11,6 +11,7 @@ from table_utils import (
     json_dumps,
     post_item,
     section_diary_table,
+    user_diary_table,
     user_table,
 )
 from validation import validate_date_not_none, validate_section_id_not_none
@@ -22,7 +23,7 @@ def lambda_handler(event, context):
     # validation
     if ppm is None:
         return post_response(400, "Bad Request: Invalid path parameters")
-    section_id = ppm.get("section_id")
+    section_id = ppm.get("section_id", None)
 
     # body balidation
     body = event.get("body", "{}")
@@ -55,9 +56,12 @@ def lambda_handler(event, context):
         # get user diaries
         user_diary_list = []
         for user_id in user_ids:
-            expr = Key("user_id").eq(user_id) & Key("date").gte(date)
-            user_diaries = get_items("UserDateIndex", expr)
+            expr = Key("user_id").eq(user_id) & Key("date").eq(date)
+            user_diaries = get_items(user_diary_table, "UserDateIndex", expr)
             user_diary_list += user_diaries
+
+        if len(user_diary_list) == 0:
+            return post_response(404, "The specified resource was not found.")
 
         # calc serious
         section_serious = sum([int(user_diary["serious"]) for user_diary in user_diary_list])
