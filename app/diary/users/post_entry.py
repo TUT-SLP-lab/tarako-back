@@ -1,6 +1,7 @@
+import datetime
 import json
+import traceback
 import uuid
-from datetime import datetime
 
 from boto3.dynamodb.conditions import Key
 from chat_util import gen_user_diary_data
@@ -49,14 +50,20 @@ def lambda_handler(event, context):
     try:
         user = get_item(user_table, "user_id", user_id)
 
-        expr = Key("assigned_to").eq(user_id) & Key("started_at").gte(date)
-        task_list = get_items(task_table, "UserStartedAtIndex", expr)
+        # date(YYYY-MM-DD)をdatetimeに変換
+        dt = datetime.datetime.strptime(date, "%Y-%m-%d")
+        # dtが日本時間での0時を取得しているので、9時間引く
+        dt = dt - datetime.timedelta(hours=9)
+        dt = str(dt.isoformat())
+        expr = Key("assigned_to").eq(user_id) & Key("last_status_at").gte(dt)
+        task_list = get_items(task_table, "UserLastStatusAtIndex", expr)
         task_ids = [task["task_id"] for task in task_list]
         serious = sum([int(task["serious"]) for task in task_list])
 
         gpt_diary = gen_user_diary_data(message, task_list)
         # TODO send message to ChatGPT
         diary_id = str(uuid.uuid4())
+        now = datetime.datetime.now().isoformat()
         item = {
             "diary_id": diary_id,
             "section_id": user["section_id"],
@@ -65,8 +72,8 @@ def lambda_handler(event, context):
             "ai_analysis": gpt_diary["ai_analysis"],
             # "serious": int(gpt_diary["serious"]),
             "serious": serious,
-            "created_at": datetime.now().isoformat(),
-            "updated_at": datetime.now().isoformat(),
+            "created_at": now,
+            "updated_at": now,
             "user_id": user_id,
             "task_ids": task_ids,
         }
@@ -77,6 +84,7 @@ def lambda_handler(event, context):
     except IndexError as e:
         return post_response(404, f"Not Found: {e}")
     except Exception as e:
+        print(traceback.format_exc())
         return post_response(500, f"Internal Server Error: {e}")
 
     return post_response(200, json_dumps(user_diary))
