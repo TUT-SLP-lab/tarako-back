@@ -4,6 +4,7 @@ from datetime import datetime
 
 from boto3.dynamodb.conditions import Key
 from chat_util import gen_user_diary_data
+from responses import post_response
 from table_utils import (
     DynamoDBError,
     get_item,
@@ -24,12 +25,12 @@ from validation import (
 def lambda_handler(event, context):
     path_params = event.get("pathParameters", {})
     if path_params is None:
-        return {"statusCode": 400, "body": "Bad Request: Missing path parameters"}
+        return post_response(400, "Bad Request: Invalid path parameters")
     user_id = path_params.get("user_id", None)
 
     body = event.get("body", {})
     if body is None:
-        return {"statusCode": 400, "body": "Bad Request: Missing request body"}
+        return post_response(400, "Bad Request: Invalid body")
     body = json.loads(body)
     date = body.get("date", None)
     message = body.get("message", None)
@@ -37,13 +38,13 @@ def lambda_handler(event, context):
     # バリデーション
     is_valid, err_msg = validate_user_id_not_none(user_id)
     if not is_valid:
-        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
+        return post_response(400, f"Bad Request: {err_msg}")
     is_valid, err_msg = validate_date(date)
     if not is_valid:
-        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
+        return post_response(400, f"Bad Request: {err_msg}")
     is_valid, err_msg = validate_message_not_none(message)
     if not is_valid:
-        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
+        return post_response(400, f"Bad Request: {err_msg}")
 
     try:
         user = get_item(user_table, "user_id", user_id)
@@ -72,17 +73,10 @@ def lambda_handler(event, context):
         user_diary = post_item(user_diary_table, item)
 
     except DynamoDBError as e:
-        return {"statusCode": 500, "body": f"Internal Server Error: {e}"}
+        return post_response(500, f"Internal Server Error: DynamoDB Error: {e}")
     except IndexError as e:
-        return {"statusCode": 404, "body": f"Not Found: {e}"}
+        return post_response(404, f"Not Found: {e}")
     except Exception as e:
-        return {"statusCode": 500, "body": f"Internal Server Error: {e}"}
-    return {
-        "statusCode": 200,
-        "body": json_dumps(user_diary),
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "POST",
-            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-        },
-    }
+        return post_response(500, f"Internal Server Error: {e}")
+
+    return post_response(200, json_dumps(user_diary))

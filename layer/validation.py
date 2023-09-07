@@ -2,7 +2,7 @@ import datetime
 import uuid
 from typing import Optional
 
-from table_utils import DynamoDBError, get_item, task_table, user_table
+from table_utils import DynamoDBError, get_item, section_table, task_table, user_table
 
 
 def validate_file(file_item):
@@ -134,12 +134,28 @@ def validate_section_id_not_none(section_id: str) -> tuple[bool, Optional[str]]:
     """
     if section_id is None:
         return False, "section_id is required"
-    try:
-        int(section_id)
-    except ValueError:
-        return False, "section_id is required to be int"
-    # TODO: section_idの存在確認
+    return validate_section_id(section_id)
+
+
+def validate_section_id(section_id: str) -> tuple[bool, Optional[str]]:
+    """セクションIDの妥当性を検証する
+
+    Args:
+        section_id (str): セクションID
+
+    Returns:
+        bool: 妥当性
+    """
+    if section_id:
+        try:
+            int(section_id)
+            get_item(section_table, "section_id", section_id)
+        except ValueError:
+            return False, "section_id is required to be int"
+        except IndexError as e:
+            return False, str(e)
     return True, None
+
 
 
 def validate_task_id_not_none(task_id: str) -> tuple[bool, Optional[str]]:

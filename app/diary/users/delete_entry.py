@@ -1,3 +1,4 @@
+from responses import delete_response
 from table_utils import (
     DynamoDBError,
     delete_item,
@@ -15,34 +16,28 @@ def lambda_handler(event, context):
     # バリデーション
     is_valid, err_msg = validate_user_id_not_none(user_id)
     if not is_valid:
-        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
+        return delete_response(400, f"Bad Request: {err_msg}")
     is_valid, err_msg = validate_diary_id_not_none(diary_id)
     if not is_valid:
-        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
+        return delete_response(400, f"Bad Request: {err_msg}")
 
     # search user diary
     try:
         user_diary = get_item(user_diary_table, "diary_id", diary_id)
     except DynamoDBError as e:
-        return {"statusCode": 500, "body": str(e)}
+        return delete_response(500, f"Internal Server Error: DynamoDB Error: {e}")
     except IndexError:
-        return {"statusCode": 404, "body": f"Not Found: user_id={user_id}"}
+        return delete_response(404, f"Failed to find diary_id: {diary_id}")
 
     if user_diary["user_id"] != user_id:
-        return {"statusCode": 403, "body": "Forbidden: Invalid user_id"}
+        return delete_response(403, "Forbidden: Invalid user_id")
 
     # delete user diary
     try:
         delete_item(user_diary_table, "diary_id", diary_id)
     except DynamoDBError as e:
-        return {"statusCode": 500, "body": str(e)}
+        return delete_response(500, f"Internal Server Error: DynamoDB Error: {e}")
 
-    return {
-        "statusCode": 200,
-        "body": json_dumps({"message": f"Deleted diary with ID: {diary_id} for section with ID: {user_id}"}),
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "DELETE",
-            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-        },
-    }
+    return delete_response(
+        200, json_dumps({"message": f"Deleted diary with ID: {diary_id} for user with ID: {user_id}"})
+    )

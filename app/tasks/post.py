@@ -5,6 +5,7 @@ import uuid
 from datetime import datetime
 
 from data_formatter import task_to_front
+from responses import post_response
 from table_utils import add_chat_to_db, json_dumps, post_item, task_table
 from validation import validate_file, validate_user_id_not_none
 
@@ -29,10 +30,7 @@ def lambda_handler(event, context):
     #     force_create = None
     body = event.get("body")
     if body is None:
-        return {
-            "statusCode": 400,
-            "body": json_dumps({"error": "Missing request body"}),
-        }
+        return post_response(400, "Bad Request: Invalid body")
     body_json = json.loads(body)
 
     # BytesIOを使用してボディをファイルポインタとして扱う
@@ -64,10 +62,7 @@ def lambda_handler(event, context):
         file_item = None
     except Exception as e:
         print(e)
-        return {
-            "statusCode": 500,
-            "body": json_dumps({"error": "Failed to parse form-data"}),
-        }
+        return post_response(400, "Bad Request: Invalid form-data")
 
     # バリデーションの続き
     error_msg = []
@@ -89,10 +84,7 @@ def lambda_handler(event, context):
         error_msg.append("reference_task_id must be string")
 
     if error_msg:
-        return {
-            "statusCode": 400,
-            "body": json_dumps({"error": "\n".join(error_msg)}),
-        }
+        return post_response(400, "\n".join(error_msg))
 
     # Chatデータベースにメッセージを追加する
     add_chat_to_db(user_id, msg, is_user_message=True)
@@ -140,15 +132,7 @@ def lambda_handler(event, context):
         "message": gpt_output.get("response_message"),
         "task": task,
     }
-    return {
-        "statusCode": 201,
-        "body": json_dumps(response),
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-        },
-    }
+    return post_response(201, json_dumps(response))
 
 
 def check_suggest_task():

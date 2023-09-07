@@ -1,12 +1,14 @@
 import json
 
+from responses import get_response
+
 
 def lambda_handler(event, context):
     user_id = event.get("pathParameters", {}).get("user_id")
 
     # バリデーション
     if not user_id:
-        return {"statusCode": 400, "body": "Bad Request: Missing user_id"}
+        return get_response(400, "Bad Request: Invalid path parameters")
 
     # ここに処理を書く
     example = [
@@ -45,14 +47,6 @@ def lambda_handler(event, context):
     # exampleからuser_idに一致するユーザーを抽出する.見つからなかったら404を返す
     for user in example:
         if user["user_id"] == user_id:
-            return {
-                "statusCode": 200,
-                "body": json.dumps(user),
-                "headers": {
-                    "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "GET",
-                    "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-                },
-            }
+            return get_response(200, json.dumps(user))
 
-    return {"statusCode": 404, "body": "User not found"}
+    return get_response(404, "User not found")

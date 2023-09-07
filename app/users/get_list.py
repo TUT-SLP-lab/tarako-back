@@ -1,14 +1,19 @@
 import json
 
+from responses import get_response
+from validation import validate_section_id
+
 
 def lambda_handler(event, context):
     qsp = event.get("queryStringParameters")
     if qsp:
-        section = qsp.get("section")
+        section_id = qsp.get("section_id")
 
         # バリデーション
-        if section and not isinstance(section, str):
-            return {"statusCode": 400, "body": "Bad Request: Invalid section"}
+        if section_id:
+            is_valid, err_msg = validate_section_id(section_id)
+            if not is_valid:
+                return get_response(400, f"Bad Request: {err_msg}")
 
     # ここに処理を書く
     example = [
@@ -44,12 +49,4 @@ def lambda_handler(event, context):
         },
     ]
 
-    return {
-        "statusCode": 200,
-        "body": json.dumps(example),
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-        },
-    }
+    return get_response(200, json.dumps(example))

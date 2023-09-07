@@ -1,6 +1,7 @@
 import datetime
 
 from boto3.dynamodb.conditions import Key
+from responses import get_response
 from table_utils import (
     DynamoDBError,
     get_all_items,
@@ -24,7 +25,7 @@ def lambda_handler(event, context):
     # validation
     is_valid, err_msg = validate_datetime(from_date, to_date)
     if not is_valid:
-        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
+        return get_response(400, f"Bad Request: {err_msg}")
 
     try:
         # get all sections
@@ -54,16 +55,8 @@ def lambda_handler(event, context):
 
             section_diary_list += section_diary
     except DynamoDBError as e:
-        return {"statusCode": 500, "body": f"Internal Server Error: {e}"}
-    except IndexError as e:
-        return {"statusCode": 404, "body": f"Not Found: {e}"}
+        return get_response(500, f"Internal Server Error: DynamoDB Error: {e}")
+    except IndexError:
+        return get_response(404, f"Failed to find section_id: {section_id}")
 
-    return {
-        "statusCode": 200,
-        "body": json_dumps(section_diary_list),
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-        },
-    }
+    return get_response(200, json_dumps(section_diary_list))

@@ -1,13 +1,8 @@
 from boto3.dynamodb.conditions import Key
 from data_formatter import task_to_front
+from responses import get_response
 from table_utils import DynamoDBError, get_all_items, get_items, json_dumps, task_table
 from validation import validate_datetime, validate_status, validate_user_ids
-
-RESPONSE_HEADER = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET",
-    "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-}
 
 
 def lambda_handler(event, context):
@@ -54,11 +49,7 @@ def lambda_handler(event, context):
             error_strings.append(err_msg)
 
     if len(error_strings) > 0:
-        return {
-            "statusCode": 400,
-            "body": json_dumps({"errors": "\n".join(error_strings)}),
-            "headers": RESPONSE_HEADER,
-        }
+        return get_response(400, "\n".join(error_strings))
 
     # Make query
     if not_assigned:
@@ -84,29 +75,12 @@ def lambda_handler(event, context):
             status,
         )
     except DynamoDBError as e:
-        return {
-            "statusCode": 500,
-            "body": json_dumps({"errors": str(e)}),
-            "headers": RESPONSE_HEADER,
-        }
+        return get_response(500, f"Internal Server Error: DynamoDB Error: {e}")
     except IndexError as e:
-        return {
-            "statusCode": 400,
-            "body": json_dumps({"errors": str(e)}),
-            "headers": RESPONSE_HEADER,
-        }
+        return get_response(404, json_dumps({"errors": str(e)}))
     except Exception as e:
-        return {
-            "statusCode": 500,
-            "body": json_dumps({"errors": str(e)}),
-            "headers": RESPONSE_HEADER,
-        }
-    else:
-        return {
-            "statusCode": 200,
-            "body": json_dumps(result),
-            "headers": RESPONSE_HEADER,
-        }
+        return get_response(500, json_dumps({"errors": str(e)}))
+    return get_response(200, json_dumps(result))
 
 
 def get_status_string(status):

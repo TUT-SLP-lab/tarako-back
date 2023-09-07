@@ -1,4 +1,5 @@
 from boto3.dynamodb.conditions import Key
+from responses import get_response
 from table_utils import (
     DynamoDBError,
     get_all_items,
@@ -22,7 +23,7 @@ def lambda_handler(event, context):
     # バリデーション
     is_valid, err_msg = validate_datetime(from_date, to_date)
     if not is_valid:
-        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
+        return get_response(400, f"Bad Request: {err_msg}")
 
     try:
         users = get_all_items(user_table)
@@ -52,16 +53,8 @@ def lambda_handler(event, context):
             user_diary = get_items(user_diary_table, index_name, expr)
             user_daily_list += user_diary
     except DynamoDBError as e:
-        return {"statusCode": 500, "body": f"Internal Server Error: {e}"}
-    except IndexError as e:
-        return {"statusCode": 404, "body": f"Not Found: {e}"}
+        return get_response(500, f"Internal Server Error: DynamoDB Error: {e}")
+    except IndexError:
+        return get_response(404, f"Failed to find user_id: {user_id}")
 
-    return {
-        "statusCode": 200,
-        "body": json_dumps(user_daily_list),
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-        },
-    }
+    return get_response(200, json_dumps(user_daily_list))

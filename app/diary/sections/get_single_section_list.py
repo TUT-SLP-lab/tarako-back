@@ -1,4 +1,5 @@
 from boto3.dynamodb.conditions import Key
+from responses import get_response
 from table_utils import DynamoDBError, get_items, json_dumps, section_diary_table
 from validation import validate_datetime, validate_section_id_not_none
 
@@ -22,13 +23,13 @@ def lambda_handler(event, context):
     # section_idのバリデーション
     is_valid, err_msg = validate_section_id_not_none(section_id)
     if not is_valid:
-        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
+        return get_response(400, f"Bad Request: {err_msg}")
     section_id = int(section_id)
 
     # 日付のバリデーション
     is_valid, err_msg = validate_datetime(from_date, to_date)
     if not is_valid:
-        return {"statusCode": 400, "body": f"Bad Request: {err_msg}"}
+        return get_response(400, f"Bad Request: {err_msg}")
 
     try:
         # get section diary
@@ -53,15 +54,7 @@ def lambda_handler(event, context):
         section_diary = get_items(section_diary_table, index_name, expr)
 
     except DynamoDBError as e:
-        return {"statusCode": 500, "body": f"error: {e}"}
-    except IndexError as e:
-        return {"statusCode": 500, "body": f"error: {e}"}
-    return {
-        "statusCode": 200,
-        "body": json_dumps(section_diary),
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-        },
-    }
+        return get_response(500, f"Internal Server Error: DynamoDB Error: {e}")
+    except IndexError:
+        return get_response(404, f"Failed to find section_id: {section_id}")
+    return get_response(200, json_dumps(section_diary))

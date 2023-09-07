@@ -1,11 +1,13 @@
 import json
 
+from responses import get_response
+
 
 def lambda_handler(event, context):
     section_id = event.get("pathParameters", {}).get("section_id")
 
     if not section_id:
-        return {"statusCode": 400, "body": "Bad Request: Missing section_id"}
+        return get_response(400, "Bad Request: Invalid path parameters")
 
     # ここに処理を書く
     example = [
@@ -55,21 +57,5 @@ def lambda_handler(event, context):
     # exampleからsection_idと一致するsectionを取り出す。見つからなければ404を返す
     for section in example:
         if section["section_id"] == int(section_id):
-            return {
-                "statusCode": 200,
-                "body": json.dumps(section),
-                "headers": {
-                    "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "GET",
-                    "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-                },
-            }
-    return {
-        "statusCode": 404,
-        "body": "Section Not Found",
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-        },
-    }
+            return get_response(200, json.dumps(section))
+    return get_response(404, "Not Found: Section Not Found")
