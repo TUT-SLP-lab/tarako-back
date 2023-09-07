@@ -4,7 +4,7 @@ import uuid
 
 from responses import post_response
 from table_utils import json_dumps, post_item, user_table
-from validation import validate_message_not_none
+from validation import validate_message_not_none, validate_section_id_not_none
 
 
 def lambda_handler(event, context):
@@ -25,9 +25,9 @@ def lambda_handler(event, context):
     is_valid, err_msg = validate_message_not_none(email)
     if not is_valid:
         error_msgs.append("email is invalid")
-    is_valid, err_msg = validate_message_not_none(section_id)
+    is_valid, err_msg = validate_section_id_not_none(section_id)
     if not is_valid:
-        error_msgs.append("section_id is invalid")
+        error_msgs.append(err_msg)
     if len(error_msgs) > 0:
         return post_response(400, "\n".join(error_msgs))
 
@@ -46,5 +46,5 @@ def lambda_handler(event, context):
     try:
         response = post_item(user_table, item)
     except Exception as e:
-        return post_response(500, e)
+        return post_response(500, json_dumps(e))
     return post_response(200, json_dumps(response))

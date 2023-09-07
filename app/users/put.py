@@ -3,7 +3,11 @@ import json
 
 from responses import put_response
 from table_utils import json_dumps, put_item, user_table
-from validation import validate_message_not_none, validate_user_id_not_none
+from validation import (
+    validate_message_not_none,
+    validate_section_id_not_none,
+    validate_user_id_not_none,
+)
 
 
 def lambda_handler(event, context):
@@ -29,11 +33,10 @@ def lambda_handler(event, context):
     is_valid, err_msg = validate_message_not_none(email)
     if not is_valid:
         error_msgs.append("email is invalid")
-    is_valid, err_msg = validate_message_not_none(section_id)
+    is_valid, err_msg = validate_section_id_not_none(section_id)
     if not is_valid:
-        error_msgs.append("section_id is invalid")
     if len(error_msgs) > 0:
-        return put_response(400, "\n".join(error_msgs))
+        return put_response(400, json_dumps("\n".join(error_msgs)))
 
     now = datetime.datetime.now().isoformat()
     # nameは予約語なので、#nameとしている
