@@ -225,7 +225,6 @@ Resources:
         Variables:
           OPENAI_API_KEY: !Ref OpenAiApiKey
       Role: !GetAtt LambdaExecutionRole.Arn
-      Timeout: 120
       Events:
         TasksPostEvent:
           Type: Api
@@ -312,13 +311,11 @@ Resources:
   PostUserDiaryFunction:
     Type: "AWS::Serverless::Function"
     Properties:
-      Timeout: 90
       CodeUri: app/diary/users/
       Handler: post_entry.lambda_handler
       FunctionName: !Sub post-user-diary-${PrNumber}
       Environment:
         Variables:
-          PR_NUM: !Ref PrNumber
           OPENAI_API_KEY: !Ref OpenAiApiKey
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
