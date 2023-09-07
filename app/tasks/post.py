@@ -8,7 +8,7 @@ from chat_util import gen_task_data
 from data_formatter import task_to_front
 from responses import post_response
 from table_utils import add_chat_to_db, json_dumps, post_item, task_table
-from validation import validate_user_id_not_none, validate_file
+from validation import validate_file, validate_user_id_not_none
 
 category_list = [
     "HR",
