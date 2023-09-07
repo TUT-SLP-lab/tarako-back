@@ -40,8 +40,6 @@ def lambda_handler(event, context):
     is_valid, err_msg = validate_date_not_none(date)
     if not is_valid:
         return post_response(400, f"Bad Request: {err_msg}")
-    if not is_valid:
-        return post_response(400, f"Bad Request: {err_msg}")
 
     section_id = int(section_id)
 
