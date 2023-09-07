@@ -1,3 +1,4 @@
+import os
 import random
 import uuid
 from datetime import datetime
@@ -5,7 +6,7 @@ from datetime import datetime
 import boto3
 from boto3.dynamodb.types import TypeSerializer
 
-PR_NUM = "dev"
+PR_NUM = os.getenv("PR_NUM", "dev")
 
 dynamodb = boto3.client("dynamodb", region_name="ap-northeast-1")
 
@@ -43,6 +44,8 @@ items = [
         "section_id": 0,
         "email": "tanaka.natsuko@tarako",
         "icon": "/user_1.png",
+        "created_at": datetime.now().isoformat(),
+        "updated_at": datetime.now().isoformat(),
     },
     {
         "user_id": "595c060d-8417-4ac8-bcb5-c8e733dc64e0",
@@ -51,6 +54,8 @@ items = [
         "section_id": 0,
         "email": "yamada.taro@tarako",
         "icon": "/user_2.png",
+        "created_at": datetime.now().isoformat(),
+        "updated_at": datetime.now().isoformat(),
     },
     {
         "user_id": "e08bf311-b1bc-4a38-bac1-374c3ede7203",
@@ -59,6 +64,8 @@ items = [
         "section_id": 1,
         "email": "admin.goro@tarako",
         "icon": "/admin.png",
+        "created_at": datetime.now().isoformat(),
+        "updated_at": datetime.now().isoformat(),
     },
 ]
 for user in items:

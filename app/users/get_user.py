@@ -1,52 +1,21 @@
-import json
-
 from responses import get_response
+from table_utils import get_item, json_dumps, user_table
+from validation import validate_user_id_not_none
 
 
 def lambda_handler(event, context):
     user_id = event.get("pathParameters", {}).get("user_id")
 
     # バリデーション
-    if not user_id:
-        return get_response(400, "Bad Request: Invalid path parameters")
+    is_valid, err_msg = validate_user_id_not_none(user_id)
+    if not is_valid:
+        return get_response(400, err_msg)
 
-    # ここに処理を書く
-    example = [
-        {
-            "user_id": "4f73ab32-21bf-47ef-a119-fa024bc2b9cc",
-            "name": "田中夏子",
-            "description": "田中夏子です。よろしくお願いします。趣味は読書です。",
-            "section_id": 0,
-            "email": "tanaka.natsuko@tarako",
-            "icon": "/user_1.png",
-            "created_at": "2020-01-01T00:00:00+09:00",
-            "updated_at": "2020-01-01T00:00:00+09:00",
-        },
-        {
-            "user_id": "595c060d-8417-4ac8-bcb5-c8e733dc64e0",
-            "name": "山田太郎",
-            "description": "山田太郎です。よろしくお願いします。趣味は野球です。",
-            "section_id": 0,
-            "email": "yamada.taro@tarako",
-            "icon": "/user_2.png",
-            "created_at": "2020-01-01T00:00:00+09:00",
-            "updated_at": "2020-01-01T00:00:00+09:00",
-        },
-        {
-            "user_id": "e08bf311-b1bc-4a38-bac1-374c3ede7203",
-            "name": "管理五郎",
-            "description": "管理者五郎です。よろしくお願いします。人と関わる仕事が好きです。",
-            "section_id": 1,
-            "email": "admin.goro@tarako",
-            "icon": "/admin.png",
-            "created_at": "2020-01-01T00:00:00+09:00",
-            "updated_at": "2020-01-01T00:00:00+09:00",
-        },
-    ]
+    try:
+        response = get_item(user_table, "user_id", user_id)
+    except IndexError as e:
+        return get_response(404, json_dumps(e))
+    except Exception as e:
+        return get_response(500, json_dumps(e))
 
-    # exampleからuser_idに一致するユーザーを抽出する.見つからなかったら404を返す
-    for user in example:
-        if user["user_id"] == user_id:
-            return get_response(200, json.dumps(user))
-
-    return get_response(404, "User not found")
+    return get_response(200, json_dumps(response))

@@ -88,7 +88,7 @@ Resources:
       FunctionName: !Sub get-sections-${PrNumber}
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
-        UsersGetEvent:
+        SectionsGetSectionsEvent:
           Type: Api
           Properties:
             Path: /sections
@@ -103,7 +103,7 @@ Resources:
       FunctionName: !Sub get-section-entry-${PrNumber}
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
-        UsersGetUserEvent:
+        SectionsGetSectionEntryEvent:
           Type: Api
           Properties:
             Path: /sections/{section_id}
@@ -118,7 +118,7 @@ Resources:
       FunctionName: !Sub post-section-entry-${PrNumber}
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
-        UsersPostUserEvent:
+        SectionsPostSectionEvent:
           Type: Api
           Properties:
             Path: /sections
@@ -133,7 +133,7 @@ Resources:
       FunctionName: !Sub put-section-entry-${PrNumber}
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
-        UsersPutUserEvent:
+        SectionsPutSectionEvent:
           Type: Api
           Properties:
             Path: /sections/{section_id}

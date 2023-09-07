@@ -105,7 +105,7 @@ def get_item(table, key: str, value: str) -> dict:
     return response["Item"]
 
 
-def put_item(table, key: str, value: str, UpdExp: str, ExpAtt: dict) -> dict:
+def put_item(table, key: str, value: str, UpdExp: str, ExpAtt: dict, ExpAttName: dict = None) -> dict:
     """テーブルにアイテムを追加する
     Args:
         table (boto3.resource.Table): テーブル
@@ -118,12 +118,21 @@ def put_item(table, key: str, value: str, UpdExp: str, ExpAtt: dict) -> dict:
     Raises:
         DynamoDBError: DynamoDBのエラー
     """
-    response = table.update_item(
-        Key={key: value},
-        UpdateExpression=UpdExp,
-        ExpressionAttributeValues=ExpAtt,
-        ReturnValues="ALL_NEW",
-    )
+    if ExpAttName is None:
+        response = table.update_item(
+            Key={key: value},
+            UpdateExpression=UpdExp,
+            ExpressionAttributeValues=ExpAtt,
+            ReturnValues="ALL_NEW",
+        )
+    else:
+        response = table.update_item(
+            Key={key: value},
+            UpdateExpression=UpdExp,
+            ExpressionAttributeValues=ExpAtt,
+            ExpressionAttributeNames=ExpAttName,
+            ReturnValues="ALL_NEW",
+        )
     if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
         raise DynamoDBError(f"Failed to find {table.name} with {key}: {value}")
     if "Attributes" not in response:
