@@ -163,7 +163,6 @@ def gen_task_data(msg: str, category_list: list[str], task_title_dict: dict[str,
         ],
         function_call={"name": "create_task"},
     )
-    print(response)
     # if "function_call" not in response["choices"][0]["message"]:
     #     raise FunctionCallingError("function_callがありません")
     task = None
@@ -190,7 +189,6 @@ def gen_create_user_diary_prompt(msg, task_dict: dict[str, str]):
                 "details": task["details"],
             }
         )
-    # print(json_dumps(prompt_task_dict))
     return f"""
 次の内容は事務員の今日タスクです。これらの内容から日報を作成してください。
 ```
