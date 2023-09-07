@@ -157,7 +157,6 @@ def validate_section_id(section_id: str) -> tuple[bool, Optional[str]]:
     return True, None
 
 
-
 def validate_task_id_not_none(task_id: str) -> tuple[bool, Optional[str]]:
     """タスクIDの妥当性を検証する
 

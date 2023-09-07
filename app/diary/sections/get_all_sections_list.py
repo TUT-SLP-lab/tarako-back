@@ -56,7 +56,7 @@ def lambda_handler(event, context):
             section_diary_list += section_diary
     except DynamoDBError as e:
         return get_response(500, f"Internal Server Error: DynamoDB Error: {e}")
-    except IndexError:
-        return get_response(404, f"Failed to find section_id: {section_id}")
+    except IndexError as e:
+        return get_response(404, f"Not Found: {e}")
 
     return get_response(200, json_dumps(section_diary_list))
