@@ -723,11 +723,8 @@ components:
             - datetime: 2020-01-03T00:00:00+09:00
               percentage: 100
         completed:
-          type: string
+          type: boolean
           description: タスクが完了したかどうか。progressesから自動的に判定される。検索の高速化のために存在
-          enum:
-            - "True"
-            - "False"
           readOnly: true
         serious:
           type: integer
@@ -795,10 +792,6 @@ components:
       allOf:
         - $ref: "#/components/schemas/DiaryBase"
       properties:
-        section:
-          allOf:
-            - $ref: "#/components/schemas/Section"
-          readOnly: true
         user_ids:
           type: array
           description: 日報の作成に用いられたユーザーのIDリスト

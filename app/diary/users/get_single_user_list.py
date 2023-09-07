@@ -1,11 +1,13 @@
 from boto3.dynamodb.conditions import Key
+from responses import get_response
 from table_utils import DynamoDBError, get_items, json_dumps, user_diary_table
+from validation import validate_datetime, validate_user_id_not_none
 
 
 def lambda_handler(event, context):
     path_params = event.get("pathParameters", {})
     if path_params is None:
-        return {"statusCode": 400, "body": "Bad Request: Invalid path parameters"}
+        return get_response(400, "Bad Request: Invalid path parameters")
     user_id = path_params.get("user_id", None)
     qsp = event.get("queryStringParameters")
     if qsp:
@@ -16,12 +18,12 @@ def lambda_handler(event, context):
         to_date = None
 
     # Validation
-    if user_id is None or not isinstance(user_id, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid user_id"}
-    if from_date is not None and not isinstance(from_date, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid from_date"}
-    if to_date is not None and not isinstance(to_date, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid to_date"}
+    is_valid, err_msg = validate_user_id_not_none(user_id)
+    if not is_valid:
+        return get_response(400, f"Bad Request: {err_msg}")
+    is_valid, err_msg = validate_datetime(from_date, to_date)
+    if not is_valid:
+        return get_response(400, f"Bad Request: {err_msg}")
 
     # Get user diary list
     user_id_key = Key("user_id").eq(user_id)
@@ -41,16 +43,7 @@ def lambda_handler(event, context):
     try:
         user_diary = get_items(user_diary_table, index_name, expr)
     except DynamoDBError as e:
-        return {"statusCode": 500, "body": f"Internal Server Error: {e}"}
-    except IndexError as e:
-        return {"statusCode": 404, "body": f"Not Found: {e}"}
-
-    return {
-        "statusCode": 200,
-        "body": json_dumps(user_diary),
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-        },
-    }
+        return get_response(500, f"Internal Server Error: DynamoDB Error: {e}")
+    except IndexError:
+        return get_response(404, f"Failed to find user_id: {user_id}")
+    return get_response(200, json_dumps(user_diary))

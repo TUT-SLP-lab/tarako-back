@@ -1,5 +1,7 @@
 import json
 
+from responses import get_response
+
 
 def lambda_handler(event, context):
     # ここに処理を書く
@@ -48,12 +50,4 @@ def lambda_handler(event, context):
         },
     ]
 
-    return {
-        "statusCode": 200,
-        "body": json.dumps(example),
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-        },
-    }
+    return get_response(200, json.dumps(example))

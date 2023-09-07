@@ -1,5 +1,8 @@
 from boto3.dynamodb.conditions import Key
-from table_utils import DynamoDBError, get_items, json_dumps, task_table
+from data_formatter import task_to_front
+from responses import get_response
+from table_utils import DynamoDBError, get_all_items, get_items, json_dumps, task_table
+from validation import validate_datetime, validate_status, validate_user_ids
 
 
 def lambda_handler(event, context):
@@ -34,71 +37,50 @@ def lambda_handler(event, context):
     # バリデーション
     # NOTE: not_assigned は、指定されていれば値はなんでも良いので、バリデーションしない
     error_strings = []
-    if from_datetime and not isinstance(from_datetime, str):
-        error_strings.append(
-            "Invalid from_start_datetime query"
-            if is_start_datetime
-            else "Invalid from_last_status_datetime query"
-        )
-    if to_datetime and not isinstance(to_datetime, str):
-        error_strings.append(
-            "Invalid to_start_datetime query"
-            if is_start_datetime
-            else "Invalid to_last_status_datetime query"
-        )
-    if status and status not in ["in_progress", "completed"]:
-        error_strings.append("Invalid status query")
-    if not_assigned is None and user_ids:
-        for user_id_ in user_ids:  # NOTE: user_idはlistで与えられる
-            if not isinstance(user_id_, str):
-                error_strings.append("Invalid user_id query")
-                break
+    is_valid, err_msg = validate_datetime(from_datetime, to_datetime)
+    if not is_valid:
+        error_strings.append(err_msg)
+    is_valid, err_msg = validate_status(status)
+    if not is_valid:
+        error_strings.append(err_msg)
+    if not_assigned is None:
+        is_valid, err_msg = validate_user_ids(user_ids)
+        if not is_valid:
+            error_strings.append(err_msg)
 
     if len(error_strings) > 0:
-        return {
-            "statusCode": 400,
-            "body": json_dumps({"errors": "\n".join(error_strings)}),
-            "headers": {
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET",
-                "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-            },
-        }
+        return get_response(400, "\n".join(error_strings))
 
     # Make query
     if not_assigned:
-        # not_assignedがTrueの場合は、assigned_toが存在しないアイテムを取得する
+        # NOTE: not_assignedがTrueの場合は、assigned_toが存在しないアイテムを取得する
         user_ids = [""]
         has_user_query = True
     else:
         has_user_query = user_ids is not None
-    completed_query = (
-        None if status is None else Key("completed").eq(get_status_string(status))
-    )
+    completed_query = None if status is None else Key("completed").eq(get_status_string(status))
     datetime_range = (
         None
         if not (from_datetime or to_datetime)
         else get_datetime_range(datetime_key_name, from_datetime, to_datetime)
     )
 
-    result = get_result(
-        has_user_query,
-        datetime_range,
-        completed_query,
-        is_start_datetime,
-        user_ids,
-        status,
-    )
-
-    return {
-        "statusCode": 200,
-        "body": json_dumps(result),
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-        },
-    }
+    try:
+        result = get_result(
+            has_user_query,
+            datetime_range,
+            completed_query,
+            is_start_datetime,
+            user_ids,
+            status,
+        )
+    except DynamoDBError as e:
+        return get_response(500, f"Internal Server Error: DynamoDB Error: {e}")
+    except IndexError as e:
+        return get_response(404, json_dumps({"errors": str(e)}))
+    except Exception as e:
+        return get_response(500, json_dumps({"errors": str(e)}))
+    return get_response(200, json_dumps(result))
 
 
 def get_status_string(status):
@@ -125,52 +107,41 @@ def user_ids_get_item(user_ids, index_name, append_expr=None):
     return result
 
 
-def get_result(
-    has_user_query, datetime_range, completed_query, is_start_datetime, user_ids, status
-):
-    try:
-        result = None
-        index_name = ""
-        if has_user_query and datetime_range:
-            index_name = (
-                "UserStartedAtIndex" if is_start_datetime else "UserLastStatusAtIndex"
-            )
-            result = user_ids_get_item(user_ids, index_name, datetime_range)
-            # 3つのクエリがある場合は、更に絞り込みが必要
-            # NOTE: あらかじめ大量に絞り込めるものを優先して絞った
-            if completed_query:
-                tmp = get_status_string(status)
-                result = [item for item in result if item["completed"] == tmp]
-        elif has_user_query and completed_query:
-            index_name = "UserStatusIndex"
-            result = []
-            for user_id_ in user_ids:
-                expr = Key("assigned_to").eq(user_id_) & completed_query
-                result.extend(get_items(task_table, index_name, expr))
-        elif completed_query and datetime_range:
-            index_name = (
-                "CompletedStartedAtIndex"
-                if is_start_datetime
-                else "CompletedLastStatusAtIndex"
-            )
-            expr = completed_query & datetime_range
-        elif has_user_query:
-            index_name = "AssignedToIndex"
-            result = []
-            for user_id_ in user_ids:
-                expr = Key("assigned_to").eq(user_id_)
-                result.extend(get_items(task_table, index_name, expr))
-        elif datetime_range:
-            index_name = "StartedAtIndex" if is_start_datetime else "LastStatusAtIndex"
-            expr = Key("placeholder").eq(0) & datetime_range
-        elif completed_query:
-            index_name = "CompletedIndex"
-            expr = completed_query
-        else:
-            result = task_table.scan()["Items"]
+def get_result(has_user_query, datetime_range, completed_query, is_start_datetime, user_ids, status):
+    result = None
+    index_name = ""
+    if has_user_query and datetime_range:
+        index_name = "UserStartedAtIndex" if is_start_datetime else "UserLastStatusAtIndex"
+        result = user_ids_get_item(user_ids, index_name, datetime_range)
+        # 3つのクエリがある場合は、更に絞り込みが必要
+        # NOTE: あらかじめ大量に絞り込めるものを優先して絞った
+        if completed_query:
+            tmp = get_status_string(status)
+            result = [item for item in result if item["completed"] == tmp]
+    elif has_user_query and completed_query:
+        index_name = "UserStatusIndex"
+        result = []
+        for user_id_ in user_ids:
+            expr = Key("assigned_to").eq(user_id_) & completed_query
+            result.extend(get_items(task_table, index_name, expr))
+    elif completed_query and datetime_range:
+        index_name = "CompletedStartedAtIndex" if is_start_datetime else "CompletedLastStatusAtIndex"
+        expr = completed_query & datetime_range
+    elif has_user_query:
+        index_name = "AssignedToIndex"
+        result = []
+        for user_id_ in user_ids:
+            expr = Key("assigned_to").eq(user_id_)
+            result.extend(get_items(task_table, index_name, expr))
+    elif datetime_range:
+        index_name = "StartedAtIndex" if is_start_datetime else "LastStatusAtIndex"
+        expr = Key("placeholder").eq(0) & datetime_range
+    elif completed_query:
+        index_name = "CompletedIndex"
+        expr = completed_query
+    else:
+        result = get_all_items(task_table)
 
-        if result is None:
-            result = get_items(task_table, index_name, expr)
-    except DynamoDBError:
-        return {"statusCode": 500, "body": "DynamoDB Error"}
-    return result
+    if result is None:
+        result = get_items(task_table, index_name, expr)
+    return [task_to_front(item) for item in result]

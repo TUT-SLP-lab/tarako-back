@@ -1,6 +1,7 @@
 import datetime
 
 from boto3.dynamodb.conditions import Key
+from responses import get_response
 from table_utils import (
     DynamoDBError,
     get_all_items,
@@ -9,6 +10,7 @@ from table_utils import (
     section_diary_table,
     section_table,
 )
+from validation import validate_datetime
 
 
 def lambda_handler(event, context):
@@ -21,28 +23,9 @@ def lambda_handler(event, context):
         to_date = None
 
     # validation
-    if from_date:
-        if not isinstance(from_date, str):
-            return {"statusCode": 400, "body": "Bad Request: Invalid from_date"}
-        try:
-            from_date_datetime = datetime.date.fromisoformat(from_date)
-        except ValueError:
-            return {
-                "statusCode": 400,
-                "body": "Bad Request: 'from' is invalid date format",
-            }
-    if to_date:
-        if not isinstance(to_date, str):
-            return {"statusCode": 400, "body": "Bad Request: Invalid to_date"}
-        try:
-            to_date_datetime = datetime.date.fromisoformat(to_date)
-        except ValueError:
-            return {
-                "statusCode": 400,
-                "body": "Bad Request: 'to' is invalid date format",
-            }
-    if from_date and to_date and from_date_datetime >= to_date_datetime:
-        return {"statusCode": 400, "body": "Bad Request: from_date >= to_date"}
+    is_valid, err_msg = validate_datetime(from_date, to_date)
+    if not is_valid:
+        return get_response(400, f"Bad Request: {err_msg}")
 
     try:
         # get all sections
@@ -72,16 +55,8 @@ def lambda_handler(event, context):
 
             section_diary_list += section_diary
     except DynamoDBError as e:
-        return {"statusCode": 500, "body": f"Internal Server Error: {e}"}
+        return get_response(500, f"Internal Server Error: DynamoDB Error: {e}")
     except IndexError as e:
-        return {"statusCode": 404, "body": f"Not Found: {e}"}
+        return get_response(404, f"Not Found: {e}")
 
-    return {
-        "statusCode": 200,
-        "body": json_dumps(section_diary_list),
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-        },
-    }
+    return get_response(200, json_dumps(section_diary_list))

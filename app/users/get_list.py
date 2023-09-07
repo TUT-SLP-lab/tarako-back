@@ -1,14 +1,19 @@
 import json
 
+from responses import get_response
+from validation import validate_section_id
+
 
 def lambda_handler(event, context):
     qsp = event.get("queryStringParameters")
     if qsp:
-        section = qsp.get("section")
+        section_id = qsp.get("section_id")
 
         # バリデーション
-        if section and not isinstance(section, str):
-            return {"statusCode": 400, "body": "Bad Request: Invalid section"}
+        if section_id:
+            is_valid, err_msg = validate_section_id(section_id)
+            if not is_valid:
+                return get_response(400, f"Bad Request: {err_msg}")
 
     # ここに処理を書く
     example = [
@@ -20,7 +25,7 @@ def lambda_handler(event, context):
             "email": "tanaka.natsuko@tarako",
             "icon": "/user_1.png",
             "created_at": "2020-01-01T00:00:00+09:00",
-            "updated_at": "2020-01-01T00:00:00+09:00"
+            "updated_at": "2020-01-01T00:00:00+09:00",
         },
         {
             "user_id": "595c060d-8417-4ac8-bcb5-c8e733dc64e0",
@@ -30,7 +35,7 @@ def lambda_handler(event, context):
             "email": "yamada.taro@tarako",
             "icon": "/user_2.png",
             "created_at": "2020-01-01T00:00:00+09:00",
-            "updated_at": "2020-01-01T00:00:00+09:00"
+            "updated_at": "2020-01-01T00:00:00+09:00",
         },
         {
             "user_id": "e08bf311-b1bc-4a38-bac1-374c3ede7203",
@@ -40,16 +45,8 @@ def lambda_handler(event, context):
             "email": "admin.goro@tarako",
             "icon": "/admin.png",
             "created_at": "2020-01-01T00:00:00+09:00",
-            "updated_at": "2020-01-01T00:00:00+09:00"
+            "updated_at": "2020-01-01T00:00:00+09:00",
         },
     ]
 
-    return {
-        "statusCode": 200,
-        "body": json.dumps(example),
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-        },
-    }
+    return get_response(200, json.dumps(example))

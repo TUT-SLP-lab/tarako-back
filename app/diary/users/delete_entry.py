@@ -1,4 +1,12 @@
-from table_utils import DynamoDBError, get_item, json_dumps, user_diary_table
+from responses import delete_response
+from table_utils import (
+    DynamoDBError,
+    delete_item,
+    get_item,
+    json_dumps,
+    user_diary_table,
+)
+from validation import validate_diary_id_not_none, validate_user_id_not_none
 
 
 def lambda_handler(event, context):
@@ -6,41 +14,30 @@ def lambda_handler(event, context):
     diary_id = event.get("pathParameters", {}).get("diary_id")
 
     # バリデーション
-    if user_id is None or not isinstance(user_id, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid user_id"}
-    if diary_id is None or not isinstance(diary_id, str):
-        return {"statusCode": 400, "body": "Bad Request: Invalid diary_id"}
+    is_valid, err_msg = validate_user_id_not_none(user_id)
+    if not is_valid:
+        return delete_response(400, f"Bad Request: {err_msg}")
+    is_valid, err_msg = validate_diary_id_not_none(diary_id)
+    if not is_valid:
+        return delete_response(400, f"Bad Request: {err_msg}")
 
     # search user diary
     try:
         user_diary = get_item(user_diary_table, "diary_id", diary_id)
     except DynamoDBError as e:
-        return {"statusCode": 500, "body": str(e)}
+        return delete_response(500, f"Internal Server Error: DynamoDB Error: {e}")
     except IndexError:
-        return {"statusCode": 404, "body": f"Not Found: user_id={user_id}"}
+        return delete_response(404, f"Failed to find diary_id: {diary_id}")
 
     if user_diary["user_id"] != user_id:
-        return {"statusCode": 403, "body": "Forbidden: Invalid user_id"}
+        return delete_response(403, "Forbidden: Invalid user_id")
 
     # delete user diary
-    option = {"Key": {"diary_id": diary_id}}
-    response = user_diary_table.delete_item(**option)
+    try:
+        delete_item(user_diary_table, "diary_id", diary_id)
+    except DynamoDBError as e:
+        return delete_response(500, f"Internal Server Error: DynamoDB Error: {e}")
 
-    if response["ResponseMetadata"]["HTTPStatusCode"] != 200:
-        return {
-            "statusCode": 500,
-            "body": f"Failed to delete diary with ID: {diary_id} for section with ID: {user_id}",
-        }
-    return {
-        "statusCode": 200,
-        "body": json_dumps(
-            {
-                "message": f"Deleted diary with ID: {diary_id} for section with ID: {user_id}"
-            }
-        ),
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "DELETE",
-            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-        },
-    }
+    return delete_response(
+        200, json_dumps({"message": f"Deleted diary with ID: {diary_id} for user with ID: {user_id}"})
+    )

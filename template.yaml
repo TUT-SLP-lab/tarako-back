@@ -3,30 +3,35 @@ Transform: "AWS::Serverless-2016-10-31"
 Description: >-
   Tarako API Resource template
 
-Globals:
-  Function:
-    Timeout: 3
-    Runtime: python3.10
-
 Parameters:
-  OpenApiFile:
-    Type: String
-    Description: "OpenAPI file name"
-    Default: openapi.yaml
   PrNumber:
     Type: String
     Description: "PR number"
     Default: "dev"
-  S3Bucket:
-    Type: String
-    Description: "S3 Bucket name"
-  S3Dir:
-    Type: String
-    Description: "S3 Directory name"
-    Default: dev
   OpenAiApiKey:
     Type: String
     Description: "open ai api key"
+  # OpenApiFile:
+  #   Type: String
+  #   Description: "OpenAPI file name"
+  #   Default: openapi.yaml
+  # S3Bucket:
+  #   Type: String
+  #   Description: "S3 Bucket name"
+  # S3Dir:
+  #   Type: String
+  #   Description: "S3 Directory name"
+  #   Default: dev
+
+Globals:
+  Function:
+    Timeout: 120
+    Runtime: python3.10
+    Environment:
+      Variables:
+        PR_NUM: !Ref PrNumber
+    Layers:
+      - !Ref TarakoLambdaLayer
 
 Resources:
   ApiGateway:
@@ -81,11 +86,6 @@ Resources:
       CodeUri: app/sections/
       Handler: get_list.lambda_handler
       FunctionName: !Sub get-sections-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         UsersGetEvent:
@@ -101,11 +101,6 @@ Resources:
       CodeUri: app/sections/
       Handler: get_entry.lambda_handler
       FunctionName: !Sub get-section-entry-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         UsersGetUserEvent:
@@ -121,11 +116,6 @@ Resources:
       CodeUri: app/sections/
       Handler: post.lambda_handler
       FunctionName: !Sub post-section-entry-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         UsersPostUserEvent:
@@ -141,11 +131,6 @@ Resources:
       CodeUri: app/sections/
       Handler: put.lambda_handler
       FunctionName: !Sub put-section-entry-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         UsersPutUserEvent:
@@ -161,11 +146,6 @@ Resources:
       CodeUri: app/users/
       Handler: get_list.lambda_handler
       FunctionName: !Sub get-users-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         UsersGetEvent:
@@ -181,11 +161,6 @@ Resources:
       CodeUri: app/users/
       Handler: get_user.lambda_handler
       FunctionName: !Sub get-user-entry-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         UsersGetUserEvent:
@@ -201,11 +176,6 @@ Resources:
       CodeUri: app/users/
       Handler: post.lambda_handler
       FunctionName: !Sub post-user-entry-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         UsersPostUserEvent:
@@ -221,11 +191,6 @@ Resources:
       CodeUri: app/users/
       Handler: put.lambda_handler
       FunctionName: !Sub put-user-entry-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         UsersPutUserEvent:
@@ -241,11 +206,6 @@ Resources:
       CodeUri: app/tasks/
       Handler: get_list.lambda_handler
       FunctionName: !Sub get-tasks-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         TasksGetEvent:
@@ -261,11 +221,8 @@ Resources:
       CodeUri: app/tasks/
       Handler: post.lambda_handler
       FunctionName: !Sub post-task-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
       Environment:
         Variables:
-          PR_NUM: !Ref PrNumber
           OPENAI_API_KEY: !Ref OpenAiApiKey
       Role: !GetAtt LambdaExecutionRole.Arn
       Timeout: 120
@@ -283,11 +240,6 @@ Resources:
       CodeUri: app/tasks/
       Handler: get_entry.lambda_handler
       FunctionName: !Sub get-task-entry-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         TasksGetTaskEvent:
@@ -303,11 +255,6 @@ Resources:
       CodeUri: app/tasks/
       Handler: put.lambda_handler
       FunctionName: !Sub put-task-entry-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         TasksPutTaskEvent:
@@ -323,11 +270,6 @@ Resources:
       CodeUri: app/tasks/
       Handler: delete.lambda_handler
       FunctionName: !Sub delete-task-entry-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         TasksDeleteTaskEvent:
@@ -343,11 +285,6 @@ Resources:
       CodeUri: app/diary/users/
       Handler: get_all_users_list.lambda_handler
       FunctionName: !Sub get-all-users-diaries-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         DiaryUsersGetEvent:
@@ -363,11 +300,6 @@ Resources:
       CodeUri: app/diary/users/
       Handler: get_single_user_list.lambda_handler
       FunctionName: !Sub get-user-diaries-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         DiaryUsersGetUserEvent:
@@ -384,8 +316,6 @@ Resources:
       CodeUri: app/diary/users/
       Handler: post_entry.lambda_handler
       FunctionName: !Sub post-user-diary-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
       Environment:
         Variables:
           PR_NUM: !Ref PrNumber
@@ -405,11 +335,6 @@ Resources:
       CodeUri: app/diary/users/
       Handler: get_entry.lambda_handler
       FunctionName: !Sub get-user-diary-entry-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         DiaryUsersGetUserDiaryEvent:
@@ -425,11 +350,6 @@ Resources:
       CodeUri: app/diary/users/
       Handler: put_entry.lambda_handler
       FunctionName: !Sub put_user-diary-entry-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         DiaryUsersPutUserDiaryEvent:
@@ -445,11 +365,6 @@ Resources:
       CodeUri: app/diary/users/
       Handler: delete_entry.lambda_handler
       FunctionName: !Sub delete-user-diary-entry-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         DiaryUsersDeleteUserDiaryEvent:
@@ -465,11 +380,6 @@ Resources:
       CodeUri: app/diary/sections/
       Handler: get_all_sections_list.lambda_handler
       FunctionName: !Sub get-all-sections-diaries-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         DiarySectionsGetEvent:
@@ -485,11 +395,6 @@ Resources:
       CodeUri: app/diary/sections/
       Handler: get_single_section_list.lambda_handler
       FunctionName: !Sub get-section-diaries-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         DiarySectionsGetSectionEvent:
@@ -505,11 +410,6 @@ Resources:
       CodeUri: app/diary/sections/
       Handler: post_entry.lambda_handler
       FunctionName: !Sub post-section-diary-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         DiarySectionsPostSectionEvent:
@@ -525,11 +425,6 @@ Resources:
       CodeUri: app/diary/sections/
       Handler: get_entry.lambda_handler
       FunctionName: !Sub get-section-diary-entry-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         DiarySectionsGetSectionDiaryEvent:
@@ -545,11 +440,6 @@ Resources:
       CodeUri: app/diary/sections/
       Handler: put_entry.lambda_handler
       FunctionName: !Sub put-section-diary-entry-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         DiarySectionsPutSectionDiaryEvent:
@@ -565,11 +455,6 @@ Resources:
       CodeUri: app/diary/sections/
       Handler: delete_entry.lambda_handler
       FunctionName: !Sub delete-section-diary-entry-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         DiarySectionsDeleteSectionDiaryEvent:
@@ -585,11 +470,6 @@ Resources:
       CodeUri: app/chat/
       Handler: get_all_chat_history.lambda_handler
       FunctionName: !Sub get-all-chat-history-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         DiarySectionsGetEvent:
@@ -605,11 +485,6 @@ Resources:
       CodeUri: app/chat/
       Handler: get_single_user_chat_history.lambda_handler
       FunctionName: !Sub get-single-user-chat-history-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         DiarySectionsGetSectionEvent:
@@ -618,27 +493,6 @@ Resources:
             Path: /chat/{user_id}
             Method: get
             RestApiId: !Ref ApiGateway
-
-  PostSectionDiaryFunction:
-    Type: "AWS::Serverless::Function"
-    Properties:
-      CodeUri: app/chat/
-      Handler: post_chat.lambda_handler
-      FunctionName: !Sub post-section-diary-${PrNumber}
-      Layers:
-        - !Ref TarakoLambdaLayer
-      Environment:
-        Variables:
-          PR_NUM: !Ref PrNumber
-      Role: !GetAtt LambdaExecutionRole.Arn
-      Events:
-        DiarySectionsPostSectionEvent:
-          Type: Api
-          Properties:
-            Path: /chat/{user_id}
-            Method: post
-            RestApiId: !Ref ApiGateway
-
 
   TarakoSectionTable:
     Type: 'AWS::DynamoDB::Table'

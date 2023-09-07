@@ -1,12 +1,14 @@
 import json
 
+from responses import get_response
+
 
 def lambda_handler(event, context):
     user_id = event.get("pathParameters", {}).get("user_id")
 
     # バリデーション
     if not user_id:
-        return {"statusCode": 400, "body": "Bad Request: Missing user_id"}
+        return get_response(400, "Bad Request: Invalid path parameters")
 
     # ここに処理を書く
     example = [
@@ -18,7 +20,7 @@ def lambda_handler(event, context):
             "email": "tanaka.natsuko@tarako",
             "icon": "/user_1.png",
             "created_at": "2020-01-01T00:00:00+09:00",
-            "updated_at": "2020-01-01T00:00:00+09:00"
+            "updated_at": "2020-01-01T00:00:00+09:00",
         },
         {
             "user_id": "595c060d-8417-4ac8-bcb5-c8e733dc64e0",
@@ -28,7 +30,7 @@ def lambda_handler(event, context):
             "email": "yamada.taro@tarako",
             "icon": "/user_2.png",
             "created_at": "2020-01-01T00:00:00+09:00",
-            "updated_at": "2020-01-01T00:00:00+09:00"
+            "updated_at": "2020-01-01T00:00:00+09:00",
         },
         {
             "user_id": "e08bf311-b1bc-4a38-bac1-374c3ede7203",
@@ -38,21 +40,13 @@ def lambda_handler(event, context):
             "email": "admin.goro@tarako",
             "icon": "/admin.png",
             "created_at": "2020-01-01T00:00:00+09:00",
-            "updated_at": "2020-01-01T00:00:00+09:00"
+            "updated_at": "2020-01-01T00:00:00+09:00",
         },
     ]
 
     # exampleからuser_idに一致するユーザーを抽出する.見つからなかったら404を返す
     for user in example:
         if user["user_id"] == user_id:
-            return {
-                "statusCode": 200,
-                "body": json.dumps(user),
-                "headers": {
-                    "Access-Control-Allow-Origin": "*",
-                    "Access-Control-Allow-Methods": "GET",
-                    "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-                },
-            }
+            return get_response(200, json.dumps(user))
 
-    return {"statusCode": 404, "body": "User not found"}
+    return get_response(404, "User not found")

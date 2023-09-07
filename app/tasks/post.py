@@ -4,7 +4,10 @@ import random
 import uuid
 from datetime import datetime
 
-from table_utils import add_chat_to_db, json_dumps, task_table, validate_file
+from data_formatter import task_to_front
+from responses import post_response
+from table_utils import add_chat_to_db, json_dumps, post_item, task_table
+from validation import validate_file, validate_user_id_not_none
 
 # from io import BytesIO
 
@@ -27,10 +30,7 @@ def lambda_handler(event, context):
     #     force_create = None
     body = event.get("body")
     if body is None:
-        return {
-            "statusCode": 400,
-            "body": json_dumps({"error": "Missing request body"}),
-        }
+        return post_response(400, "Bad Request: Invalid body")
     body_json = json.loads(body)
 
     # BytesIOを使用してボディをファイルポインタとして扱う
@@ -62,18 +62,14 @@ def lambda_handler(event, context):
         file_item = None
     except Exception as e:
         print(e)
-        return {
-            "statusCode": 500,
-            "body": json_dumps({"error": "Failed to parse form-data"}),
-        }
+        return post_response(400, "Bad Request: Invalid form-data")
 
     # バリデーションの続き
     error_msg = []
-    # TODO: user_idが存在するかどうかを確認する
-    if user_id is None:
-        error_msg.append("user_id is required")
-    elif not isinstance(user_id, str):
-        error_msg.append("user_id must be string")
+    is_valid, err_msg = validate_user_id_not_none(user_id)
+    if not is_valid:
+        error_msg.append(err_msg)
+
     if not (msg or file_item):
         error_msg.append("text or file is required")
     if msg and not isinstance(msg, str):
@@ -88,10 +84,7 @@ def lambda_handler(event, context):
         error_msg.append("reference_task_id must be string")
 
     if error_msg:
-        return {
-            "statusCode": 400,
-            "body": json_dumps({"error": "\n".join(error_msg)}),
-        }
+        return post_response(400, "\n".join(error_msg))
 
     # Chatデータベースにメッセージを追加する
     add_chat_to_db(user_id, msg, is_user_message=True)
@@ -102,7 +95,7 @@ def lambda_handler(event, context):
     # TODO: 似たタスクがあるかどうかを確認する
 
     # NOTE: 本来はuser_idからsection_idを取得する
-    # 下剤は、userの直打ちから持ってきている
+    # 現在は、userの直打ちから持ってきている
     section_id_dict = {
         "4f73ab32-21bf-47ef-a119-fa024bc2b9cc": 0,
         "595c060d-8417-4ac8-bcb5-c8e733dc64e0": 0,
@@ -125,13 +118,13 @@ def lambda_handler(event, context):
         "completed": "True" if gpt_output.get("progress") == 100 else "False",
         "serious": gpt_output.get("serious"),
         "details": gpt_output.get("details"),
-        "placeholder": 0,  # NOTE: 検索のためのダミーフィールド。dynamodbの弊害 TODO: 空文字列に変更
+        "placeholder": 0,  # NOTE: 検索のためのダミーフィールド。dynamodbの弊害
         "created_at": now,
         "updated_at": now,
     }
 
     # task_tableに追加する
-    task_table.put_item(Item=task)
+    task = task_to_front(post_item(task_table, task))
     # Chatデータベースにシステムからのメッセージを追加する
     add_chat_to_db(user_id, gpt_output.get("response_message"), is_user_message=False)
 
@@ -139,15 +132,7 @@ def lambda_handler(event, context):
         "message": gpt_output.get("response_message"),
         "task": task,
     }
-    return {
-        "statusCode": 201,
-        "body": json_dumps(response),
-        "headers": {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET",
-            "Access-Control-Allow-Headers": "Content-Type,X-CSRF-TOKEN",
-        },
-    }
+    return post_response(201, json_dumps(response))
 
 
 def check_suggest_task():
