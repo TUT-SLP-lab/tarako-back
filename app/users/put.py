@@ -35,6 +35,7 @@ def lambda_handler(event, context):
         error_msgs.append("email is invalid")
     is_valid, err_msg = validate_section_id_not_none(section_id)
     if not is_valid:
+        error_msgs.append(err_msg)
     if len(error_msgs) > 0:
         return put_response(400, json_dumps("\n".join(error_msgs)))
 
