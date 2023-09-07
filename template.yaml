@@ -408,6 +408,9 @@ Resources:
       Handler: post_entry.lambda_handler
       FunctionName: !Sub post-section-diary-${PrNumber}
       Role: !GetAtt LambdaExecutionRole.Arn
+      Environment:
+        Variables:
+          OPENAI_API_KEY: !Ref OpenAiApiKey
       Events:
         DiarySectionsPostSectionEvent:
           Type: Api

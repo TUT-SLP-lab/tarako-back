@@ -244,5 +244,63 @@ def gen_user_diary_data(msg: str, task_dict: dict[str, str] = {}):
     return diary
 
 
+def gen_create_section_diary_prompt(user_diary_dict: dict[str, str]):
+    prompt_user_diary_dict = []
+    for user_diary in user_diary_dict:
+        prompt_user_diary_dict.append(
+            {
+                "details": user_diary["details"],
+                "ai_analysis": user_diary["ai_analysis"],
+                "serious": user_diary["serious"],
+            }
+        )
+    return f"""
+次の内容は課に所属している事務員の今日の日報です。これらの内容から課の日報を作成してください。
+```
+{json_dumps(prompt_user_diary_dict)}
+```
+"""
+
+
+def create_section_diary_function():
+    return {
+        "name": "create_section_diary",
+        "description": "複数人の日報の情報から課の日報を作成する",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "type": "string",
+                    "description": "日報の詳細。タスクの情報をできるだけ網羅できていて，分かりやすい内容でMarkdown形式で記述する．",
+                },
+                "ai_analysis": {
+                    "type": "string",
+                    "description": "事務員全体の日報からAIが自動で分析した内容を記述する．課長が見て，部署内の状況が分かるような内容を記述する．",
+                },
+            },
+            "required": ["details", "ai_analysis"],
+        },
+    }
+
+
+def gen_section_diary_data(user_diary_dict: dict[str, str] = {}):
+    response = openai.ChatCompletion.create(
+        model=CHATGPT_MODEL,
+        messages=[
+            {"role": "user", "content": gen_create_section_diary_prompt(user_diary_dict)},
+        ],
+        functions=[
+            create_section_diary_function(),
+        ],
+    )
+    if "function_call" not in response["choices"][0]["message"]:
+        raise FunctionCallingError(f"function_callがありません{response}")
+    diary = None
+    if response["choices"][0]["message"]["function_call"]["name"] == "create_section_diary":
+        diary_str = response["choices"][0]["message"]["function_call"]["arguments"]
+        diary = json.loads(diary_str)
+    return diary
+
+
 class FunctionCallingError(Exception):
     pass

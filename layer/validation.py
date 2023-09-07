@@ -148,8 +148,7 @@ def validate_section_id(section_id: str) -> tuple[bool, Optional[str]]:
     """
     if section_id:
         try:
-            int(section_id)
-            get_item(section_table, "section_id", section_id)
+            get_item(section_table, "section_id", int(section_id))
         except ValueError:
             return False, "section_id is required to be int"
         except IndexError as e:

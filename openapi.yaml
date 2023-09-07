@@ -798,7 +798,7 @@ components:
           items:
             $ref: "#/components/schemas/UserId"
 
-    CreateDiary:
+    CreateUserDiary:
       type: object
       properties:
         date:
@@ -809,6 +809,13 @@ components:
           type: string
           description: 日報の詳細
           example: 今日は頑張った
+    CreateSectionDiary:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          description: 日報の日付
 
     ChatId:
       type: string
@@ -1175,14 +1182,14 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/CreateDiary"
+            $ref: "#/components/schemas/CreateUserDiary"
     PostSectionDiary:
       required: true
       description: 日報の作成
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/CreateDiary"
+            $ref: "#/components/schemas/CreateSectionDiary"
     PutUserDiary:
       required: true
       description: 日報の更新
