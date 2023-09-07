@@ -32,7 +32,6 @@ def lambda_handler(event, context):
     if not is_valid:
         return put_response(400, f"Bad Request: {', '.join(error_msg)}")
 
-    last_progress = json_body.get("progresses")[-1]
     expr = ", ".join(
         [
             "SET completed=:completed",

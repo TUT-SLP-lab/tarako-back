@@ -313,6 +313,6 @@ def validate_status(status: str) -> tuple[bool, Optional[str]]:
         bool: 妥当性
     """
     if status:
-        if status not in ["completed", "incomplete"]:
-            return False, "status is required to be completed or incomplete"
+        if status not in ["completed", "in_progress"]:
+            return False, "status is required to be completed or in_progress"
     return True, None
