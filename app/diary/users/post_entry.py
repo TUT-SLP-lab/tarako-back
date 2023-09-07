@@ -1,7 +1,7 @@
-import json
-import uuid
 import datetime
+import json
 import traceback
+import uuid
 
 from boto3.dynamodb.conditions import Key
 from chat_util import gen_user_diary_data
