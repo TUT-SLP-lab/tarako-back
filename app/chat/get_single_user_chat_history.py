@@ -1,4 +1,5 @@
 from boto3.dynamodb.conditions import Key
+from data_formatter import chat_to_front
 from responses import get_response
 from table_utils import DynamoDBError, chat_history_table, get_items, json_dumps
 from validation import validate_datetime, validate_user_id_not_none
@@ -48,4 +49,5 @@ def lambda_handler(event, context):
         print(e)
         return get_response(500, "Internal Server Error: Unknown Error")
 
-    return get_response(200, json_dumps(chat_history))
+    response = sorted([chat_to_front(item) for item in chat_history],  key=lambda x: x["timestamp"])
+    return get_response(200, json_dumps(response))

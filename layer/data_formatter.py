@@ -21,3 +21,16 @@ def task_to_front(item: dict) -> dict:
         "created_at": item["created_at"],
         "updated_at": item["updated_at"],
     }
+
+
+def chat_to_front(item: dict) -> dict:
+    """チャット情報をフロント用に変換する"""
+    return {
+        "chat_id": item["chat_id"],
+        "user_id": item["user_id"],
+        "timestamp": item["timestamp"],
+        "message": item["message"],
+        "from": "user" if bool(item["is_user_message"]) else "bot",
+        "created_at": item["created_at"],
+        "updated_at": item["updated_at"],
+    }
