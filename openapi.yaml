@@ -580,6 +580,24 @@ components:
     #       $ref: '#/components/schemas/RequestText'
     #     file:
     #       $ref: '#/components/schemas/RequestFile'
+    CreateUserDiary:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          description: 日報の日付
+        message:
+          type: string
+          description: 日報の詳細
+          example: 今日は頑張った
+    CreateSectionDiary:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          description: 日報の日付
 
     createdAt:
       type: string
@@ -607,6 +625,9 @@ components:
           description: 進捗率
           minimum: 0
           maximum: 100
+      required:
+        - datetime
+        - percentage
 
     SectionId:
       type: integer
@@ -634,6 +655,12 @@ components:
           $ref: "#/components/schemas/createdAt"
         updated_at:
           $ref: "#/components/schemas/updatedAt"
+      required:
+        - seccion_id
+        - name
+        - icon
+        - created_at
+        - updated_at
 
     UserId:
       type: string
@@ -641,6 +668,7 @@ components:
       description: ユーザーID
       readOnly: true
       example: 4f73ab32-21bf-47ef-a119-fa024bc2b9cc
+
     User:
       type: object
       properties:
@@ -667,11 +695,21 @@ components:
           $ref: "#/components/schemas/createdAt"
         updated_at:
           $ref: "#/components/schemas/updatedAt"
+      required:
+        - name
+        - email
+        - section_id
+        - user_id
+        - icon
+        - created_at
+        - updated_at
+
     TaskId:
       type: string
       description: タスクID
       format: uuid
       readOnly: true
+
     TaskCategory: # タスクのカテゴリー。固定のものを用意する
       type: string
       description: タスクのカテゴリー
@@ -681,9 +719,11 @@ components:
         - GeneralAffairs
         - Diary
         - Other
+
     TaskTag:
       type: string
       description: タスクのタグ。自由につけられる
+
     Task:
       type: object
       properties:
@@ -740,6 +780,19 @@ components:
           $ref: "#/components/schemas/createdAt"
         updated_at:
           $ref: "#/components/schemas/updatedAt"
+      required:
+        - task_id
+        - assigned_to
+        - section_id
+        - title
+        - category
+        - tags
+        - progresses
+        - completed
+        - serious
+        - details
+        - created_at
+        - updated_at
 
     DiaryId:
       type: string
@@ -775,6 +828,16 @@ components:
           $ref: "#/components/schemas/createdAt"
         updated_at:
           $ref: "#/components/schemas/updatedAt"
+      required:
+        - diary_id
+        - section_id
+        - date
+        - details
+        - ai_analysis
+        - serious
+        - created_at
+        - updated_at
+
     UserDiary:
       type: object
       allOf:
@@ -787,6 +850,10 @@ components:
           description: 日報の作成に用いられたタスクのIDリスト
           items:
             $ref: "#/components/schemas/TaskId"
+      required:
+        - user_id
+        - task_ids
+
     SectionDiary:
       type: object
       allOf:
@@ -797,31 +864,15 @@ components:
           description: 日報の作成に用いられたユーザーのIDリスト
           items:
             $ref: "#/components/schemas/UserId"
-
-    CreateUserDiary:
-      type: object
-      properties:
-        date:
-          type: string
-          format: date
-          description: 日報の日付
-        message:
-          type: string
-          description: 日報の詳細
-          example: 今日は頑張った
-    CreateSectionDiary:
-      type: object
-      properties:
-        date:
-          type: string
-          format: date
-          description: 日報の日付
+      required:
+        - user_ids
 
     ChatId:
       type: string
       format: uuid
       description: chat 履歴ID
       readOnly: true
+
     Chat:
       type: object
       properties:
@@ -847,6 +898,15 @@ components:
           $ref: "#/components/schemas/createdAt"
         updated_at:
           $ref: "#/components/schemas/updatedAt"
+      required:
+        - chat_id
+        - user_id
+        - timestamp
+        - message
+        - is_user_message
+        - created_at
+        - updated_at
+
   parameters:
     task_id_path:
       name: task_id
