@@ -30,3 +30,5 @@ jobs:
       AWS_GITHUB_OIDC_ROLE_NAME: ${{ secrets.AWS_GITHUB_OIDC_ROLE_NAME }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+      RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}

@@ -11,6 +11,12 @@ Parameters:
   OpenAiApiKey:
     Type: String
     Description: "open ai api key"
+  SenderEmail:
+    Type: String
+    Description: "sender email"
+  RecipientEmail:
+    Type: String
+    Description: "recipient email"
   # OpenApiFile:
   #   Type: String
   #   Description: "OpenAPI file name"
@@ -224,6 +230,8 @@ Resources:
       Environment:
         Variables:
           OPENAI_API_KEY: !Ref OpenAiApiKey
+          SENDER_EMAIL: !Ref SenderEmail
+          RECIPIENT_EMAIL: !Ref RecipientEmail
       Role: !GetAtt LambdaExecutionRole.Arn
       Events:
         TasksPostEvent:
