@@ -890,10 +890,12 @@ components:
           type: string
           description: チャット内容
           example: こんにちは
-        is_user_message:
-          type: boolean
+        from:
+          type: string
           description: ユーザーからのメッセージかどうか
-          example: true
+          enum:
+            - user
+            - bot
         created_at:
           $ref: "#/components/schemas/createdAt"
         updated_at:
