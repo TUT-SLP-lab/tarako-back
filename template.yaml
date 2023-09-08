@@ -515,6 +515,7 @@ Resources:
     Type: 'AWS::DynamoDB::Table'
     Properties:
       TableName: !Sub SectionTable-${PrNumber}
+      BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: section_id
           AttributeType: N
@@ -526,6 +527,7 @@ Resources:
     Type: 'AWS::DynamoDB::Table'
     Properties:
       TableName: !Sub UserTable-${PrNumber}
+      BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: user_id
           AttributeType: S
@@ -546,6 +548,7 @@ Resources:
     Type: "AWS::DynamoDB::Table"
     Properties:
       TableName: !Sub TasksTable-${PrNumber}
+      BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: task_id
           AttributeType: S
@@ -662,6 +665,7 @@ Resources:
     Type: "AWS::DynamoDB::Table"
     Properties:
       TableName: !Sub UserDiaryTable-${PrNumber}
+      BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: diary_id
           AttributeType: S
@@ -702,6 +706,7 @@ Resources:
     Type: "AWS::DynamoDB::Table"
     Properties:
       TableName: !Sub SectionDiaryTable-${PrNumber}
+      BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: diary_id
           AttributeType: S
@@ -745,6 +750,7 @@ Resources:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: !Sub ChatHistoryTable-${PrNumber}
+      BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
         - AttributeName: chat_id
           AttributeType: S
