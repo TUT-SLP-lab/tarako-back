@@ -570,7 +570,7 @@ Resources:
           KeyType: HASH
       GlobalSecondaryIndexes:
         - IndexName: AssignedToIndex
-          KeyScema:
+          KeySchema:
             - AttributeName: assigned_to
               KeyType: HASH
           Projection:
