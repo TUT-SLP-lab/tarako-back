@@ -7,7 +7,15 @@ from datetime import datetime
 from chat_util import gen_task_data
 from data_formatter import task_to_front
 from responses import post_response
-from table_utils import add_chat_to_db, json_dumps, post_item, task_table
+from send_email import send_email
+from table_utils import (
+    add_chat_to_db,
+    get_item,
+    json_dumps,
+    post_item,
+    task_table,
+    user_table,
+)
 from validation import validate_file, validate_user_id_not_none
 
 category_list = [
@@ -126,6 +134,18 @@ def lambda_handler(event, context):
     task = task_to_front(post_item(task_table, task))
     # Chatデータベースにシステムからのメッセージを追加する
     add_chat_to_db(user_id, gpt_output.get("response_message"), is_user_message=False)
+
+    if int(task.get("serious")) >= 4:
+        # タスクの深刻度が4以上の場合、メールを送信する
+        user = get_item(user_table, "user_id", user_id)
+        send_email(
+            f"【重要】{user['name']}さんが深刻な状態です。",
+            (
+                f"{user['name']}さんが深刻な状態です。\nヘルプが必要か確認してください。\n"
+                f"タスク番号 : {task['task_id']}\n\n"
+                f"タスク詳細\nタイトル : {task['title']}\n{task['details']}"
+            ),
+        )
 
     response = {
         "message": gpt_output.get("response_message"),

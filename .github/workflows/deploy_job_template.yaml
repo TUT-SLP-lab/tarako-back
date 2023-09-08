@@ -30,6 +30,13 @@ on:
       SLACK_WEBHOOK:
         description: 'Slack Webhook URL'
         required: false
+      SENDER_EMAIL:
+        description: 'Sender Email'
+        required: true
+      RECIPIENT_EMAIL:
+        description: 'Recipient Email'
+        required: true
+
 
 env:
   AWS_REGION: 'ap-northeast-1'
@@ -79,7 +86,7 @@ jobs:
         id: deploy_step
         run: |
           sam build
-          sam deploy --template-file .aws-sam/build/template.yaml --stack-name ${STACK_NAME} --capabilities CAPABILITY_NAMED_IAM --s3-bucket ${AWS_S3_BUCKET} --parameter-overrides OpenApiFile=${OPENAPI_FILE} S3Dir=${S3_DIR} S3Bucket=${AWS_S3_BUCKET} PrNumber=${PR_NUMBER} OpenAiApiKey=${{ secrets.OPENAI_API_KEY }} --no-fail-on-empty-changeset
+          sam deploy --template-file .aws-sam/build/template.yaml --stack-name ${STACK_NAME} --capabilities CAPABILITY_NAMED_IAM --s3-bucket ${AWS_S3_BUCKET} --no-fail-on-empty-changeset --parameter-overrides OpenApiFile=${OPENAPI_FILE} S3Dir=${S3_DIR} S3Bucket=${AWS_S3_BUCKET} PrNumber=${PR_NUMBER} OpenAiApiKey=${{ secrets.OPENAI_API_KEY }} SenderEmail=${{ secrets.SENDER_EMAIL }} RecipientEmail=${{ secrets.RECIPIENT_EMAIL }}
           deployed_url=$(aws cloudformation describe-stacks --stack-name ${STACK_NAME} --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue" --output text)
           echo "deployed_url=$deployed_url" >> $GITHUB_OUTPUT
 
