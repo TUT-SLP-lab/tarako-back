@@ -33,7 +33,7 @@ on:
       SENDER_EMAIL:
         description: 'Sender Email'
         required: true
-      CIPIENT_EMAIL:
+      RECIPIENT_EMAIL:
         description: 'Recipient Email'
         required: true
 
