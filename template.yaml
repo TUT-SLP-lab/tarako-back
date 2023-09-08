@@ -85,7 +85,7 @@ Resources:
                 Action:
                   - dynamodb:*
                 Resource: '*'
-        - PolicyName: SES Access Policy
+        - PolicyName: SESAccessPolicy
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
