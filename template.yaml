@@ -85,6 +85,15 @@ Resources:
                 Action:
                   - dynamodb:*
                 Resource: '*'
+        - PolicyName: SES Access Policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "ses:SendEmail"
+                  - "ses:SendRawEmail"
+                Resource: '*'
 
   GetSectionsFunction:
     Type: "AWS::Serverless::Function"
