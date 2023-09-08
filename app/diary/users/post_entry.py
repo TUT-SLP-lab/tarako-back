@@ -79,6 +79,27 @@ def lambda_handler(event, context):
         }
         user_diary = post_item(user_diary_table, item)
 
+        # ユーザー日報の作成完了
+        task_id = str(uuid.uuid4())
+        task = {
+            "task_id": task_id,
+            "assigned_to": user_id,
+            "section_id": user["section_id"],
+            "title": "ユーザー日報の作成",
+            "category": "Diary",
+            "tags": "UserDiary",
+            "progresses": [{"datetime": now, "percentage": 100}],
+            "started_at": now,
+            "last_status_at": now,
+            "completed": "True",
+            "serious": 0,
+            "details": "ユーザー日報の作成が完了しました。",
+            "placeholder": 0,  # NOTE: 検索のためのダミーフィールド。dynamodbの弊害
+            "created_at": now,
+            "updated_at": now,
+        }
+        post_item(task_table, task)
+
     except DynamoDBError as e:
         return post_response(500, f"Internal Server Error: DynamoDB Error: {e}")
     except IndexError as e:
