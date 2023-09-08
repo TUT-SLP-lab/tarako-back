@@ -521,9 +521,6 @@ Resources:
       KeySchema:
         - AttributeName: section_id
           KeyType: HASH
-      ProvisionedThroughput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
 
   TarakoUserTable:
     Type: 'AWS::DynamoDB::Table'
@@ -537,9 +534,6 @@ Resources:
       KeySchema:
         - AttributeName: user_id
           KeyType: HASH
-      ProvisionedThroughput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
       GlobalSecondaryIndexes:
         - IndexName: SectionIndex
           KeySchema:
@@ -547,9 +541,6 @@ Resources:
               KeyType: HASH
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
 
   TarakoTasksTable:
     Type: "AWS::DynamoDB::Table"
@@ -577,9 +568,6 @@ Resources:
       KeySchema:
         - AttributeName: task_id
           KeyType: HASH
-      ProvisionedThrougput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
       GlobalSecondaryIndexes:
         - IndexName: AssignedToIndex
           KeyScema:
@@ -587,36 +575,24 @@ Resources:
               KeyType: HASH
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
         - IndexName: CategoryIndex
           KeySchema:
             - AttributeName: category
               KeyType: HASH
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
         - IndexName: CompletedIndex
           KeySchema:
             - AttributeName: completed
               KeyType: HASH
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
         - IndexName: SectionIdIndex
           KeySchema:
             - AttributeName: section_id
               KeyType: HASH
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
         - IndexName: SectionCompletedIndex
           KeySchema:
             - AttributeName: section_id
@@ -625,9 +601,6 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
         - IndexName: StartedAtIndex
           KeySchema:
             - AttributeName: placeholder
@@ -636,9 +609,6 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
         - IndexName: LastStatusAtIndex
           KeySchema:
             - AttributeName: placeholder
@@ -647,9 +617,6 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
         - IndexName: UserStartedAtIndex
           KeySchema:
             - AttributeName: assigned_to
@@ -658,9 +625,6 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
         - IndexName: UserLastStatusAtIndex
           KeySchema:
             - AttributeName: assigned_to
@@ -669,9 +633,6 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
         - IndexName: UserStatusIndex
           KeySchema:
             - AttributeName: assigned_to
@@ -680,9 +641,6 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
         - IndexName: CompletedStartedAtIndex
           KeySchema:
             - AttributeName: completed
@@ -691,9 +649,6 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
         - IndexName: CompletedLastStatusAtIndex
           KeySchema:
             - AttributeName: completed
@@ -702,9 +657,6 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
 
   TarakoUserDiaryTable:
     Type: "AWS::DynamoDB::Table"
@@ -722,9 +674,6 @@ Resources:
       KeySchema:
         - AttributeName: diary_id
           KeyType: HASH
-      ProvisionedThroughput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
       GlobalSecondaryIndexes:
         - IndexName: UserIndex
           KeySchema:
@@ -732,9 +681,6 @@ Resources:
               KeyType: HASH
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
         - IndexName: UserDateIndex
           KeySchema:
             - AttributeName: user_id
@@ -743,9 +689,6 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
         - IndexName: UserSeriousIndex
           KeySchema:
             - AttributeName: user_id
@@ -754,9 +697,6 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
 
   TarakoSectionDiaryTable:
     Type: "AWS::DynamoDB::Table"
@@ -776,9 +716,6 @@ Resources:
         - AttributeName: diary_id
           KeyType: HASH
 
-      ProvisionedThroughput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
 
       GlobalSecondaryIndexes:
         - IndexName: SectionIndex
@@ -787,9 +724,6 @@ Resources:
               KeyType: HASH
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
         - IndexName: SectionDateIndex
           KeySchema:
             - AttributeName: section_id
@@ -798,9 +732,6 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
         - IndexName: SectionSeriousIndex
           KeySchema:
             - AttributeName: section_id
@@ -809,9 +740,6 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
 
   TarakoChatHistoryTable:
     Type: AWS::DynamoDB::Table
@@ -827,9 +755,6 @@ Resources:
       KeySchema:
         - AttributeName: chat_id
           KeyType: HASH
-      ProvisionedThroughput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
       GlobalSecondaryIndexes:
         - IndexName: UserIndex
           KeySchema:
@@ -837,9 +762,6 @@ Resources:
               KeyType: HASH
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
         - IndexName: UserDateIndex
           KeySchema:
             - AttributeName: user_id
@@ -848,9 +770,6 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
-          ProvisionedThroughput:
-            ReadCapacityUnits: 1
-            WriteCapacityUnits: 1
 
 Outputs:
   ApiUrl:
