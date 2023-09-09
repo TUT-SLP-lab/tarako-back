@@ -87,7 +87,7 @@ def lambda_handler(event, context):
             "section_id": user["section_id"],
             "title": "ユーザー日報の作成",
             "category": "Diary",
-            "tags": "UserDiary",
+            "tags": ["UserDiary"],
             "progresses": [{"datetime": now, "percentage": 100}],
             "started_at": now,
             "last_status_at": now,
