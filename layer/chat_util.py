@@ -1,10 +1,10 @@
+from table_utils import json_dumps
 import json
 import os
 
 from openai import OpenAI
 
 client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
-from table_utils import json_dumps
 
 CHATGPT_MODEL = "gpt-4"
 
@@ -164,15 +164,15 @@ def gen_task_data(msg: str, category_list: list[str], task_title_dict: dict[str,
         ],
         function_call={"name": "create_task"},
     )
-    # if "function_call" not in response["choices"][0]["message"]:
+    # if "function_call" not in response.choices[0]["message"]:
     #     raise FunctionCallingError("function_callがありません")
     task = None
     suggest_task = None
-    if response["choices"][0]["message"]["function_call"]["name"] == "create_task":
-        task_str = response["choices"][0]["message"]["function_call"]["arguments"]
+    if response.choices[0].message.function_call.name == "create_task":
+        task_str = response.choices[0].message.function_call.arguments
         task = json.loads(task_str)["gpt_output"]
-    elif response["choices"][0]["message"]["function_call"]["name"] == "suggest_similer_task":
-        suggest_task_str = response["choices"][0]["message"]["function_call"]["arguments"]
+    elif response.choices[0].message.function_call.name == "suggest_similer_task":
+        suggest_task_str = response.choices[0].message.function_call.arguments
         suggest_task = json.loads(suggest_task_str)
     return task, suggest_task
 
@@ -229,18 +229,19 @@ def gen_user_diary_data(msg: str, task_dict: dict[str, str] = {}):
     response = client.chat.completions.create(
         model=CHATGPT_MODEL,
         messages=[
-            {"role": "user", "content": gen_create_user_diary_prompt(msg, task_dict)},
+            {"role": "user", "content": gen_create_user_diary_prompt(
+                msg, task_dict)},
         ],
         functions=[
             create_user_diary_function(),
         ],
     )
 
-    if "function_call" not in response["choices"][0]["message"]:
+    if "function_call" not in response.choices[0].message:
         raise FunctionCallingError("function_callがありません")
     diary = None
-    if response["choices"][0]["message"]["function_call"]["name"] == "create_diary":
-        diary_str = response["choices"][0]["message"]["function_call"]["arguments"]
+    if response.choices[0].message.function_call.name == "create_diary":
+        diary_str = response.choices[0].message.function_call.arguments
         diary = json.loads(diary_str)
     return diary
 
@@ -288,17 +289,18 @@ def gen_section_diary_data(user_diary_dict: dict[str, str] = {}):
     response = client.chat.completions.create(
         model=CHATGPT_MODEL,
         messages=[
-            {"role": "user", "content": gen_create_section_diary_prompt(user_diary_dict)},
+            {"role": "user", "content": gen_create_section_diary_prompt(
+                user_diary_dict)},
         ],
         functions=[
             create_section_diary_function(),
         ],
     )
-    if "function_call" not in response["choices"][0]["message"]:
+    if "function_call" not in response.choices[0].message:
         raise FunctionCallingError(f"function_callがありません{response}")
     diary = None
-    if response["choices"][0]["message"]["function_call"]["name"] == "create_section_diary":
-        diary_str = response["choices"][0]["message"]["function_call"]["arguments"]
+    if response.choices[0].message.function_call.name == "create_section_diary":
+        diary_str = response.choices[0].message.function_call.arguments
         diary = json.loads(diary_str)
     return diary
 
