@@ -1,10 +1,11 @@
 import json
 import os
 
-import openai
+from openai import OpenAI
+
+client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 from table_utils import json_dumps
 
-openai.api_key = os.environ["OPENAI_API_KEY"]
 CHATGPT_MODEL = "gpt-4"
 
 
@@ -151,7 +152,7 @@ def suggest_similer_task_function(task_title_dict: dict[str, str]):
 
 
 def gen_task_data(msg: str, category_list: list[str], task_title_dict: dict[str, str] = {}):
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         temperature=0,
         model=CHATGPT_MODEL,
         messages=[
@@ -225,7 +226,7 @@ def create_user_diary_function():
 
 
 def gen_user_diary_data(msg: str, task_dict: dict[str, str] = {}):
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model=CHATGPT_MODEL,
         messages=[
             {"role": "user", "content": gen_create_user_diary_prompt(msg, task_dict)},
@@ -284,7 +285,7 @@ def create_section_diary_function():
 
 
 def gen_section_diary_data(user_diary_dict: dict[str, str] = {}):
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model=CHATGPT_MODEL,
         messages=[
             {"role": "user", "content": gen_create_section_diary_prompt(user_diary_dict)},
